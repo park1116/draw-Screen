@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<head>
+  <!--애니메이션 라이브러리-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <style>
+      body {
+          overflow: hidden;
+          background: #1a1a1a;
+      }
+
+      #svg {
+          /* display: none; */
+          position: fixed;
+          width: 100%;
+          height: 100%;
+          font-family: Arial, sans-serif;
+
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+      }
+
+      .node-container {
+          cursor: move;
+      }
+
+      .node-background {
+          fill: #1a1c1d;
+      }
+
+      .node-header {
+          fill: #426D92;
+      }
+
+      .node-header .header-title {
+          font-size: 13px;
+          fill: #fff;
+          text-anchor: middle;
+      }
+
+      .node-content {
+          fill: #949ebf;
+      }
+
+      .port {
+          cursor: pointer;
+      }
+
+      .port-scrim {
+          fill: transparent;
+      }
+
+      .port-outer {
+          fill: #777777;
+      }
+
+      .port-inner {
+          fill: #202020;
+      }
+
+      .port-label {
+          font-size: 12px;
+          fill: #fff;
+      }
+
+      .input-field .port-label {
+          text-anchor: start;
+      }
+
+      .output-field .port-label {
+          text-anchor: end;
+      }
+
+      .port-title {
+          font-size: 12px;
+          fill: #426DCA;
+          font-weight: 800;
+      }
+
+      .input-title .port-title {
+          text-anchor: start;
+      }
+
+      .output-title .port-title {
+          text-anchor: end;
+      }
+
+      .connector-handle {
+          fill: #E88802;
+      }
+
+      .connector-path {
+          stroke: #E88802;
+          stroke-width: 4;
+          fill: none;
+      }
+
+      .connector-path-outline {
+          stroke: #333;
+          stroke-width: 6;
+          fill: none;
+      }
+      
+  </style>
+  <script>
+    //"use strict";
+
+    // var sendData = '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":[["USER_NOa","USER_IDa","USER_NAMEa","USER_POSITIONa","USER_DEPTa","USER_TELEPHONEa","USER_MAILa","USER_PHONEa","USER_ADDRESSa","CHG_DTTMa","TRN_IDa","MSG_IDa","TRN_STATSa","TRN_DTa","TRN_MSGa"],["USER_NO1","USER_ID1","USER_NAME1","USER_POSITION1","USER_DEPT1","USER_TELEPHONE1","USER_MAIL1","USER_PHONE1","USER_ADDRESS1","CHG_DTTM1","TRN_ID1","MSG_ID1","TRN_STATS1","TRN_DT1","TRN_MSG1"]]}';
+    // var receiveData = '{"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005","tableNames":["IF_TB_USERSa","IF_TB_USERSb"],"receiveColumns":[["USER_NOb","USER_IDb","USER_NAMEb","USER_POSITIONb","USER_DEPTb","USER_TELEPHONEb","USER_MAILb","USER_PHONEb","USER_ADDRESSb","CHG_DTTMb","TRN_IDb","MSG_IDb","TRN_STATSb","TRN_DTb","TRN_MSGb"],["USER_NO2","USER_ID2","USER_NAME2","USER_POSITION2","USER_DEPT2","USER_TELEPHONE2","USER_MAIL2","USER_PHONE2","USER_ADDRESS2","CHG_DTTM2","TRN_ID2","MSG_ID2","TRN_STATS2","TRN_DT2","TRN_MSG2"]]}';
+
+    function getListServer() {
+      $.ajax({
+        url : '/dbcolumn',
+        type : 'post',
+        async: false,
+        success : successCall,
+        error : errorCall
+      });
+
+      function successCall(s) {
+        console.log("getListSuccess");
+        console.log(s);
+
+        createList(s);
+      }
+
+      function errorCall(e) {
+        console.log("getListError");
+        console.log(e);
+      }   
+    }
+
+    function createList(listData) {
+      // {"sendChannelGroupId":"K4M","interfaceId":"IF_K4M_KR_D005","receiveChannelGroupId":"KR","receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005"};
+      let datalist = document.getElementById('interfaceList');
+      for(let l = 0; l < listData.interfaceList.length; l++) {
+        let opt = document.createElement("option");
+
+        if(listData.interfaceList[l].receiveChannelGroupId != "" &&
+            listData.interfaceList[l].fromChannelGroupId != "" &&
+            listData.interfaceList[l].interfaceType == "DB2DB" &&
+            listData.interfaceList[l].interfaceId != "" &&
+            listData.interfaceList[l].receiveAdapterId != "") {
+
+          opt.setAttribute('receiveChannelGroupId',listData.interfaceList[l].receiveChannelGroupId);
+          opt.setAttribute('fromChannelGroupId',listData.interfaceList[l].fromChannelGroupId);
+          opt.setAttribute('interfaceType',listData.interfaceList[l].interfaceType);
+          opt.setAttribute('value',listData.interfaceList[l].interfaceId);
+          opt.setAttribute('receiveAdapterId',listData.interfaceList[l].receiveAdapterId);
+          datalist.appendChild(opt);
+
+        }
+      }
+    }
+
+    function sendServer(objectData) {
+      $.ajax({
+        url : 'interface/mappingSave',
+        type : 'post',
+        data : objectData,
+        async: false,
+        success : successCall,
+        error : errorCall
+      });
+
+      function successCall(s) {
+        console.log("SendSuccess");
+        console.log(s);
+      }
+
+      function errorCall(e) {
+        console.log("SendError");
+        console.log(e);
+      }    
+    }
+
+    //동적 생성
+    function setNode(data, sendOrReceive) {
+
+      // let createData = JSON.parse(data);
+      let createData = data;
+
+      let headerTitle;
+
+      let createDataColumns;
+
+      if(sendOrReceive == "send") {
+        headerTitle = createData.sendAdapterServiceId;
+        createDataColumns = createData.sendColumns;
+      } else {
+        headerTitle = createData.receiveAdapterServiceId;
+        createDataColumns = createData.receiveColumns;
+      }
+
+      let tableCnt = createData.tableNames.length;
+
+      let columnsCnt = 0;
+
+      for(let col = 0; col < tableCnt; col++) {
+        columnsCnt += createDataColumns[col].length;
+      }
+
+      // header: 40, content: (15 * (tableCnt + columnsCnt)) + (10 * (tableCnt + columnsCnt + 1)), 여백: (상단:2, 중단:2, 하단:2)
+      let totalHeight = 40 + (15 * (tableCnt + columnsCnt)) + (10 * (tableCnt + columnsCnt + 1)) + 6;
+      let contentHeight = (15 * (tableCnt + columnsCnt)) + (10 * (tableCnt + columnsCnt + 1));
+
+      let line = null;
+      let lineCheck = null;
+      let inAndOut = null;
+      let inAndOutCheck = null;
+
+      // if(headerTitle.indexOf("Send") > -1) {
+      if(sendOrReceive == "send") {
+        // 왼쪽 out
+        // 가운데 in/out
+        lineCheck = "0|0|1"; 
+        inAndOutCheck = "out|in|out";
+
+        //1번째 shap size 설정
+        setSizeNode(0, totalHeight, contentHeight, headerTitle);
+        //2번째 shap size 설정
+        setSizeNode(1, totalHeight, contentHeight, headerTitle);
+
+      } else {
+        // 오른쪽 in
+        lineCheck = "1" 
+        inAndOutCheck = "in";
+
+        //3번째 shap size 설정
+        setSizeNode(2, totalHeight, contentHeight, headerTitle);
+      }
+
+      let cnt = 0;
+
+
+      line = lineCheck.split('|');
+      inAndOut = inAndOutCheck.split('|')
+
+      for(let a = 0; a < line.length; a++) {
+        cnt = 0;
+        for(let b = 0; b < tableCnt; b++) {
+          createNode(createData.tableNames[b],inAndOut[a],cnt,false,line[a]);
+          cnt++;
+          for(let c = 0; c < createDataColumns[b].length; c++) {
+            createNode(createDataColumns[b][c], inAndOut[a], cnt, true, line[a]);
+            cnt++;
+          }
+        }
+      }
+    }
+
+    function setSizeNode(position, totalHeight, contentHeight, serviceId) {
+      //높이 설정
+      document.getElementsByClassName('node-background')[position].setAttribute('height',totalHeight);
+
+      document.getElementsByClassName('content-round-rect')[position].setAttribute('height',contentHeight);
+
+      document.getElementsByClassName('content-rect')[position].setAttribute('height',contentHeight-5);
+
+      //타이틀 변경
+      document.getElementsByClassName('header-title')[position].innerHTML = serviceId;
+
+      //타이틀 가운데 정렬을 위해서 transform 속성 설정
+      if(position == 1) {
+        document.getElementsByClassName('header-title')[position].setAttribute('transform',"translate(298, 0)");
+      } else {
+        document.getElementsByClassName('header-title')[position].setAttribute('transform',"translate(5, 0)");
+      }
+    }
+
+    function createNode(name, inAndOut, position, checkData, line) {
+      let labelX = '0';
+      let portX = '0';
+
+      if(inAndOut == "out") {
+        if(line == 0) {
+          labelX = '226';
+          portX = '239';
+        } else {
+          labelX = '776';
+          portX = '789';
+        }
+      } else {
+          labelX = '28';
+          portX = '15';
+      }
+
+      //table명일 경우 circle생성하지 않음
+      if(checkData) {
+
+        //column명 일 경우
+        let field = document.createElementNS("http://www.w3.org/2000/svg","g");
+        let port = document.createElementNS("http://www.w3.org/2000/svg","g");
+        let label = null;
+        let portOuter = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        let portInner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        let portScrim = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+
+        //field 설정
+        document.getElementsByClassName(inAndOut + 'puts')[line].appendChild(field);
+        field.setAttribute('class',inAndOut + 'put-field');
+        field.setAttribute('transform','translate(0, '+parseInt(50+(25*position))+')');
+
+
+        let putField = document.getElementsByClassName(inAndOut + 'put-field');
+
+        //port 설정
+        document.getElementsByClassName(inAndOut + 'put-field')[putField.length-1].appendChild(port);
+        port.setAttribute('class','port');
+
+        //label 설정
+        label = document.createElementNS("http://www.w3.org/2000/svg","text");
+        if(/*(line == 0 && inAndOut == "in") ||*/ (line == 1 && inAndOut == "out")) {
+          //text 수정하기 위한 속성 추가
+          label.setAttribute('contentEditable','true');
+          label.setAttribute('required','true');
+        }
+
+        label.innerHTML = name;
+
+        document.getElementsByClassName(inAndOut + 'put-field')[putField.length-1].appendChild(label);
+        label.setAttribute('class','port-label');
+        label.setAttribute('x',labelX);
+        label.setAttribute('y','14');
+
+        //portOuter 설정
+        document.getElementsByClassName(inAndOut + 'put-field')[putField.length-1].children[0].appendChild(portOuter);
+        portOuter.setAttribute('class','port-outer');
+        portOuter.setAttribute('cx',portX);
+        portOuter.setAttribute('cy','10');
+        portOuter.setAttribute('r','7.5');
+
+        //portInner 설정
+        document.getElementsByClassName(inAndOut + 'put-field')[putField.length-1].children[0].appendChild(portInner);
+        portInner.setAttribute('class','port-inner');
+        portInner.setAttribute('cx',portX);
+        portInner.setAttribute('cy','10');
+        portInner.setAttribute('r','5');
+
+        //portScrim 설정
+        document.getElementsByClassName(inAndOut + 'put-field')[putField.length-1].children[0].appendChild(portScrim);
+        portScrim.setAttribute('class','port-scrim');
+        portScrim.setAttribute('cx',portX);
+        portScrim.setAttribute('cy','10');
+        portScrim.setAttribute('r','7.5');
+        portScrim.setAttribute('table',currentTableName);
+        portScrim.setAttribute('columnName',name);
+
+      } else {
+
+        // if(inAndOut == 'out' && line == 1) {
+        //   return;
+        // }
+
+        let title = document.createElementNS("http://www.w3.org/2000/svg","g");
+        document.getElementsByClassName(inAndOut + 'puts')[line].appendChild(title);
+        title.setAttribute('class',inAndOut + 'put-title');
+        title.setAttribute('transform','translate(0, '+parseInt(50+(25*position))+')');
+
+        let titleLabel = document.createElementNS("http://www.w3.org/2000/svg","text");
+        titleLabel.setAttribute('class','port-title');
+        titleLabel.setAttribute('x',labelX);
+        titleLabel.setAttribute('y','14');
+
+        let len = document.getElementsByClassName(inAndOut + 'put-title').length;
+        document.getElementsByClassName(inAndOut + 'put-title')[len-1].appendChild(titleLabel);
+        titleLabel.innerHTML = name;
+        currentTableName = name;
+      }
+    }
+
+    function saveData(interfaceIdValue) {
+
+      // var sendData = '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":["USER_NOa,USER_IDa,USER_NAMEa,USER_POSITIONa,USER_DEPTa,USER_TELEPHONEa,USER_MAILa,USER_PHONEa,USER_ADDRESSa,CHG_DTTMa,TRN_IDa,MSG_IDa,TRN_STATSa,TRN_DTa,TRN_MSGa","USER_NO1,USER_ID1,USER_NAME1,USER_POSITION1,USER_DEPT1,USER_TELEPHONE1,USER_MAIL1,USER_PHONE1,USER_ADDRESS1,CHG_DTTM1,TRN_ID1,MSG_ID1,TRN_STATS1,TRN_DT1,TRN_MSG1"]}';
+      // var receiveData = '{"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005","tableNames":["IF_TB_USERSa","IF_TB_USERSb"],"receiveColumns":["USER_NOb,USER_IDb,USER_NAMEb,USER_POSITIONb,USER_DEPTb,USER_TELEPHONEb,USER_MAILb,USER_PHONEb,USER_ADDRESSb,CHG_DTTMb,TRN_IDb,MSG_IDb,TRN_STATSb,TRN_DTb,TRN_MSGb","USER_NO2,USER_ID2,USER_NAME2,USER_POSITION2,USER_DEPT2,USER_TELEPHONE2,USER_MAIL2,USER_PHONE2,USER_ADDRESS2,CHG_DTTM2,TRN_ID2,MSG_ID2,TRN_STATS2,TRN_DT2,TRN_MSG2"]}';
+
+      var resultData = new Object();
+
+      let tempColumnList = new Array();
+      let tempColumn = "";
+      let tempTalbe = new Array();
+
+      //송신부 데이터 생성
+      // let sendObj = new Object();
+      // let sendValue = new Array();
+      let sendElement = document.getElementsByClassName('outputs');
+
+      resultData.sendAdapterServiceId = document.getElementsByClassName('header-title')[0].innerHTML;
+
+      for(let i = 0; i < sendElement[1].children.length; i++) {
+        let className = sendElement[1].children[i].getAttribute('class');
+        if(className == 'output-title') {
+
+          if(className == 'output-title') {
+            tempTalbe.push(sendElement[1].children[i].lastElementChild.innerHTML);
+          }
+          
+          if(tempColumn != "") {
+            tempColumnList.push(tempColumn);
+            // sendValue.push(tempColumnList);
+            if(tempColumnList.length > 0) {
+              // tempColumnList = [];
+              tempColumn = "";
+            } 
+          }
+        } else {
+          if(tempColumn == "") {
+            tempColumn = sendElement[1].children[i].lastElementChild.innerHTML;  
+          } else {
+            tempColumn += (',' + sendElement[1].children[i].lastElementChild.innerHTML);
+          }
+
+          if(i == (sendElement[1].children.length - 1)) {
+            tempColumnList.push(tempColumn);
+            // sendValue.push(tempColumnList);
+          }
+        }
+      }
+
+      resultData.sendTableNames = tempTalbe;
+      resultData.sendColumns = tempColumnList;
+
+      tempColumnList = [];
+      tempColumn = "";
+      tempTalbe = [];
+
+
+      //수신수 데이터 생성
+      // let receiveObj = new Object();
+      // let receiveValue = new Array();
+      let receiveElement = document.getElementsByClassName('inputs');
+
+      resultData.receiveAdapterServiceId = document.getElementsByClassName('header-title')[2].innerHTML;
+
+      for(let i = 0; i < receiveElement[1].children.length; i++) {
+
+        let className = receiveElement[1].children[i].getAttribute('class');
+        if(className == 'input-title') {
+
+          if(className == 'input-title') {
+            tempTalbe.push(receiveElement[1].children[i].lastElementChild.innerHTML);
+          }
+          
+          if(tempColumn != "") {
+            tempColumnList.push(tempColumn);
+            // receiveValue.push(tempColumnList);
+            if(tempColumnList.length > 0) {
+              // tempColumnList = [];
+              tempColumn = "";
+            } 
+          }
+        } else {
+          if(tempColumn == "") {
+            tempColumn = receiveElement[1].children[i].lastElementChild.innerHTML;  
+          } else {
+            tempColumn += (',' + receiveElement[1].children[i].lastElementChild.innerHTML);
+          }
+
+          if(i == (receiveElement[1].children.length - 1)) {
+            tempColumnList.push(tempColumn);
+            // receiveValue.push(tempColumnList);
+          }
+        }
+      }
+
+      resultData.receiveTableNames = tempTalbe;
+      resultData.receiveColumns = tempColumnList;
+
+      tempColumnList = [];
+      tempColumn = "";
+      tempTalbe = [];
+
+      //connector 데이터 생성
+      // let connectorObj = new Object();
+      // let connectorValue = new Array();
+      let tempConnector = new Array();
+      
+      let cnt = document.getElementsByClassName('outputs')[1].getElementsByClassName('output-field').length;
+      let connectorsList = document.getElementsByClassName('connector');
+
+      for(let c = 0; c < connectorsList.length; c++) {
+        let temp = "";
+        let pos = 0;
+        // tempConnector = [];
+
+        //out
+        let outDataDrag = connectorsList[c].children[3].getAttribute('data-drag');
+
+        //document.getElementsByClassName('output-field')[10].lastElementChild.innerHTML와 outDataDrag값이 다를 경우 innerHTML값으로 여러건의 mapping 데이터 생성 필요
+        pos = outDataDrag.indexOf('port:');
+        let outDataDragValue = outDataDrag.substring(pos+5);
+
+        if(outDataDrag.substring(5,pos-1) < cnt*2) {
+          continue;
+        }
+
+        //in
+        let inDataDrag = connectorsList[c].children[2].getAttribute('data-drag');
+        pos = inDataDrag.indexOf('port:');
+        let inDataDragValue = inDataDrag.substring(pos+5);
+
+        temp = outDataDragValue + "," + inDataDragValue;
+        tempConnector.push(temp);
+        // connectorValue.push(tempConnector);
+      }
+
+      resultData.mappingConnection = tempConnector;
+
+      resultData.interfaceId = interfaceIdValue;
+
+      sendServer(resultData);
+
+      // sendServer(sendObj);
+      // sendServer(receiveObj);
+      // sendServer(connectorObj);
+
+    }
+
+    function makeButton() {
+      let rectBtn = document.createElementNS("http://www.w3.org/2000/svg","rect");
+
+      rectBtn.setAttribute('width','100');
+      rectBtn.setAttribute('height','30');
+
+      rectBtn.setAttribute('rx','6');
+
+      rectBtn.setAttribute('x','52');
+      rectBtn.setAttribute('y','5');
+     
+      rectBtn.setAttribute('style','fill:#fff');
+
+      rectBtn.setAttribute('id','saveRect');
+
+      document.getElementsByTagName("svg")[0].appendChild(rectBtn);
+
+      let text = document.createElementNS("http://www.w3.org/2000/svg","text");
+      text.setAttribute('x','80');
+      text.setAttribute('y','26');
+
+      text.setAttribute('id','saveText');
+      
+      text.innerHTML = "SAVE";
+      document.getElementsByTagName("svg")[0].appendChild(text);
+    }
+
+    
+
+    window.onload = function(){
+
+      var mappingData = "";
+
+      function requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId) {
+
+        //this객체 초기화
+        saveThisList = [];
+
+        //              {sendChannelGroupId: sendChannelGroupId, interfaceId: interfaceId, receiveChannelGroupId: receiveChannelGroupId, receiveAdapterServiceId: receive}
+        // var reqData = {"sendChannelGroupId":"K4M","interfaceId":"IF_K4M_KR_D005","receiveChannelGroupId":"KR","receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005"};
+        var reqData = {"sendChannelGroupId":fromChannelGroupId,"interfaceId":interfaceId,"receiveChannelGroupId":receiveChannelGroupId,"receiveAdapterServiceId":receiveAdapterId};
+
+        $.ajax({
+          url : 'interface/mappingprocess',
+          type : 'post',
+          data : reqData,
+          async: false,
+          success : successCall,
+          error : errorCall
+        });
+
+        function successCall(s) {
+          console.log("RequestSuccess");
+          console.log(s);
+          setNode(s.send, "send");
+          setNode(s.receive, "receive");
+
+          if(s.hasOwnProperty('mappingData') && s.mappingData.length > 0) {
+            mappingData = s.mappingData;
+          }
+
+          const diagram = new Diagram();
+
+          document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
+          
+          nextUidPort = 0;
+          nextUidConnector = 0;
+          nextUidShape = 0;
+          inputPortList = [];
+          outputPortList = [];
+        }
+
+        function errorCall(e) {
+          console.log("RequestError");
+          console.log(e);
+        }
+      }
+
+      getListServer();
+
+      // requestServer();
+
+      // setNode(sendData);
+      // setNode(receiveData);
+
+      // let select = document.createElementNS("http://www.w3.org/2000/svg","select");
+      // let opt1 = document.createElementNS("http://www.w3.org/2000/svg","option");
+      // opt1.innerHTML = "opt1";
+      // let opt2 = document.createElementNS("http://www.w3.org/2000/svg","option");
+      // opt2.innerHTML = "opt2";
+      // let opt3 = document.createElementNS("http://www.w3.org/2000/svg","option");
+      // opt3.innerHTML = "opt3";
+
+      // document.getElementsByTagName("svg")[0].appendChild(select);
+      // document.getElementsByTagName("svg")[0].getElementsByTagName("select")[0].appendChild(opt1);
+      // document.getElementsByTagName("svg")[0].getElementsByTagName("select")[0].appendChild(opt2);
+      // document.getElementsByTagName("svg")[0].getElementsByTagName("select")[0].appendChild(opt3);
+      
+      makeButton();
+
+      SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
+        return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+      };
+
+      var checkClickEvent = document;
+      var clickEl = "";
+      var preInputData = "";
+      checkClickEvent.addEventListener('click',function(event) {
+        clickEl = event.target;
+        if(clickEl.tagName == "rect") {
+          event.eventValue = false;
+        }
+        // console.log("click test");
+
+        if((event.target.getAttribute('class') != null && event.target.getAttribute('class').indexOf('port') > -1) || 
+        (event.target.getAttribute('id') != null && event.target.getAttribute('id').indexOf('diagram') > -1)) {
+          connectorClean();
+        } else {
+          if(event.target.id.indexOf('save') > -1) {
+            //저장버튼 클릭
+            saveData(interfaceId);
+          }
+        }
+      });
+
+
+      checkClickEvent.addEventListener('input',function(event) {
+        console.log("input test");
+        if(preInputData == "NULL" && (event.inputType == "insertText" || event.inputType == "insertCompositionText")) {
+          clickEl.innerHTML = event.data;
+          clickEl.focus();
+        } 
+      });
+
+      checkClickEvent.addEventListener('keydown',function(event) { 
+        console.log("keydown test"); 
+        if(event.key == "Backspace") {
+          if(clickEl.innerHTML.trim().length == 1 || clickEl.innerHTML == "NULL") {
+            clickEl.innerHTML = "NULL";
+            preInputData = clickEl.innerHTML;
+            event.returnValue = false;
+          }
+        } else {
+          preInputData = clickEl.innerHTML;
+        }
+      });
+
+
+      var inputEl = document.getElementsByClassName('interfaceListInput')[0];
+      inputEl.addEventListener('input', updateValue);
+
+      function updateValue(e) {
+        let cnt = -1;
+        console.log(e);
+
+        interfaceId = e.target.value;
+        let opts = document.getElementsByTagName('option');
+        for(let i = 0; i < opts.length; i++) {
+          if(interfaceId == opts[i].getAttribute('value')) {
+            cnt = i;
+            break;
+          }
+        }
+
+        if(cnt == -1) {
+          return true;
+        }
+        
+        cleanElement();
+
+        let receiveChannelGroupId = opts[cnt].getAttribute('receiveChannelGroupId');
+        let fromChannelGroupId = opts[cnt].getAttribute('fromChannelGroupId');
+        let interfaceType = opts[cnt].getAttribute('interfaceType');
+        let receiveAdapterId = opts[cnt].getAttribute('receiveAdapterId');
+
+        if(receiveChannelGroupId != "" && fromChannelGroupId != "" && interfaceType != "" && interfaceId != "" && receiveAdapterId != "") {
+          requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId);
+        }
+      }
+
+      function cleanElement() {
+        let outs = document.getElementsByClassName('outputs');
+        let ins = document.getElementsByClassName('inputs');
+        let cons = document.getElementById('connections-layer');
+        
+        for(let i = 0; i < 2; i++) {
+          while(outs[i].hasChildNodes()) {
+            outs[i].removeChild(outs[i].firstChild);
+          }
+          while(ins[i].hasChildNodes()) {
+            ins[i].removeChild(ins[i].firstChild);
+          }
+        }
+
+        while(cons.hasChildNodes()) {
+          cons.removeChild(cons.firstChild);
+        }
+
+        mappingData = "";
+      }
+
+      //
+      // DIAGRAM
+      // ===========================================================================
+      class Diagram {
+
+        constructor() {
+
+          //diagram element
+          this.dragElement = this.element = diagramElement;
+
+          let tablePos = 0;
+
+          shapeElements.forEach((element, i) => {
+            let n = 0;
+            if(i == 2) {
+              n = 1;
+            }
+
+            const shape = new NodeShape(element, 50 + i * 300 + (tablePos * 200) - (n*50), 50);
+            shapeLookup[shape.id] = shape;
+            shapes.push(shape);
+
+            //테이블 넓이에 따라서 위지 수정
+            let tableWidth = element.children[0].getAttribute('width');
+            tablePos = Math.floor(tableWidth / 200) - 1;
+          });
+
+          this.target = null;
+          this.dragType = null;
+
+          this.dragTarget = this.dragTarget.bind(this);
+          this.prepareTarget = this.prepareTarget.bind(this);
+          this.stopDragging = this.stopDragging.bind(this);
+
+          //Draggable.min.js
+          this.draggable = new Draggable(dragProxy, {
+            allowContextMenu: true,
+            trigger: svg,
+            onDrag: this.dragTarget,
+            onDragEnd: this.stopDragging,
+            onPress: this.prepareTarget
+          });
+
+          resetThis = Object.assign(resetThis,this);
+          
+          createAutoConnector(this);
+
+          function createAutoConnector(data) {
+            //기본 connector 생성
+            //송신데이터 기준 컬럼 갯수
+            let outputs = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
+            //수신데이터 기준 컬럼 갯수
+            let inputs = document.getElementsByClassName('inputs')[1].getElementsByClassName('input-field').length;
+            let el = document.querySelector("#diagram");
+
+            //1번째 out/in 생성
+            for(let n = 0; n < outputs; n++) {
+              data.target = document.getElementsByClassName('port-scrim')[n];
+              data.prepareTarget(data);
+              let pos = document.getElementsByClassName('port-scrim')[n+outputs].getTransformToElement(el);
+              data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
+              data.stopDragging(data);
+            }
+
+            let port = document.getElementsByClassName('port-scrim');
+
+            if(mappingData.length > 0) {
+              
+              let outMatch = -1;
+              let inMatch = -1;
+
+              for(let a = 0; a < mappingData.length; a++) {
+                let findData = mappingData[a].split(',');
+
+                let outData = findData[0].split(':');
+                let outTable = outData[0];
+                let outColumn = outData[1];
+
+                for(let b = outputs*2; b < outputs*3; b++) {
+                  if(outTable == port[b].getAttribute('table')) {
+                    if(outColumn == port[b].getAttribute('columnName')) {
+                      outMatch = b;
+                      break;
+                    }
+                  }
+                }
+
+                let inData = findData[1].split(':');
+                let inTable = inData[0];
+                let inColumn = inData[1];
+
+                for(let c = outputs*3; c < (outputs*3)+inputs; c++) {
+                  if(inTable == port[c].getAttribute('table')) {
+                    if(inColumn == port[c].getAttribute('columnName')) {
+                      inMatch = c;
+                      break;
+                    }
+                  }
+                }
+
+                if(outMatch > -1 && inMatch > -1) {
+                  data.target = port[outMatch];
+                  data.prepareTarget(data);
+                  let pos = document.getElementsByClassName('port-scrim')[inMatch].getTransformToElement(el);
+                  data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
+                  data.stopDragging(data);
+                }
+              }
+
+            } else {
+              //2번째 out/in 생성
+              for(let n = outputs*2; n < outputs*3; n++) {
+                let matchIn = -1;
+                // document.getElementsByClassName('port-scrim')[n+outputs]; 
+
+                data.target = port[n];
+                // data.prepareTarget(data);
+
+                for(let k = (outputs*3); k < (outputs*3)+inputs; k++) {
+                  let outText = data.target.getAttribute('columnName');
+                  let inText = port[k].getAttribute('columnName');
+
+                  // if(data.target.getAttribute('table') == port[k].getAttribute('table')) {
+                    if(outText != inText) {
+                      continue;
+                    } else {
+                      matchIn = k;
+                      data.prepareTarget(data);
+                      break;
+                    }
+                  // }
+                }
+
+                if(matchIn > -1) {
+                  let pos = port[matchIn].getTransformToElement(el);
+                  data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
+                  data.stopDragging(data);
+                }
+              }
+            }
+          }
+
+        }
+
+        stopDragging(event) {
+          this.target.onDragEnd && this.target.onDragEnd();
+        }
+
+        prepareTarget(event) {
+
+          if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg" || event.target.tagName == "path") {
+            dragYN = true;
+            // this.target.dragType = "";
+            // this.target.dragElement = "";
+            // this.target.dragElement = document.getElementsByTagName('text')[0];
+            // this.staticElement = document.getElementsByTagName('text')[0];
+            // this.draggable.disable();
+            this.stopDragging(this);
+            // this.draggable.enable();
+            return true;
+          } else {
+            // this.target.dragElement = event.target;
+            // this.target.dragType = "connector";
+            dragYN = false;
+          }
+
+          let element = event.target;
+          let drag;
+
+          //inputport 시작여부 판단 flag 초기화
+          startInputPort = false;
+          //inputport mapping 여부 판단 flag 초기화
+          inputPortMapping = false;
+
+          while (!(drag = element.getAttribute("data-drag")) && element !== svg) {
+            element = element.parentNode;
+          }
+
+          // if(drag != null && drag.indexOf('connector') > -1) {
+          //   let info = connectorInfo(event.target);
+          //   if(info) {
+          //     drag = info;
+          //   }
+          // }
+
+          drag = drag || "diagram:diagram";
+          const split = drag.split(":");
+          const id = split[0];
+          var dragType = split[1];
+
+          switch (dragType) {
+            case "diagram":
+              this.target = this;
+            break;
+
+            case "shape":
+              this.target = shapeLookup[id];
+            break;
+
+            case "port":
+
+              const port = portLookup[id];
+
+              if(port.isInput == true) {
+
+                inputPortMapping = inputPortMappingCheck();
+
+                startInputPort = true;
+
+              } else {
+
+                startInputPort = false;
+
+              }
+
+              port.createConnector();
+              this.target = port.lastConnector;
+              this.dragType = this.target.dragType;
+            break;
+
+            case "connector":
+              this.target = connectorLookup[id];
+
+              //target이 undefined일 경우 check할 사항
+              // if(this.target == undefined) {
+              //   connectorInfo(event.target);
+              // }
+            break;
+          }
+
+          function inputPortMappingCheck() {
+            let allConnectorList = document.getElementsByClassName('connector');
+            let bMapping = false;
+            for(var checkHandle of allConnectorList) {
+              let inputPortHandle = checkHandle.children[2].getAttribute('data-drag');
+              
+              if(inputPortHandle == drag) {
+                bMapping = true;
+                break;
+              } else {
+                bMapping = false;
+              }
+            }
+            return bMapping;
+          }
+
+          // function connectorInfo(target) {
+          //   let el = target.parentElement.children;
+          //   let inputHandleDrag = el[2].getAttribute('data-drag');
+          //   let outputHandleDrag = el[3].getAttribute('data-drag');
+
+          //   inputPortMapping = true;
+
+          //   if(inputHandleDrag.indexOf('port') > -1) {
+          //     startInputPort = true;
+          //     return inputHandleDrag;
+          //   }else if(outputHandleDrag.indexOf('port') > -1) {
+          //     startInputPort = false;
+          //     return outputHandleDrag;
+          //   }else{
+          //     return;
+          //   }
+          // }
+        }
+
+        dragTarget() {
+
+          if(dragYN == true) {
+            return true;
+          }
+
+          if(startInputPort == true && inputPortMapping == true) {
+
+            if((this.target.inputPort == null || this.target.inputPort == undefined) && this.target.outputPort != null) {
+              getInputPortList(this.element, this.target.outputPort.id);
+              this.target.inputPort = {id:inputPortList[inputPortList.length-1]};
+            } else if(this.target.inputPort != null && (this.target.outputPort == null || this.target.outputPort == undefined)) {
+              getOutputPortList(this.element, this.target.inputPort.id);
+              this.target.outputPort = {id:outputPortList[outputPortList.length-1]};
+            }
+
+            for(var saveThis of saveThisList) {
+              // outputport 여러개, intputport 한개 inputport 선택시
+              // outputport 정보가 없으므로 inputport에 mapping된 outputport값 구해서 배열의 마지막 값을 사용
+              // 마지막 값을 사용하는 이유 : 여러개의 connector 중에서 마직막에서 생성된 connector를 먼저 수정하도록 정의
+
+              if(this.target.hasOwnProperty("inputPort") && this.target.hasOwnProperty("outputPort")) {
+                if(this.target.inputPort.id == saveThis.inputPort.id && this.target.outputPort.id == saveThis.outputPort.id) {
+                  assignObject(this.target,saveThis);
+                  break;
+                }
+              } else {
+                break;
+              }
+            }
+          } else if(startInputPort == true && inputPortMapping == false) {
+            //connectorClean();
+            // var customEvent = document.createEvent('Event');
+            // customEvent.initEvent('click',false, true);
+            // this.target.inputPort.portElement.dispatchEvent(customEvent);
+            return true;  
+          } 
+          // else {
+          //   return true;
+          // }
+
+          TweenLite.set(this.target.dragElement, {
+            x: `+=${this.draggable.deltaX}`,
+            y: `+=${this.draggable.deltaY}`
+          });
+
+          this.target.onDrag && this.target.onDrag();
+
+          //inputport id값으로 outputport 정보 리스트 추출 함수
+          function getOutputPortList(currentElement,inputPortId) {
+            let connectors = currentElement.getElementsByClassName('connector');
+            for(let connector of connectors) {
+              if(connector.getElementsByClassName('input-handle')[0].getAttribute('data-drag').split(':')[0] == inputPortId) {
+                let outputPortId = connector.getElementsByClassName('output-handle')[0].getAttribute('data-drag').split(':')[0];
+                if(outputPortId.indexOf('port') > -1) {
+                  outputPortList.push(outputPortId); 
+                }
+              }
+            }
+          }
+
+          //outputport id값으로 inputport 정보 리스트 추출 함수
+          function getInputPortList(currentElement,outputPortId) {
+            let connectors = currentElement.getElementsByClassName('connector');
+            for(let connector of connectors) {
+              if(connector.getElementsByClassName('output-handle')[0].getAttribute('data-drag').split(':')[0] == outputPortId) {
+                let inputPortId = outputPortList.push(connector.getElementsByClassName('intput-handle')[0].getAttribute('data-drag').split(':')[0]);
+                if(inputPortId.indexOf('port') > -1) {
+                  outputPortList.push(inputPortId);
+                }
+              }
+            }
+          }
+
+          //객체로 속성 복사
+          function assignObject(targetObject,copyObject) {
+            targetObject = Object.assign(targetObject,copyObject)
+            // targetObject.dragElement = copyObject.dragElement;
+            // targetObject.dragType = copyObject.dragType;
+            // targetObject.element = copyObject.element;
+            // targetObject.id = copyObject.id;
+            // targetObject.inputHandle = copyObject.inputHandle;
+            // targetObject.inputPort = copyObject.inputPort;
+            // targetObject.isInput = copyObject.isInput;
+            // targetObject.isSelected = copyObject.isSelected;
+            // targetObject.outputHandle = copyObject.outputHandle;
+            // targetObject.outputPort = copyObject.outputPort;
+            // targetObject.path = copyObject.path;
+            // targetObject.pathOutline = copyObject.pathOutline;
+            // targetObject.staticElement = copyObject.staticElement;
+            // targetObject.staticPort = copyObject.staticPort;
+          }
+        }
+      }
+      
+      //
+      // NODE SHAPE
+      // =========================================================================== 
+      class NodeShape {
+
+        constructor(element, x, y) {
+
+          this.id = `shape_${++nextUidShape}`;
+          this.dragType = "shape";
+
+          element.setAttribute("data-drag", `${this.id}:shape`);
+
+          this.element = element;
+          this.dragElement = element;
+
+          //TweenMax.min.js 제공 -> TweenLite.set()는 element 속성 즉시 설정
+          TweenLite.set(element, { x, y });
+
+          //const inputElements = Array.from(element.querySelectorAll(".input-field"));
+          const inputElements = Array.prototype.slice.call(element.querySelectorAll(".input-field"));
+          //const outputElements = Array.from(element.querySelectorAll(".output-field"));
+          const outputElements = Array.prototype.slice.call(element.querySelectorAll(".output-field"));
+
+          this.inputs = inputElements.map(element => {
+            const port = new NodePort(this, element, true);
+            portLookup[port.id] = port;
+            ports.push(port);
+            return port;
+          });
+
+          this.outputs = outputElements.map(element => {
+            const port = new NodePort(this, element, false);
+            portLookup[port.id] = port;
+            ports.push(port);
+            return port;
+          });
+
+        }
+
+        onDrag() {
+
+          for (let input of this.inputs) {
+            input.update();
+          }
+
+          for (let output of this.outputs) {
+            output.update();
+          }
+        }
+      }
+
+      //
+      // NODE PORT
+      // =========================================================================== 
+      class NodePort {
+
+        constructor(parentNode, element, isInput) {
+
+          this.id = `port_${++nextUidPort}`;
+          this.dragType = "port";
+
+          this.parentNode = parentNode;
+          this.isInput = isInput;
+
+          this.element = element;
+          this.portElement = element.querySelector(".port");
+          this.portScrim = element.querySelector(".port-scrim");
+
+          this.portScrim.setAttribute("data-drag", `${this.id}:port`);
+
+          //컬럼명 정보
+          this.tableName = element.getElementsByClassName('port-scrim')[0].getAttribute('table');
+          this.columnName = element.lastElementChild.innerHTML;
+
+          this.connectors = [];
+          this.lastConnector;
+
+          //getBBox(); 함수는 SVGRect객체 리턴(위치정보, 너비, 높이)
+          const bbox = this.portElement.getBBox();
+
+          //createSVGPoint(); SVGPoint객체 반환
+          this.global = svg.createSVGPoint();
+          this.center = svg.createSVGPoint();
+          this.center.x = bbox.x + bbox.width / 2;
+          this.center.y = bbox.y + bbox.height / 2;
+
+          this.update();
+
+        }
+
+        update() {
+
+          //getTransformToElement() Transformation Matrix를 반환
+          const transform = this.portElement.getTransformToElement(diagramElement);
+          //matrixTransform() 2-D 평명에서 개체 또는 좌표계를 조작하는데 사용할 임의의 Affine 행렬 변형을 만듬
+          this.global = this.center.matrixTransform(transform);
+
+          for (let connector of this.connectors) {
+            connector.updateHandle(this);
+          }
+        }
+
+        createConnector() {
+
+          let connector;
+
+          if (connectorPool.length) {
+            connector = connectorPool.pop();
+            connectorLookup[connector.id] = connector;
+          } else {
+              connector = new Connector();
+          }
+
+          connector.init(this);
+
+          this.lastConnector = connector;
+          if(startInputPort == false) {
+            this.connectors.push(connector);
+          }
+        }
+
+        removeConnector(connection) {
+
+          // //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
+          // let len = this.connectors.length;
+          // for(var pos = len-1; pos > 0; pos--) {
+          //   if(this.connectors[pos].id == connection.id) {
+          //     this.connectors.splice(pos,1);
+
+          //   }
+          // }
+
+          const index = this.connectors.indexOf(connection);
+
+          if (index > -1) {
+            this.connectors.splice(index, 1);
+          }
+        }
+
+        addConnector(connection) {
+          this.connectors.push(connection);
+          this.connectors = _.uniqBy(this.connectors,'id');
+        }
+      }
+
+      //
+      // CONNECTOR
+      // ===========================================================================
+      class Connector {
+
+        constructor() {
+
+          this.id = `connector_${++nextUidConnector}`;
+          this.dragType = "connector";
+          this.isSelected = false;
+          this.element = connectorElement.cloneNode(true);
+          this.path = this.element.querySelector(".connector-path");
+          this.pathOutline = this.element.querySelector(".connector-path-outline");
+          this.inputHandle = this.element.querySelector(".input-handle");
+          this.outputHandle = this.element.querySelector(".output-handle");
+          
+        }
+
+        init(port) {
+
+          // if(startInputPort == false) {
+            connectorLayer.appendChild(this.element);
+          // }
+
+          this.isInput = port.isInput;
+
+          if (port.isInput) {
+            this.inputPort = port;
+            this.dragElement = this.outputHandle;
+            this.staticElement = this.inputHandle;
+          } else {
+            this.outputPort = port;
+            this.dragElement = this.inputHandle;
+            this.staticElement = this.outputHandle;
+          }
+
+          this.staticPort = port;
+          this.dragElement.setAttribute("data-drag", `${this.id}:connector`);
+          this.staticElement.setAttribute("data-drag", `${port.id}:port:`+ port.tableName + ':' + port.columnName);
+
+          TweenLite.set([this.inputHandle, this.outputHandle], {
+            x: port.global.x,
+            y: port.global.y
+          });
+        }
+
+        //connetor position 설정
+        updatePath() {
+
+          const x1 = this.inputHandle._gsTransform.x;
+          const y1 = this.inputHandle._gsTransform.y;
+
+          const x4 = this.outputHandle._gsTransform.x;
+          const y4 = this.outputHandle._gsTransform.y;
+
+          const dx = Math.abs(x1 - x4) * bezierWeight;
+
+          const p1x = x1;
+          const p1y = y1;
+
+          const p2x = x1 - dx;
+          const p2y = y1;
+
+          const p4x = x4;
+          const p4y = y4;
+
+          const p3x = x4 + dx;
+          const p3y = y4;
+
+          const data = `M${p1x} ${p1y} C ${p2x} ${p2y} ${p3x} ${p3y} ${p4x} ${p4y}`;
+
+          this.path.setAttribute("d", data);
+          this.pathOutline.setAttribute("d", data);
+        }
+
+        updateHandle(port) {
+
+          if (port === this.inputPort) {
+
+            TweenLite.set(this.inputHandle, {
+              x: port.global.x,
+              y: port.global.y
+            });
+
+          } else if (port === this.outputPort) {
+
+            TweenLite.set(this.outputHandle, {
+              x: port.global.x,
+              y: port.global.y
+            });
+          }
+
+          this.updatePath();
+        }
+
+        placeHandle() {
+
+          if(dragYN == true) {
+            return true;
+          }
+
+          const skipShape = this.staticPort.parentNode.element;
+
+          let hitPort;
+
+          for (let shape of shapes) {
+
+            if (shape.element === skipShape) {
+              continue;
+            }
+
+            if (Draggable.hitTest(this.dragElement, shape.element)) {
+
+              const ports = this.isInput ? shape.outputs : shape.inputs;
+
+              for (let port of ports) {
+
+                if (Draggable.hitTest(this.dragElement, port.portElement)) {
+                  hitPort = port;
+                  break;
+                }
+              }
+
+              if (hitPort) {
+                break;
+              }
+            }
+          }
+
+          if (hitPort) {
+
+            if (this.isInput) {
+              this.outputPort = hitPort;
+            } else {
+              this.inputPort = hitPort;
+            }
+
+            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + hitPort.columnName);
+
+            //동일한 connector가 존재할 경우 중복되지 않도록 설정
+            var chkSame = false;
+            if(this.dragElement.getAttribute('class').indexOf("connector-handle input-handle") > -1 && document.getElementsByClassName('connector-path-outline').length > 1) {
+              var allConnetor = [].slice.call(document.getElementsByClassName('connector'));
+              var currentConnetor = allConnetor.pop();
+              var nSelfData = true;
+
+              for(var value of allConnetor) {
+                //output port 비교
+                if(value.children[3].getAttribute('data-drag') == this.element.children[3].getAttribute('data-drag')) {
+                  //intput port 비교
+                  if(value.children[2].getAttribute('data-drag') == this.element.children[2].getAttribute('data-drag')) {
+                    if(nSelfData == true) {
+                      continue;
+                    } else {
+                      nSelfData = false;
+                      chkSame = true;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+
+            //동일한 connector가 존재할 경우 connector 삭제
+            if(chkSame == true) {
+              this.remove();
+              return true;
+            } else {
+              if(this.inputPort != null && this.outputPort != null) {
+                let intputTable = this.inputPort.tableName;
+              }
+            }
+
+            //connector 목록에 추가
+            //동일한 connector 추가 안되도록 설정 필요
+            hitPort.addConnector(this);
+            this.updateHandle(hitPort);
+
+            //this를 변수에 저장해서 connector 수정시 꺼내 쓸수 있도록함
+            saveThisList.push(this);
+
+            checkColumnData(this);
+
+          } else {
+            this.remove();
+            //connector 목록 중 합쳐진 데이터가 있을 경우 remove할때 columnName 속성, text에서 삭제 필요함
+          }
+
+          connectorClean();
+
+
+          function checkColumnData(data) {
+            let cnt = data.inputPort.id.split('_')[1];
+            let portCnt = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
+            let updatePortCnt = parseInt(cnt) + parseInt(portCnt) -1;
+
+            if(cnt <= portCnt*2) {
+
+              let updatePortText = document.getElementsByClassName('port')[updatePortCnt].parentElement.lastElementChild;
+              let updatePortCol = document.getElementsByClassName('port')[updatePortCnt].parentElement.getElementsByClassName('port-scrim')[0];
+
+              if(data.inputPort.id != data.outputPort.id && data.isInput == false) {
+
+                if(data.inputPort.tableName == data.outputPort.tableName) {
+                  if(data.inputPort.columnName != data.outputPort.columnName) {
+                    //테이블 동일 & 컬럼명 불일치
+                    updatePortText.innerHTML += ('|'+data.outputPort.columnName);
+                    updatePortCol.setAttribute('columnName',updatePortText.innerHTML);
+                  }
+                } else {
+                  //테이블 불일치
+                  updatePortText.innerHTML = '(' + data.outputPort.tableName + ')' + updatePortText.innerHTML + '|' + '(' + data.inputPort.tableName + ')' + data.outputPort.columnName;
+                  updatePortCol.setAttribute('columnName',updatePortText.innerHTML);
+                }
+              }
+            }
+          }
+        }
+
+        remove() {
+
+          if (this.inputPort) {
+            this.inputPort.removeConnector(this);
+          }
+
+          if (this.outputPort) {
+            this.outputPort.removeConnector(this);
+          }
+
+          this.isSelected = false;
+
+          this.path.removeAttribute("d");
+          this.pathOutline.removeAttribute("d");
+          if(this.dragElement != undefined) {
+            this.dragElement.removeAttribute("data-drag");
+          }
+          if(this.staticElement != undefined) {
+            this.staticElement.removeAttribute("data-drag");
+          }
+
+          this.staticPort = null;
+          this.inputPort = null;
+          this.outputPort = null;
+          this.dragElement = null;
+          this.staticElement = null;
+
+          if(this.element.parentElement != null && this.element.parentElement != undefined) {
+            connectorLayer.removeChild(this.element);
+            connectorPool.push(this);
+          }
+        }
+
+        onDrag() {
+          this.updatePath();
+        }
+
+        onDragEnd() {
+          this.placeHandle();
+        }
+      }
+
+
+      function connectorClean() {
+        let connectors = document.getElementsByClassName('connector');
+        if(connectors.length > 0) {
+          for(var checkConnector of connectors) {
+            let inputPortCheck = checkConnector.children[2].getAttribute('transform');
+            let outputPortCheck = checkConnector.children[3].getAttribute('transform');
+            let checkEct1 = checkConnector.children[0].getAttribute('d');
+            let checkEct2 = checkConnector.children[1].getAttribute('d');
+
+            if(inputPortCheck != null && outputPortCheck != null) {
+              if(inputPortCheck == outputPortCheck && checkEct1 == null && checkEct2 == null) {
+                checkConnector.remove();
+              } 
+            }
+          }
+        }
+      };
+
+      //
+      // APP
+      // ===========================================================================
+
+      //drag 대상 유무 확인
+      var dragYN = false;
+
+      // //인터페이스 아이디 조회 후 저장할 변수
+      // var receiveChannelGroupId = "";
+      // var fromChannelGroupId = "";
+      // var interfaceType = "";
+      var interfaceId = "";
+      // var receiveAdapterId = "";
+
+      //inputPort 맵핑 여부 판단 변수
+      var inputPortMapping = false;
+      
+      //this 저장 변수
+      var saveThisList = [];
+
+      //this 초가화 변수
+      var resetThis = [];
+
+      //InputPort 시작 여부
+      var startInputPort = false;
+
+      //inputport 리스트 배열
+      var inputPortList = [];
+
+      //outport 리스트 배열
+      var outputPortList = [];
+
+      //동적
+      var nodeParent = document.querySelector("#node-layer");
+
+      var currentTableName = "";
+
+      //let nextUid = 0;
+
+      let nextUidPort = 0;
+
+      let nextUidConnector = 0;
+
+      let nextUidShape = 0;
+
+      const bezierWeight = 0.675;
+
+      const svg = document.querySelector("#svg");
+
+      const diagramElement = document.querySelector("#diagram");
+
+      const shapeLookup = {};
+      const portLookup = {};
+      const connectorLookup = {};
+
+      const ports = [];
+      const shapes = [];
+      const connectorPool = [];
+
+      const dragProxy = document.querySelector("#drag-proxy");
+      //const shapeElements = Array.from(document.querySelectorAll(".node-container"));
+      const shapeElements = Array.prototype.slice.call(document.querySelectorAll(".node-container"));
+
+      const frag = document.createDocumentFragment();
+      frag.appendChild(document.querySelector(".connector"));
+      const connectorElement = frag.querySelector(".connector");
+      const connectorLayer = document.querySelector("#connections-layer");
+    };
+</script>
+</head>
+<body contenteditable="true">
+  <div>
+    <!-- <button>sample</button> -->
+    <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList" style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
+    <datalist id="interfaceList">
+      <!--
+      <option value="Boston">
+      <option value="Cambridge">
+      -->
+    </datalist>
+  </div>
+    <svg id="svg" style="visibility: hidden;">
+      <text contentEditable="true" required="true"></text>
+      <!-- <svg id="svg"> -->
+      <g id="diagram" data-drag="diagram:diagram" data-drag-type="diagram">     
+        <g id="node-layer">
+          
+          <!-- PROCESS 1 -->   
+          <g class="node-container">    
+            <rect class="node-background" width="254" height="128" x="0" y="0" rx="6" ry="6"></rect>
+    
+            <g class="node-header">
+              <rect class="header-round-rect" width="250" height="40" x="2" y="2" rx="4" ry="4"></rect>
+              <rect class="header-rect" width="250" height="36" x="2" y="6"></rect>
+              <text class="header-title" x="122" y="30">Process 1</text>
+            </g>
+    
+            <g class="node-content">
+    
+              <rect class="content-round-rect" width="250" height="82" x="2" y="44" rx="4" ry="4"></rect>
+              <rect class="content-rect" width="250" height="77" x="2" y="44"></rect>
+
+              <g class="outputs">
+
+              </g>
+            </g>
+          </g> 
+          
+          <!-- PROCESS 2 -->      
+          <g class="node-container">    
+            <rect class="node-background" width="804" height="128" x="0" y="0" rx="6" ry="6"></rect>
+    
+            <g class="node-header">
+              <rect class="header-round-rect" width="800" height="40" x="2" y="2" rx="4" ry="4"></rect>
+              <rect class="header-rect" width="800" height="36" x="2" y="6"></rect>
+              <text class="header-title" x="102" y="30">Process 2</text>
+            </g>
+    
+            <g class="node-content">
+    
+              <rect class="content-round-rect" width="800" height="82" x="2" y="44" rx="4" ry="4"></rect>
+              <rect class="content-rect" width="800" height="77" x="2" y="44"></rect>
+    
+              <g class="inputs">
+                
+              </g>
+    
+              <g class="outputs">
+
+              </g>
+    
+            </g>
+          </g>
+          
+          <!-- PROCESS 3 -->   
+          <g class="node-container">    
+            <rect class="node-background" width="254" height="128" x="0" y="0" rx="6" ry="6"></rect>
+    
+            <g class="node-header">
+              <rect class="header-round-rect" width="250" height="40" x="2" y="2" rx="4" ry="4"></rect>
+              <rect class="header-rect" width="250" height="36" x="2" y="6"></rect>
+              <text class="header-title" x="122" y="30">Process 3</text>
+            </g>
+    
+            <g class="node-content">
+    
+              <rect class="content-round-rect" width="250" height="82" x="2" y="44" rx="4" ry="4"></rect>
+              <rect class="content-rect" width="250" height="77" x="2" y="44"></rect>
+              
+              <g class="inputs">
+                
+              </g>
+    
+            </g>
+
+          </g>
+
+        </g>
+    
+        <g id="connections-layer"></g>
+    
+        <g class="connector">
+    
+          <path class="connector-path-outline"></path>
+          <path class="connector-path"></path>
+    
+          <circle class="connector-handle input-handle" cx="0" cy="0" r="4"></circle>
+          <circle class="connector-handle output-handle" cx="0" cy="0" r="4"></circle>
+        </g>
+        
+        <circle id="drag-proxy" cx="0" cy="0" r="1" fill="none"></circle>
+      </g>
+    </svg>
+    
+
+</body>
+</html>
