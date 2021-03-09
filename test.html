@@ -112,8 +112,7 @@
   <script>
     //"use strict";
 
-    // var sendData = '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":[["USER_NOa","USER_IDa","USER_NAMEa","USER_POSITIONa","USER_DEPTa","USER_TELEPHONEa","USER_MAILa","USER_PHONEa","USER_ADDRESSa","CHG_DTTMa","TRN_IDa","MSG_IDa","TRN_STATSa","TRN_DTa","TRN_MSGa"],["USER_NO1","USER_ID1","USER_NAME1","USER_POSITION1","USER_DEPT1","USER_TELEPHONE1","USER_MAIL1","USER_PHONE1","USER_ADDRESS1","CHG_DTTM1","TRN_ID1","MSG_ID1","TRN_STATS1","TRN_DT1","TRN_MSG1"]]}';
-    // var receiveData = '{"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005","tableNames":["IF_TB_USERSa","IF_TB_USERSb"],"receiveColumns":[["USER_NOb","USER_IDb","USER_NAMEb","USER_POSITIONb","USER_DEPTb","USER_TELEPHONEb","USER_MAILb","USER_PHONEb","USER_ADDRESSb","CHG_DTTMb","TRN_IDb","MSG_IDb","TRN_STATSb","TRN_DTb","TRN_MSGb"],["USER_NO2","USER_ID2","USER_NAME2","USER_POSITION2","USER_DEPT2","USER_TELEPHONE2","USER_MAIL2","USER_PHONE2","USER_ADDRESS2","CHG_DTTM2","TRN_ID2","MSG_ID2","TRN_STATS2","TRN_DT2","TRN_MSG2"]]}';
+    var svgUrl = "http://www.w3.org/2000/svg";
 
     function getListServer() {
       $.ajax({
@@ -140,14 +139,16 @@
     function createList(listData) {
       // {"sendChannelGroupId":"K4M","interfaceId":"IF_K4M_KR_D005","receiveChannelGroupId":"KR","receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005"};
       let datalist = document.getElementById('interfaceList');
+
       for(let l = 0; l < listData.interfaceList.length; l++) {
         let opt = document.createElement("option");
 
-        if(listData.interfaceList[l].receiveChannelGroupId != "" &&
-            listData.interfaceList[l].fromChannelGroupId != "" &&
+        //interfaceType이 DB2DB이고 다른 값들이 모두 존재할 경우에만 interface 목록에 추가
+        if(listData.interfaceList[l].receiveChannelGroupId !== "" &&
+            listData.interfaceList[l].fromChannelGroupId !== "" &&
             listData.interfaceList[l].interfaceType == "DB2DB" &&
-            listData.interfaceList[l].interfaceId != "" &&
-            listData.interfaceList[l].receiveAdapterId != "") {
+            listData.interfaceList[l].interfaceId !== "" &&
+            listData.interfaceList[l].receiveAdapterId !== "") {
 
           opt.setAttribute('receiveChannelGroupId',listData.interfaceList[l].receiveChannelGroupId);
           opt.setAttribute('fromChannelGroupId',listData.interfaceList[l].fromChannelGroupId);
@@ -182,13 +183,11 @@
     }
 
     //동적 생성
+    var tempContentHeight = 0;
     function setNode(data, sendOrReceive) {
 
-      // let createData = JSON.parse(data);
       let createData = data;
-
       let headerTitle;
-
       let createDataColumns;
 
       if(sendOrReceive == "send") {
@@ -200,7 +199,6 @@
       }
 
       let tableCnt = createData.tableNames.length;
-
       let columnsCnt = 0;
 
       for(let col = 0; col < tableCnt; col++) {
@@ -216,29 +214,32 @@
       let inAndOut = null;
       let inAndOutCheck = null;
 
-      // if(headerTitle.indexOf("Send") > -1) {
       if(sendOrReceive == "send") {
-        // 왼쪽 out
-        // 가운데 in/out
-        lineCheck = "0|0|1"; 
-        inAndOutCheck = "out|in|out";
+        tempContentHeight = 0;
+
+        // 왼쪽 out/in
+        lineCheck = "0|0"; 
+        inAndOutCheck = "out|in";
+
+        tempContentHeight = contentHeight;
 
         //1번째 shap size 설정
         setSizeNode(0, totalHeight, contentHeight, headerTitle);
-        //2번째 shap size 설정
-        setSizeNode(1, totalHeight, contentHeight, headerTitle);
 
       } else {
-        // 오른쪽 in
+        // 오른쪽 out
         lineCheck = "1" 
-        inAndOutCheck = "in";
+        inAndOutCheck = "out";
 
-        //3번째 shap size 설정
-        setSizeNode(2, totalHeight, contentHeight, headerTitle);
+        if(tempContentHeight > contentHeight) {
+          contentHeight = tempContentHeight;
+        }
+
+        //2번째 shap size 설정
+        setSizeNode(1, totalHeight, contentHeight, headerTitle);
       }
 
       let cnt = 0;
-
 
       line = lineCheck.split('|');
       inAndOut = inAndOutCheck.split('|')
@@ -296,12 +297,12 @@
       if(checkData) {
 
         //column명 일 경우
-        let field = document.createElementNS("http://www.w3.org/2000/svg","g");
-        let port = document.createElementNS("http://www.w3.org/2000/svg","g");
+        let field = document.createElementNS(svgUrl,"g");
+        let port = document.createElementNS(svgUrl,"g");
         let label = null;
-        let portOuter = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        let portInner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        let portScrim = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        let portOuter = document.createElementNS(svgUrl, "circle");
+        let portInner = document.createElementNS(svgUrl, "circle");
+        let portScrim = document.createElementNS(svgUrl, "circle");
 
         //field 설정
         document.getElementsByClassName(inAndOut + 'puts')[line].appendChild(field);
@@ -316,13 +317,12 @@
         port.setAttribute('class','port');
 
         //label 설정
-        label = document.createElementNS("http://www.w3.org/2000/svg","text");
-        if(/*(line == 0 && inAndOut == "in") ||*/ (line == 1 && inAndOut == "out")) {
-          //text 수정하기 위한 속성 추가
-          label.setAttribute('contentEditable','true');
-          label.setAttribute('required','true');
-        }
-
+        label = document.createElementNS(svgUrl,"text");
+        // if(line == 1 && inAndOut == "out") {
+        //   //text 수정하기 위한 속성 추가
+        //   label.setAttribute('contentEditable','true');
+        //   label.setAttribute('required','true');
+        // }
         label.innerHTML = name;
 
         document.getElementsByClassName(inAndOut + 'put-field')[putField.length-1].appendChild(label);
@@ -353,18 +353,20 @@
         portScrim.setAttribute('table',currentTableName);
         portScrim.setAttribute('columnName',name);
 
+        if(inAndOut == "out" && line == "1") {
+          portOuter.setAttribute('style','visibility: hidden;');
+          portInner.setAttribute('style','visibility: hidden;');
+          portScrim.setAttribute('style','visibility: hidden;');
+        }
+
       } else {
 
-        // if(inAndOut == 'out' && line == 1) {
-        //   return;
-        // }
-
-        let title = document.createElementNS("http://www.w3.org/2000/svg","g");
+        let title = document.createElementNS(svgUrl,"g");
         document.getElementsByClassName(inAndOut + 'puts')[line].appendChild(title);
         title.setAttribute('class',inAndOut + 'put-title');
         title.setAttribute('transform','translate(0, '+parseInt(50+(25*position))+')');
 
-        let titleLabel = document.createElementNS("http://www.w3.org/2000/svg","text");
+        let titleLabel = document.createElementNS(svgUrl,"text");
         titleLabel.setAttribute('class','port-title');
         titleLabel.setAttribute('x',labelX);
         titleLabel.setAttribute('y','14');
@@ -378,6 +380,7 @@
 
     function saveData(interfaceIdValue) {
 
+      // 송/수신 데이터 샘플
       // var sendData = '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":["USER_NOa,USER_IDa,USER_NAMEa,USER_POSITIONa,USER_DEPTa,USER_TELEPHONEa,USER_MAILa,USER_PHONEa,USER_ADDRESSa,CHG_DTTMa,TRN_IDa,MSG_IDa,TRN_STATSa,TRN_DTa,TRN_MSGa","USER_NO1,USER_ID1,USER_NAME1,USER_POSITION1,USER_DEPT1,USER_TELEPHONE1,USER_MAIL1,USER_PHONE1,USER_ADDRESS1,CHG_DTTM1,TRN_ID1,MSG_ID1,TRN_STATS1,TRN_DT1,TRN_MSG1"]}';
       // var receiveData = '{"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005","tableNames":["IF_TB_USERSa","IF_TB_USERSb"],"receiveColumns":["USER_NOb,USER_IDb,USER_NAMEb,USER_POSITIONb,USER_DEPTb,USER_TELEPHONEb,USER_MAILb,USER_PHONEb,USER_ADDRESSb,CHG_DTTMb,TRN_IDb,MSG_IDb,TRN_STATSb,TRN_DTb,TRN_MSGb","USER_NO2,USER_ID2,USER_NAME2,USER_POSITION2,USER_DEPT2,USER_TELEPHONE2,USER_MAIL2,USER_PHONE2,USER_ADDRESS2,CHG_DTTM2,TRN_ID2,MSG_ID2,TRN_STATS2,TRN_DT2,TRN_MSG2"]}';
 
@@ -388,38 +391,33 @@
       let tempTalbe = new Array();
 
       //송신부 데이터 생성
-      // let sendObj = new Object();
-      // let sendValue = new Array();
       let sendElement = document.getElementsByClassName('outputs');
 
       resultData.sendAdapterServiceId = document.getElementsByClassName('header-title')[0].innerHTML;
 
-      for(let i = 0; i < sendElement[1].children.length; i++) {
-        let className = sendElement[1].children[i].getAttribute('class');
+      for(let i = 0; i < sendElement[0].children.length; i++) {
+        let className = sendElement[0].children[i].getAttribute('class');
         if(className == 'output-title') {
 
           if(className == 'output-title') {
             tempTalbe.push(sendElement[1].children[i].lastElementChild.innerHTML);
           }
           
-          if(tempColumn != "") {
+          if(tempColumn !== "") {
             tempColumnList.push(tempColumn);
-            // sendValue.push(tempColumnList);
             if(tempColumnList.length > 0) {
-              // tempColumnList = [];
               tempColumn = "";
             } 
           }
         } else {
           if(tempColumn == "") {
-            tempColumn = sendElement[1].children[i].lastElementChild.innerHTML;  
+            tempColumn = sendElement[0].children[i].lastElementChild.innerHTML;  
           } else {
-            tempColumn += (',' + sendElement[1].children[i].lastElementChild.innerHTML);
+            tempColumn += (',' + sendElement[0].children[i].lastElementChild.innerHTML);
           }
 
-          if(i == (sendElement[1].children.length - 1)) {
+          if(i == (sendElement[0].children.length - 1)) {
             tempColumnList.push(tempColumn);
-            // sendValue.push(tempColumnList);
           }
         }
       }
@@ -433,39 +431,32 @@
 
 
       //수신수 데이터 생성
-      // let receiveObj = new Object();
-      // let receiveValue = new Array();
-      let receiveElement = document.getElementsByClassName('inputs');
+      let receiveElement = document.getElementsByClassName('outputs')[1];
 
-      resultData.receiveAdapterServiceId = document.getElementsByClassName('header-title')[2].innerHTML;
+      resultData.receiveAdapterServiceId = document.getElementsByClassName('header-title')[1].innerHTML;
 
-      for(let i = 0; i < receiveElement[1].children.length; i++) {
+      for(let i = 0; i < receiveElement.children.length; i++) {
 
-        let className = receiveElement[1].children[i].getAttribute('class');
-        if(className == 'input-title') {
+        let className = receiveElement.children[i].getAttribute('class');
+        if(className == 'output-title') {
 
-          if(className == 'input-title') {
-            tempTalbe.push(receiveElement[1].children[i].lastElementChild.innerHTML);
-          }
+          tempTalbe.push(receiveElement.children[i].lastElementChild.innerHTML);
           
-          if(tempColumn != "") {
+          if(tempColumn !== "") {
             tempColumnList.push(tempColumn);
-            // receiveValue.push(tempColumnList);
             if(tempColumnList.length > 0) {
-              // tempColumnList = [];
               tempColumn = "";
             } 
           }
         } else {
           if(tempColumn == "") {
-            tempColumn = receiveElement[1].children[i].lastElementChild.innerHTML;  
+            tempColumn = receiveElement.children[i].lastElementChild.innerHTML;  
           } else {
-            tempColumn += (',' + receiveElement[1].children[i].lastElementChild.innerHTML);
+            tempColumn += (',' + receiveElement.children[i].lastElementChild.innerHTML);
           }
 
-          if(i == (receiveElement[1].children.length - 1)) {
+          if(i == (receiveElement.children.length - 1)) {
             tempColumnList.push(tempColumn);
-            // receiveValue.push(tempColumnList);
           }
         }
       }
@@ -478,28 +469,20 @@
       tempTalbe = [];
 
       //connector 데이터 생성
-      // let connectorObj = new Object();
-      // let connectorValue = new Array();
       let tempConnector = new Array();
       
-      let cnt = document.getElementsByClassName('outputs')[1].getElementsByClassName('output-field').length;
+      let cnt = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
       let connectorsList = document.getElementsByClassName('connector');
 
       for(let c = 0; c < connectorsList.length; c++) {
         let temp = "";
         let pos = 0;
-        // tempConnector = [];
 
         //out
         let outDataDrag = connectorsList[c].children[3].getAttribute('data-drag');
 
-        //document.getElementsByClassName('output-field')[10].lastElementChild.innerHTML와 outDataDrag값이 다를 경우 innerHTML값으로 여러건의 mapping 데이터 생성 필요
         pos = outDataDrag.indexOf('port:');
         let outDataDragValue = outDataDrag.substring(pos+5);
-
-        if(outDataDrag.substring(5,pos-1) < cnt*2) {
-          continue;
-        }
 
         //in
         let inDataDrag = connectorsList[c].children[2].getAttribute('data-drag');
@@ -508,7 +491,6 @@
 
         temp = outDataDragValue + "," + inDataDragValue;
         tempConnector.push(temp);
-        // connectorValue.push(tempConnector);
       }
 
       resultData.mappingConnection = tempConnector;
@@ -516,15 +498,10 @@
       resultData.interfaceId = interfaceIdValue;
 
       sendServer(resultData);
-
-      // sendServer(sendObj);
-      // sendServer(receiveObj);
-      // sendServer(connectorObj);
-
     }
 
     function makeButton() {
-      let rectBtn = document.createElementNS("http://www.w3.org/2000/svg","rect");
+      let rectBtn = document.createElementNS(svgUrl,"rect");
 
       rectBtn.setAttribute('width','100');
       rectBtn.setAttribute('height','30');
@@ -540,7 +517,7 @@
 
       document.getElementsByTagName("svg")[0].appendChild(rectBtn);
 
-      let text = document.createElementNS("http://www.w3.org/2000/svg","text");
+      let text = document.createElementNS(svgUrl,"text");
       text.setAttribute('x','80');
       text.setAttribute('y','26');
 
@@ -550,95 +527,62 @@
       document.getElementsByTagName("svg")[0].appendChild(text);
     }
 
-    
+    var mappingData = "";
+    function requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId) {
 
-    window.onload = function(){
+      mappingData = "";
+      //this객체 초기화
+      saveThisList = [];
 
-      var mappingData = "";
+      //              {sendChannelGroupId: sendChannelGroupId, interfaceId: interfaceId, receiveChannelGroupId: receiveChannelGroupId, receiveAdapterServiceId: receive}
+      // var reqData = {"sendChannelGroupId":"K4M","interfaceId":"IF_K4M_KR_D005","receiveChannelGroupId":"KR","receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005"};
+      var reqData = {"sendChannelGroupId":fromChannelGroupId,"interfaceId":interfaceId,"receiveChannelGroupId":receiveChannelGroupId,"receiveAdapterServiceId":receiveAdapterId};
 
-      function requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId) {
+      $.ajax({
+        url : 'interface/mappingprocess',
+        type : 'post',
+        data : reqData,
+        async: false,
+        success : successCall,
+        error : errorCall
+      });
 
-        //this객체 초기화
-        saveThisList = [];
+      function successCall(s) {
+        console.log("RequestSuccess");
+        console.log(s);
+        setNode(s.send, "send");
+        setNode(s.receive, "receive");
 
-        //              {sendChannelGroupId: sendChannelGroupId, interfaceId: interfaceId, receiveChannelGroupId: receiveChannelGroupId, receiveAdapterServiceId: receive}
-        // var reqData = {"sendChannelGroupId":"K4M","interfaceId":"IF_K4M_KR_D005","receiveChannelGroupId":"KR","receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005"};
-        var reqData = {"sendChannelGroupId":fromChannelGroupId,"interfaceId":interfaceId,"receiveChannelGroupId":receiveChannelGroupId,"receiveAdapterServiceId":receiveAdapterId};
-
-        $.ajax({
-          url : 'interface/mappingprocess',
-          type : 'post',
-          data : reqData,
-          async: false,
-          success : successCall,
-          error : errorCall
-        });
-
-        function successCall(s) {
-          console.log("RequestSuccess");
-          console.log(s);
-          setNode(s.send, "send");
-          setNode(s.receive, "receive");
-
-          if(s.hasOwnProperty('mappingData') && s.mappingData.length > 0) {
+        if(s.hasOwnProperty('mappingData') && s.mappingData.length > 0) {
             mappingData = s.mappingData;
-          }
-
-          const diagram = new Diagram();
-
-          document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
-          
-          nextUidPort = 0;
-          nextUidConnector = 0;
-          nextUidShape = 0;
-          inputPortList = [];
-          outputPortList = [];
         }
 
-        function errorCall(e) {
-          console.log("RequestError");
-          console.log(e);
-        }
+        return true;
       }
 
-      getListServer();
+      function errorCall(e) {
+        console.log("RequestError");
+        console.log(e);
 
-      // requestServer();
+        return false;
+      }
+    } 
 
-      // setNode(sendData);
-      // setNode(receiveData);
+    // 인터페이스 아이디
+    var interfaceId = "";
+    function clickEvent() {
+      let checkClickEvent = document;
+      let clickEl = "";
 
-      // let select = document.createElementNS("http://www.w3.org/2000/svg","select");
-      // let opt1 = document.createElementNS("http://www.w3.org/2000/svg","option");
-      // opt1.innerHTML = "opt1";
-      // let opt2 = document.createElementNS("http://www.w3.org/2000/svg","option");
-      // opt2.innerHTML = "opt2";
-      // let opt3 = document.createElementNS("http://www.w3.org/2000/svg","option");
-      // opt3.innerHTML = "opt3";
-
-      // document.getElementsByTagName("svg")[0].appendChild(select);
-      // document.getElementsByTagName("svg")[0].getElementsByTagName("select")[0].appendChild(opt1);
-      // document.getElementsByTagName("svg")[0].getElementsByTagName("select")[0].appendChild(opt2);
-      // document.getElementsByTagName("svg")[0].getElementsByTagName("select")[0].appendChild(opt3);
-      
-      makeButton();
-
-      SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
-        return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
-      };
-
-      var checkClickEvent = document;
-      var clickEl = "";
-      var preInputData = "";
       checkClickEvent.addEventListener('click',function(event) {
         clickEl = event.target;
         if(clickEl.tagName == "rect") {
           event.eventValue = false;
         }
-        // console.log("click test");
+        // console.log("click check");
 
-        if((event.target.getAttribute('class') != null && event.target.getAttribute('class').indexOf('port') > -1) || 
-        (event.target.getAttribute('id') != null && event.target.getAttribute('id').indexOf('diagram') > -1)) {
+        if((event.target.getAttribute('class') !== null && event.target.getAttribute('class').indexOf('port') > -1) || 
+        (event.target.getAttribute('id') !== null && event.target.getAttribute('id').indexOf('diagram') > -1)) {
           connectorClean();
         } else {
           if(event.target.id.indexOf('save') > -1) {
@@ -648,81 +592,109 @@
         }
       });
 
+    }
 
-      checkClickEvent.addEventListener('input',function(event) {
-        console.log("input test");
-        if(preInputData == "NULL" && (event.inputType == "insertText" || event.inputType == "insertCompositionText")) {
-          clickEl.innerHTML = event.data;
-          clickEl.focus();
-        } 
-      });
-
-      checkClickEvent.addEventListener('keydown',function(event) { 
-        console.log("keydown test"); 
-        if(event.key == "Backspace") {
-          if(clickEl.innerHTML.trim().length == 1 || clickEl.innerHTML == "NULL") {
-            clickEl.innerHTML = "NULL";
-            preInputData = clickEl.innerHTML;
-            event.returnValue = false;
-          }
-        } else {
-          preInputData = clickEl.innerHTML;
+    function cleanElement() {
+      let outs = document.getElementsByClassName('outputs');
+      let ins = document.getElementsByClassName('inputs');
+      let cons = document.getElementById('connections-layer');
+      
+      for(let i = 0; i < 2; i++) {
+        while(outs[i].hasChildNodes()) {
+          outs[i].removeChild(outs[i].firstChild);
         }
-      });
-
-
-      var inputEl = document.getElementsByClassName('interfaceListInput')[0];
-      inputEl.addEventListener('input', updateValue);
-
-      function updateValue(e) {
-        let cnt = -1;
-        console.log(e);
-
-        interfaceId = e.target.value;
-        let opts = document.getElementsByTagName('option');
-        for(let i = 0; i < opts.length; i++) {
-          if(interfaceId == opts[i].getAttribute('value')) {
-            cnt = i;
-            break;
-          }
-        }
-
-        if(cnt == -1) {
-          return true;
-        }
-        
-        cleanElement();
-
-        let receiveChannelGroupId = opts[cnt].getAttribute('receiveChannelGroupId');
-        let fromChannelGroupId = opts[cnt].getAttribute('fromChannelGroupId');
-        let interfaceType = opts[cnt].getAttribute('interfaceType');
-        let receiveAdapterId = opts[cnt].getAttribute('receiveAdapterId');
-
-        if(receiveChannelGroupId != "" && fromChannelGroupId != "" && interfaceType != "" && interfaceId != "" && receiveAdapterId != "") {
-          requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId);
-        }
-      }
-
-      function cleanElement() {
-        let outs = document.getElementsByClassName('outputs');
-        let ins = document.getElementsByClassName('inputs');
-        let cons = document.getElementById('connections-layer');
-        
-        for(let i = 0; i < 2; i++) {
-          while(outs[i].hasChildNodes()) {
-            outs[i].removeChild(outs[i].firstChild);
-          }
+        if(i == 0) {
           while(ins[i].hasChildNodes()) {
             ins[i].removeChild(ins[i].firstChild);
           }
         }
-
-        while(cons.hasChildNodes()) {
-          cons.removeChild(cons.firstChild);
-        }
-
-        mappingData = "";
       }
+
+      while(cons.hasChildNodes()) {
+        cons.removeChild(cons.firstChild);
+      }
+    }
+
+    function connectorClean() {
+      let connectors = document.getElementsByClassName('connector');
+      if(connectors.length > 0) {
+        for(var checkConnector of connectors) {
+          let inputPortCheck = checkConnector.children[2].getAttribute('transform');
+          let outputPortCheck = checkConnector.children[3].getAttribute('transform');
+          let checkEct1 = checkConnector.children[0].getAttribute('d');
+          let checkEct2 = checkConnector.children[1].getAttribute('d');
+
+          if(inputPortCheck !== null && outputPortCheck !== null) {
+            if(inputPortCheck == outputPortCheck && checkEct1 == null && checkEct2 == null) {
+              checkConnector.remove();
+            } 
+          }
+        }
+      }
+    }
+
+    window.onload = function(){
+
+      // 인터페이스 목록 조회
+      getListServer();
+      
+      // 조회 버튼 생성
+      makeButton();
+
+      // 클릭 이벤트 설정
+      clickEvent();
+
+      // 선택된 인터페이스 조회
+      updateInputValue();
+
+      function updateInputValue() {
+        var inputEl = document.getElementsByClassName('interfaceListInput')[0];
+        inputEl.addEventListener('input', updateValue);
+
+        function updateValue(e) {
+          let cnt = -1;
+          console.log(e);
+
+          interfaceId = e.target.value;
+          let opts = document.getElementsByTagName('option');
+          for(let i = 0; i < opts.length; i++) {
+            if(interfaceId == opts[i].getAttribute('value')) {
+              cnt = i;
+              break;
+            }
+          }
+
+          if(cnt == -1) {
+            return true;
+          }
+          
+          cleanElement();
+
+          let receiveChannelGroupId = opts[cnt].getAttribute('receiveChannelGroupId');
+          let fromChannelGroupId = opts[cnt].getAttribute('fromChannelGroupId');
+          let interfaceType = opts[cnt].getAttribute('interfaceType');
+          let receiveAdapterId = opts[cnt].getAttribute('receiveAdapterId');
+
+          if(receiveChannelGroupId !== "" && fromChannelGroupId !== "" && interfaceType !== "" && interfaceId !== "" && receiveAdapterId !== "") {
+            requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId);
+
+            const diagram = new Diagram();
+
+            document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
+            
+            nextUidPort = 0;
+            nextUidConnector = 0;
+            nextUidShape = 0;
+            inputPortList = [];
+            outputPortList = [];
+          }
+        }
+      }
+
+      SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
+        return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+      };
+
 
       //
       // DIAGRAM
@@ -773,21 +745,13 @@
 
           function createAutoConnector(data) {
             //기본 connector 생성
+            
             //송신데이터 기준 컬럼 갯수
             let outputs = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
+
             //수신데이터 기준 컬럼 갯수
-            let inputs = document.getElementsByClassName('inputs')[1].getElementsByClassName('input-field').length;
+            let inputs = document.getElementsByClassName('inputs')[0].getElementsByClassName('input-field').length;
             let el = document.querySelector("#diagram");
-
-            //1번째 out/in 생성
-            for(let n = 0; n < outputs; n++) {
-              data.target = document.getElementsByClassName('port-scrim')[n];
-              data.prepareTarget(data);
-              let pos = document.getElementsByClassName('port-scrim')[n+outputs].getTransformToElement(el);
-              data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
-              data.stopDragging(data);
-            }
-
             let port = document.getElementsByClassName('port-scrim');
 
             if(mappingData.length > 0) {
@@ -802,7 +766,7 @@
                 let outTable = outData[0];
                 let outColumn = outData[1];
 
-                for(let b = outputs*2; b < outputs*3; b++) {
+                for(let b = 0; b < outputs; b++) {
                   if(outTable == port[b].getAttribute('table')) {
                     if(outColumn == port[b].getAttribute('columnName')) {
                       outMatch = b;
@@ -815,9 +779,15 @@
                 let inTable = inData[0];
                 let inColumn = inData[1];
 
-                for(let c = outputs*3; c < (outputs*3)+inputs; c++) {
+                for(let c = outputs; c < outputs+inputs; c++) {
                   if(inTable == port[c].getAttribute('table')) {
-                    if(inColumn == port[c].getAttribute('columnName')) {
+                    let temp = "";
+                    if(port[c].getAttribute('columnName').split('|').length > 1) {
+                      temp = port[c].getAttribute('columnName').split('|')[0];
+                    } else {
+                      temp = port[c].getAttribute('columnName')
+                    }
+                    if(inColumn == temp) {
                       inMatch = c;
                       break;
                     }
@@ -833,39 +803,19 @@
                 }
               }
 
-            } else {
-              //2번째 out/in 생성
-              for(let n = outputs*2; n < outputs*3; n++) {
-                let matchIn = -1;
-                // document.getElementsByClassName('port-scrim')[n+outputs]; 
+            } 
+            else {
 
-                data.target = port[n];
-                // data.prepareTarget(data);
-
-                for(let k = (outputs*3); k < (outputs*3)+inputs; k++) {
-                  let outText = data.target.getAttribute('columnName');
-                  let inText = port[k].getAttribute('columnName');
-
-                  // if(data.target.getAttribute('table') == port[k].getAttribute('table')) {
-                    if(outText != inText) {
-                      continue;
-                    } else {
-                      matchIn = k;
-                      data.prepareTarget(data);
-                      break;
-                    }
-                  // }
-                }
-
-                if(matchIn > -1) {
-                  let pos = port[matchIn].getTransformToElement(el);
-                  data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
-                  data.stopDragging(data);
-                }
+              // 1번째 out/in 생성
+              for(let n = 0; n < outputs; n++) {
+                data.target = document.getElementsByClassName('port-scrim')[n];
+                data.prepareTarget(data);
+                let pos = document.getElementsByClassName('port-scrim')[n+outputs].getTransformToElement(el);
+                data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
+                data.stopDragging(data);
               }
             }
           }
-
         }
 
         stopDragging(event) {
@@ -876,17 +826,9 @@
 
           if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg" || event.target.tagName == "path") {
             dragYN = true;
-            // this.target.dragType = "";
-            // this.target.dragElement = "";
-            // this.target.dragElement = document.getElementsByTagName('text')[0];
-            // this.staticElement = document.getElementsByTagName('text')[0];
-            // this.draggable.disable();
             this.stopDragging(this);
-            // this.draggable.enable();
             return true;
           } else {
-            // this.target.dragElement = event.target;
-            // this.target.dragType = "connector";
             dragYN = false;
           }
 
@@ -901,13 +843,6 @@
           while (!(drag = element.getAttribute("data-drag")) && element !== svg) {
             element = element.parentNode;
           }
-
-          // if(drag != null && drag.indexOf('connector') > -1) {
-          //   let info = connectorInfo(event.target);
-          //   if(info) {
-          //     drag = info;
-          //   }
-          // }
 
           drag = drag || "diagram:diagram";
           const split = drag.split(":");
@@ -946,11 +881,6 @@
 
             case "connector":
               this.target = connectorLookup[id];
-
-              //target이 undefined일 경우 check할 사항
-              // if(this.target == undefined) {
-              //   connectorInfo(event.target);
-              // }
             break;
           }
 
@@ -969,24 +899,6 @@
             }
             return bMapping;
           }
-
-          // function connectorInfo(target) {
-          //   let el = target.parentElement.children;
-          //   let inputHandleDrag = el[2].getAttribute('data-drag');
-          //   let outputHandleDrag = el[3].getAttribute('data-drag');
-
-          //   inputPortMapping = true;
-
-          //   if(inputHandleDrag.indexOf('port') > -1) {
-          //     startInputPort = true;
-          //     return inputHandleDrag;
-          //   }else if(outputHandleDrag.indexOf('port') > -1) {
-          //     startInputPort = false;
-          //     return outputHandleDrag;
-          //   }else{
-          //     return;
-          //   }
-          // }
         }
 
         dragTarget() {
@@ -997,12 +909,53 @@
 
           if(startInputPort == true && inputPortMapping == true) {
 
-            if((this.target.inputPort == null || this.target.inputPort == undefined) && this.target.outputPort != null) {
+            if((this.target.inputPort == null || this.target.inputPort == undefined) && this.target.outputPort !== null) {
               getInputPortList(this.element, this.target.outputPort.id);
               this.target.inputPort = {id:inputPortList[inputPortList.length-1]};
-            } else if(this.target.inputPort != null && (this.target.outputPort == null || this.target.outputPort == undefined)) {
+            } else if(this.target.inputPort !== null && (this.target.outputPort == null || this.target.outputPort == undefined)) {
+
+              let connectData = $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors");
+
+              if(connectData.indexOf('|') > -1) {
+                if(connectData.indexOf('|' + this.target.id) > -1) {
+                  connectData = connectData.replace('|' + this.target.id, "");
+                } else {
+                  connectData = connectData.replace(this.target.id + '|', "");
+                }
+                $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", connectData);
+              } else {
+                $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", "");  
+              }
+
               getOutputPortList(this.element, this.target.inputPort.id);
               this.target.outputPort = {id:outputPortList[outputPortList.length-1]};
+
+              let textData = $("[data-drag=" + this.target.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
+
+              //테이블이 다른 데이터일 경우
+              let delData = "";
+              if(textData.indexOf(':') > -1) {
+                delData = $("[data-drag=" + this.target.outputPort.id + "\\:port]").attr('table') + ':' + $("[data-drag=" + this.target.outputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
+              } else {
+                delData = $("[data-drag=" + this.target.outputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
+              }
+
+              if(textData.indexOf('|') > -1) {
+                if(textData.indexOf('|' + delData) > -1) {
+                  textData = textData.replace('|' + delData, "");
+                } else {
+                  textData = textData.replace(delData + '|', "");
+                }
+
+                if(textData.split('|').length == 1 && textData.indexOf(':') > -1) {
+                  textData = textData.split(':')[1];
+                }
+
+                $("[data-drag=" + this.target.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML = textData;
+                $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("columnName",textData);
+                shapes[1].inputs[parseInt(this.target.inputPort.id.substr(5)) - document.getElementsByClassName('input-field').length - 1].columnName = textData;
+
+              }
             }
 
             for(var saveThis of saveThisList) {
@@ -1020,15 +973,8 @@
               }
             }
           } else if(startInputPort == true && inputPortMapping == false) {
-            //connectorClean();
-            // var customEvent = document.createEvent('Event');
-            // customEvent.initEvent('click',false, true);
-            // this.target.inputPort.portElement.dispatchEvent(customEvent);
             return true;  
           } 
-          // else {
-          //   return true;
-          // }
 
           TweenLite.set(this.target.dragElement, {
             x: `+=${this.draggable.deltaX}`,
@@ -1066,20 +1012,6 @@
           //객체로 속성 복사
           function assignObject(targetObject,copyObject) {
             targetObject = Object.assign(targetObject,copyObject)
-            // targetObject.dragElement = copyObject.dragElement;
-            // targetObject.dragType = copyObject.dragType;
-            // targetObject.element = copyObject.element;
-            // targetObject.id = copyObject.id;
-            // targetObject.inputHandle = copyObject.inputHandle;
-            // targetObject.inputPort = copyObject.inputPort;
-            // targetObject.isInput = copyObject.isInput;
-            // targetObject.isSelected = copyObject.isSelected;
-            // targetObject.outputHandle = copyObject.outputHandle;
-            // targetObject.outputPort = copyObject.outputPort;
-            // targetObject.path = copyObject.path;
-            // targetObject.pathOutline = copyObject.pathOutline;
-            // targetObject.staticElement = copyObject.staticElement;
-            // targetObject.staticPort = copyObject.staticPort;
           }
         }
       }
@@ -1102,9 +1034,7 @@
           //TweenMax.min.js 제공 -> TweenLite.set()는 element 속성 즉시 설정
           TweenLite.set(element, { x, y });
 
-          //const inputElements = Array.from(element.querySelectorAll(".input-field"));
           const inputElements = Array.prototype.slice.call(element.querySelectorAll(".input-field"));
-          //const outputElements = Array.from(element.querySelectorAll(".output-field"));
           const outputElements = Array.prototype.slice.call(element.querySelectorAll(".output-field"));
 
           this.inputs = inputElements.map(element => {
@@ -1208,14 +1138,6 @@
         removeConnector(connection) {
 
           // //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
-          // let len = this.connectors.length;
-          // for(var pos = len-1; pos > 0; pos--) {
-          //   if(this.connectors[pos].id == connection.id) {
-          //     this.connectors.splice(pos,1);
-
-          //   }
-          // }
-
           const index = this.connectors.indexOf(connection);
 
           if (index > -1) {
@@ -1249,9 +1171,7 @@
 
         init(port) {
 
-          // if(startInputPort == false) {
-            connectorLayer.appendChild(this.element);
-          // }
+          connectorLayer.appendChild(this.element);
 
           this.isInput = port.isInput;
 
@@ -1366,7 +1286,16 @@
               this.inputPort = hitPort;
             }
 
-            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + hitPort.columnName);
+            let colNames = hitPort.columnName.split('|');
+            let colNameData = "";
+
+            if(colNames.length > 0) {
+              colNameData = colNames[0];
+            } else {
+              colNameData = hitPort.columnName;
+            }
+
+            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + colNameData);
 
             //동일한 connector가 존재할 경우 중복되지 않도록 설정
             var chkSame = false;
@@ -1397,7 +1326,7 @@
               this.remove();
               return true;
             } else {
-              if(this.inputPort != null && this.outputPort != null) {
+              if(this.inputPort !== null && this.outputPort !== null) {
                 let intputTable = this.inputPort.tableName;
               }
             }
@@ -1413,8 +1342,43 @@
             checkColumnData(this);
 
           } else {
-            this.remove();
             //connector 목록 중 합쳐진 데이터가 있을 경우 remove할때 columnName 속성, text에서 삭제 필요함
+            if((this.hasOwnProperty('inputPort') && this.hasOwnProperty('outputPort')) && (this.inputPort !== null && this.outputPort !== null)) {
+              let targetInputPort = document.getElementsByClassName('port')[parseInt(this.inputPort.id.substr(5))-1];
+              let targetOutputPort = document.getElementsByClassName('port')[parseInt(this.outputPort.id.substr(5))-1];
+              let inputPortCol = targetInputPort.lastElementChild.getAttribute('columnName');
+              let outputPortCol = targetOutputPort.lastElementChild.getAttribute('columnName');
+              
+              //connector 설정
+              let con = targetInputPort.lastElementChild.getAttribute('connectors');
+
+              if(con.indexOf('|') > -1) {
+                if(con.indexOf('|' + this.id) > -1) {
+                  con = con.replace('|' + this.id,"");
+                } else {
+                  con = con.replace(this.id + '|',"");
+                }
+                targetInputPort.lastElementChild.setAttribute('connectors', con);
+              } else {
+                targetInputPort.lastElementChild.setAttribute('connectors',"");
+              }
+
+              //컬럼명 설정
+              if(inputPortCol.indexOf('|') > -1) {
+                if(inputPortCol.indexOf('|' + outputPortCol) > -1) {
+                  inputPortCol = inputPortCol.replace('|' + outputPortCol,"");
+                } else {
+                  inputPortCol = inputPortCol.replace(outputPortCol + '|',"");
+                }
+
+                targetInputPort.lastElementChild.setAttribute('columnName',inputPortCol);
+                targetInputPort.parentElement.lastElementChild.innerHTML = inputPortCol;
+                //connector 생성시 data-drag속성을 port.columnName으로 생성하기 때문에 수정필요
+                shapes[1].inputs[parseInt(this.inputPort.id.substr(5)) - document.getElementsByClassName('input-field').length - 1].columnName = inputPortCol;
+              }
+            }
+
+            this.remove();
           }
 
           connectorClean();
@@ -1422,27 +1386,66 @@
 
           function checkColumnData(data) {
             let cnt = data.inputPort.id.split('_')[1];
-            let portCnt = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
-            let updatePortCnt = parseInt(cnt) + parseInt(portCnt) -1;
+            let portCnt = document.getElementsByClassName('input-field').length
+            
+            let connectorsData = document.getElementsByClassName('port')[cnt-1].lastElementChild.getAttribute('connectors');
+            if(connectorsData == "" || connectorsData == null) {
+              connectorsData = data.id;
+              document.getElementsByClassName('port')[cnt-1].lastElementChild.setAttribute('connectors',data.id);
+            } else {
+              if(connectorsData.indexOf(data.id) < 0) {
+                connectorsData += '|' + data.id;
+                document.getElementsByClassName('port')[cnt-1].lastElementChild.setAttribute('connectors',connectorsData);
+              }
+            }
 
-            if(cnt <= portCnt*2) {
+            let updatePortText = document.getElementsByClassName('port')[cnt-1].parentElement.lastElementChild;
+            let updatePortCol = document.getElementsByClassName('port')[cnt-1].parentElement.getElementsByClassName('port-scrim')[0];
 
-              let updatePortText = document.getElementsByClassName('port')[updatePortCnt].parentElement.lastElementChild;
-              let updatePortCol = document.getElementsByClassName('port')[updatePortCnt].parentElement.getElementsByClassName('port-scrim')[0];
+            if(data.inputPort.id !== data.outputPort.id && data.isInput == false) {
 
-              if(data.inputPort.id != data.outputPort.id && data.isInput == false) {
+              if(data.inputPort.tableName == data.outputPort.tableName && updatePortText.innerHTML.indexOf(':') < 0) {
+                if(data.inputPort.columnName !== data.outputPort.columnName) {
+                  //테이블 동일 & 컬럼명 불일치
+                  if(updatePortText.innerHTML.indexOf('|') < 0) {
+                    if(updatePortText.innerHTML !== data.outputPort.columnName && connectorsData.split('|').length == 1) {
+                      updatePortText.innerHTML = data.outputPort.columnName;
+                      
+                      let connectorDataDrag = data.element.getElementsByClassName('connector-handle input-handle')[0].getAttribute('data-drag');
+                      connectorDataDrag = connectorDataDrag.replace(connectorDataDrag.split(':')[3],data.outputPort.columnName);
+                      data.element.getElementsByClassName('connector-handle input-handle')[0].setAttribute('data-drag',connectorDataDrag);
 
-                if(data.inputPort.tableName == data.outputPort.tableName) {
-                  if(data.inputPort.columnName != data.outputPort.columnName) {
-                    //테이블 동일 & 컬럼명 불일치
-                    updatePortText.innerHTML += ('|'+data.outputPort.columnName);
-                    updatePortCol.setAttribute('columnName',updatePortText.innerHTML);
+                    } else if(updatePortText.innerHTML.indexOf(data.outputPort.columnName) < 0 && connectorsData.split('|').length > 1) {
+                      updatePortText.innerHTML += ('|'+data.outputPort.columnName);
+                    }
+                  } else {
+                    if(updatePortText.innerHTML.indexOf(data.outputPort.columnName) < 0 && connectorsData.split('|').length > 1) {
+                      updatePortText.innerHTML += ('|'+data.outputPort.columnName);
+                    }
+                  }
+
+                  updatePortCol.setAttribute('columnName',updatePortText.innerHTML);
+                  shapes[1].inputs[cnt - portCnt - 1].columnName = updatePortText.innerHTML;
+
+                }
+              } else {
+                //테이블 불일치
+                if(updatePortText.innerHTML.indexOf('|') < 0) {
+
+                  updatePortText.innerHTML = data.inputPort.tableName + ':' + updatePortText.innerHTML
+
+                  if(updatePortText.innerHTML !== (data.outputPort.tableName + ':' + data.outputPort.columnName) && connectorsData.split('|').length == 1) {
+                    updatePortText.innerHTML += '|' + data.outputPort.tableName + ':' + data.outputPort.columnName;
+                  } else if(updatePortText.innerHTML.indexOf('|' + data.outputPort.tableName + ':' + data.outputPort.columnName) < 0 && connectorsData.split('|').length > 1) {
+                    updatePortText.innerHTML += '|' + data.outputPort.tableName + ':' + data.outputPort.columnName;
                   }
                 } else {
-                  //테이블 불일치
-                  updatePortText.innerHTML = '(' + data.outputPort.tableName + ')' + updatePortText.innerHTML + '|' + '(' + data.inputPort.tableName + ')' + data.outputPort.columnName;
-                  updatePortCol.setAttribute('columnName',updatePortText.innerHTML);
+                  if(updatePortText.innerHTML.indexOf('|' + data.outputPort.tableName + ':' + data.outputPort.columnName) < 0 && connectorsData.split('|').length > 1) {
+                    updatePortText.innerHTML += '|' + data.outputPort.tableName + ':' + data.outputPort.columnName;
+                  }
                 }
+                updatePortCol.setAttribute('columnName',updatePortText.innerHTML);
+                shapes[1].inputs[cnt - portCnt - 1].columnName = updatePortText.innerHTML;
               }
             }
           }
@@ -1462,10 +1465,10 @@
 
           this.path.removeAttribute("d");
           this.pathOutline.removeAttribute("d");
-          if(this.dragElement != undefined) {
+          if(this.dragElement !== undefined) {
             this.dragElement.removeAttribute("data-drag");
           }
-          if(this.staticElement != undefined) {
+          if(this.staticElement !== undefined) {
             this.staticElement.removeAttribute("data-drag");
           }
 
@@ -1475,7 +1478,7 @@
           this.dragElement = null;
           this.staticElement = null;
 
-          if(this.element.parentElement != null && this.element.parentElement != undefined) {
+          if(this.element.parentElement !== null && this.element.parentElement !== undefined) {
             connectorLayer.removeChild(this.element);
             connectorPool.push(this);
           }
@@ -1490,38 +1493,12 @@
         }
       }
 
-
-      function connectorClean() {
-        let connectors = document.getElementsByClassName('connector');
-        if(connectors.length > 0) {
-          for(var checkConnector of connectors) {
-            let inputPortCheck = checkConnector.children[2].getAttribute('transform');
-            let outputPortCheck = checkConnector.children[3].getAttribute('transform');
-            let checkEct1 = checkConnector.children[0].getAttribute('d');
-            let checkEct2 = checkConnector.children[1].getAttribute('d');
-
-            if(inputPortCheck != null && outputPortCheck != null) {
-              if(inputPortCheck == outputPortCheck && checkEct1 == null && checkEct2 == null) {
-                checkConnector.remove();
-              } 
-            }
-          }
-        }
-      };
-
       //
       // APP
       // ===========================================================================
 
       //drag 대상 유무 확인
       var dragYN = false;
-
-      // //인터페이스 아이디 조회 후 저장할 변수
-      // var receiveChannelGroupId = "";
-      // var fromChannelGroupId = "";
-      // var interfaceType = "";
-      var interfaceId = "";
-      // var receiveAdapterId = "";
 
       //inputPort 맵핑 여부 판단 변수
       var inputPortMapping = false;
@@ -1569,7 +1546,6 @@
       const connectorPool = [];
 
       const dragProxy = document.querySelector("#drag-proxy");
-      //const shapeElements = Array.from(document.querySelectorAll(".node-container"));
       const shapeElements = Array.prototype.slice.call(document.querySelectorAll(".node-container"));
 
       const frag = document.createDocumentFragment();
@@ -1581,7 +1557,6 @@
 </head>
 <body contenteditable="true">
   <div>
-    <!-- <button>sample</button> -->
     <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList" style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
     <datalist id="interfaceList">
       <!--
@@ -1590,7 +1565,8 @@
       -->
     </datalist>
   </div>
-    <svg id="svg" style="visibility: hidden;">
+    <!-- <svg id="svg" style="visibility: hidden;"> -->
+    <svg id="svg">
       <text contentEditable="true" required="true"></text>
       <!-- <svg id="svg"> -->
       <g id="diagram" data-drag="diagram:diagram" data-drag-type="diagram">     
@@ -1633,39 +1609,13 @@
               <rect class="content-rect" width="800" height="77" x="2" y="44"></rect>
     
               <g class="inputs">
-                
               </g>
-    
               <g class="outputs">
+              </g> 
 
-              </g>
-    
             </g>
           </g>
           
-          <!-- PROCESS 3 -->   
-          <g class="node-container">    
-            <rect class="node-background" width="254" height="128" x="0" y="0" rx="6" ry="6"></rect>
-    
-            <g class="node-header">
-              <rect class="header-round-rect" width="250" height="40" x="2" y="2" rx="4" ry="4"></rect>
-              <rect class="header-rect" width="250" height="36" x="2" y="6"></rect>
-              <text class="header-title" x="122" y="30">Process 3</text>
-            </g>
-    
-            <g class="node-content">
-    
-              <rect class="content-round-rect" width="250" height="82" x="2" y="44" rx="4" ry="4"></rect>
-              <rect class="content-rect" width="250" height="77" x="2" y="44"></rect>
-              
-              <g class="inputs">
-                
-              </g>
-    
-            </g>
-
-          </g>
-
         </g>
     
         <g id="connections-layer"></g>
