@@ -3,6 +3,7 @@
   <!--애니메이션 라이브러리-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
@@ -114,6 +115,7 @@
 
     var svgUrl = "http://www.w3.org/2000/svg";
 
+    // 인터페이스 목록 조회 서비스
     function getListServer() {
       $.ajax({
         url : '/dbcolumn',
@@ -136,6 +138,7 @@
       }   
     }
 
+    // 화면에 인터페이스 리스트 생성
     function createList(listData) {
       // {"sendChannelGroupId":"K4M","interfaceId":"IF_K4M_KR_D005","receiveChannelGroupId":"KR","receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005"};
       let datalist = document.getElementById('interfaceList');
@@ -575,6 +578,9 @@
       let clickEl = "";
 
       checkClickEvent.addEventListener('click',function(event) {
+
+        console.log("checkClickEvent - start");
+
         clickEl = event.target;
         if(clickEl.tagName == "rect") {
           event.eventValue = false;
@@ -647,6 +653,7 @@
       // 선택된 인터페이스 조회
       updateInputValue();
 
+      // 인터페이스 선택시 update 이벤트
       function updateInputValue() {
         var inputEl = document.getElementsByClassName('interfaceListInput')[0];
         inputEl.addEventListener('input', updateValue);
@@ -739,11 +746,15 @@
             onPress: this.prepareTarget
           });
 
-          resetThis = Object.assign(resetThis,this);
+          // resetThis = Object.assign(resetThis,this);
           
           createAutoConnector(this);
 
+          autoCon = false;
+
+          // 자동으로 connector 생성 함수
           function createAutoConnector(data) {
+            autoCon = true;
             //기본 connector 생성
             
             //송신데이터 기준 컬럼 갯수
@@ -818,21 +829,56 @@
           }
         }
 
+        // drag stop할 때 진행
         stopDragging(event) {
           this.target.onDragEnd && this.target.onDragEnd();
         }
 
+        // drag target 지정시 진행
         prepareTarget(event) {
+          console.log("prepareTarget - start");
 
-          if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg" || event.target.tagName == "path") {
+          // target 재설정 변수
+          let elCheck = "";
+          // output 재설정 변수
+          let outputCheck = false;
+          // outportId 변수 초기화
+          outportId = "";
+
+          if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
             dragYN = true;
-            this.stopDragging(this);
+            // stopDragging 함수 실행 안해도 정상 동작
+            // this.stopDragging(this);
             return true;
           } else {
+            // event.target이 path, port-scrim일 경우 해당 connector의 connector-handle input-handle로 설정
+            if(event.target.tagName == "path") {
+
+              elCheck = event.target.parentElement.children[2];
+
+              let currentId = elCheck.parentElement.getAttribute('id');
+
+              //선택된 connector를 최상위로 이동
+              // $('#connections-layer').prepend($('#'+currentId));
+              //선택된 connector를 최하위로 이동
+              $('#'+currentId).appendTo($('#connections-layer'));
+
+              outputCheck = true;
+
+            } else if(event.target.tagName == "circle" && event.target.className.baseVal == "port-scrim") {
+              
+              let connectors = event.target.getAttribute('connectors');
+              
+              if(connectors !== null && connectors !== "") {
+                let connectorId = connectors.split('|', connectors.split('|').length);
+                elCheck = document.getElementById(connectorId).children[2];
+              }
+            }
+
             dragYN = false;
           }
-
-          let element = event.target;
+          let element = (elCheck == "") ? event.target : elCheck;
+          // let element = event.target;
           let drag;
 
           //inputport 시작여부 판단 flag 초기화
@@ -877,6 +923,10 @@
               port.createConnector();
               this.target = port.lastConnector;
               this.dragType = this.target.dragType;
+
+              if(outputCheck == true) {
+                outportId = element.parentElement.lastElementChild.getAttribute('data-drag').split(':',1)[0];
+              }
             break;
 
             case "connector":
@@ -901,6 +951,7 @@
           }
         }
 
+        // element drag 중일 때
         dragTarget() {
 
           if(dragYN == true) {
@@ -924,11 +975,23 @@
                 }
                 $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", connectData);
               } else {
-                $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", "");  
+                $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", "");
               }
 
               getOutputPortList(this.element, this.target.inputPort.id);
-              this.target.outputPort = {id:outputPortList[outputPortList.length-1]};
+
+              if(this.target.outputPort == undefined) {
+                if(outportId == "") {
+                  this.target.outputPort = {id:outputPortList[outputPortList.length-1]};
+                } else {
+                  for(let c = 0; c < outputPortList.length; c++) {
+                    if(outportId == outputPortList[c]) {
+                      this.target.outputPort = {id:outputPortList[c]};
+                      break;
+                    }
+                  }
+                }
+              }
 
               let textData = $("[data-drag=" + this.target.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
 
@@ -956,7 +1019,10 @@
                 shapes[1].inputs[parseInt(this.target.inputPort.id.substr(5)) - document.getElementsByClassName('input-field').length - 1].columnName = textData;
 
               }
-            }
+            } 
+            // else if() {
+
+            // }
 
             for(var saveThis of saveThisList) {
               // outputport 여러개, intputport 한개 inputport 선택시
@@ -1003,7 +1069,7 @@
               if(connector.getElementsByClassName('output-handle')[0].getAttribute('data-drag').split(':')[0] == outputPortId) {
                 let inputPortId = outputPortList.push(connector.getElementsByClassName('intput-handle')[0].getAttribute('data-drag').split(':')[0]);
                 if(inputPortId.indexOf('port') > -1) {
-                  outputPortList.push(inputPortId);
+                  inputPortList.push(inputPortId);
                 }
               }
             }
@@ -1185,6 +1251,9 @@
             this.staticElement = this.outputHandle;
           }
 
+          //connector id 값 설정
+          this.dragElement.parentElement.setAttribute('id',this.id);
+
           this.staticPort = port;
           this.dragElement.setAttribute("data-drag", `${this.id}:connector`);
           this.staticElement.setAttribute("data-drag", `${port.id}:port:`+ port.tableName + ':' + port.columnName);
@@ -1224,6 +1293,7 @@
           this.pathOutline.setAttribute("d", data);
         }
 
+        //port x, y 좌표 업데이트
         updateHandle(port) {
 
           if (port === this.inputPort) {
@@ -1244,6 +1314,7 @@
           this.updatePath();
         }
 
+        //drag 완료 후 진행
         placeHandle() {
 
           if(dragYN == true) {
@@ -1337,6 +1408,12 @@
             this.updateHandle(hitPort);
 
             //this를 변수에 저장해서 connector 수정시 꺼내 쓸수 있도록함
+            if(autoCon == false) {
+              let connectorId = this.id;
+              let idx = saveThisList.findIndex(function(item){return item.id === connectorId});
+              saveThisList.splice(idx, 1);
+            }
+            
             saveThisList.push(this);
 
             checkColumnData(this);
@@ -1497,6 +1574,12 @@
       // APP
       // ===========================================================================
 
+      //path 선택시 outportId 설정
+      var outportId = "";
+
+      //createAutoConnector 대상 유무 확인
+      var autoCon = false;
+
       //drag 대상 유무 확인
       var dragYN = false;
 
@@ -1507,7 +1590,7 @@
       var saveThisList = [];
 
       //this 초가화 변수
-      var resetThis = [];
+      // var resetThis = [];
 
       //InputPort 시작 여부
       var startInputPort = false;
