@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <head>
   <!--애니메이션 라이브러리-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script> -->
+  
+  <!-- <script src="./js/TweenMax.min.js"></script> -->
+  <script src="./js/TweenMax.js"></script>
+  <script src="./js/Draggable.min.js"></script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
 
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+  <script src="./js/jquery/jquery-3.2.1.min.js"></script>
   <style>
       body {
           overflow: hidden;
@@ -685,15 +690,15 @@
           if(receiveChannelGroupId !== "" && fromChannelGroupId !== "" && interfaceType !== "" && interfaceId !== "" && receiveAdapterId !== "") {
             requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId);
 
-            const diagram = new Diagram();
-
-            document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
-            
             nextUidPort = 0;
             nextUidConnector = 0;
             nextUidShape = 0;
             inputPortList = [];
             outputPortList = [];
+
+            const diagram = new Diagram();
+
+            document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
           }
         }
       }
@@ -965,6 +970,7 @@
               this.target.inputPort = {id:inputPortList[inputPortList.length-1]};
             } else if(this.target.inputPort !== null && (this.target.outputPort == null || this.target.outputPort == undefined)) {
 
+              // rename(this);
               let connectData = $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors");
 
               if(connectData.indexOf('|') > -1) {
@@ -1203,7 +1209,7 @@
 
         removeConnector(connection) {
 
-          // //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
+          //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
           const index = this.connectors.indexOf(connection);
 
           if (index > -1) {
@@ -1377,15 +1383,17 @@
 
               for(var value of allConnetor) {
                 //output port 비교
-                if(value.children[3].getAttribute('data-drag') == this.element.children[3].getAttribute('data-drag')) {
+                if(value.children[3].getAttribute('data-drag').split(':')[0] == this.element.children[3].getAttribute('data-drag').split(':')[0]) {
                   //intput port 비교
-                  if(value.children[2].getAttribute('data-drag') == this.element.children[2].getAttribute('data-drag')) {
+                  if(value.children[2].getAttribute('data-drag').split(':')[0] == this.element.children[2].getAttribute('data-drag').split(':')[0]) {
                     if(nSelfData == true) {
+                      nSelfData = false;
+                      //신규 생성된 connector 삭제 - 기존에 존재하는 connector 사용
+                      document.getElementById(currentConnetor.getAttribute('id')).remove();
                       continue;
                     } else {
-                      nSelfData = false;
-                      chkSame = true;
-                      break;
+                      //모든 connector 중에서 중복되는게 없도록 첫번째 데이터를 제외하고 모두 삭제
+                      document.getElementById(value.getAttribute('id')).remove();
                     }
                   }
                 }
@@ -1394,13 +1402,14 @@
 
             //동일한 connector가 존재할 경우 connector 삭제
             if(chkSame == true) {
-              this.remove();
+              // this.remove();
               return true;
-            } else {
-              if(this.inputPort !== null && this.outputPort !== null) {
-                let intputTable = this.inputPort.tableName;
-              }
-            }
+            } 
+            // else {
+            //   if(this.inputPort !== null && this.outputPort !== null) {
+            //     let intputTable = this.inputPort.tableName;
+            //   }
+            // }
 
             //connector 목록에 추가
             //동일한 connector 추가 안되도록 설정 필요
@@ -1569,6 +1578,47 @@
           this.placeHandle();
         }
       }
+
+      // function rename(currentEl) {
+      //   let connectData = $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors");
+
+      //   if(connectData.indexOf('|') > -1) {
+      //     if(connectData.indexOf('|' + this.target.id) > -1) {
+      //       connectData = connectData.replace('|' + this.target.id, "");
+      //     } else {
+      //       connectData = connectData.replace(this.target.id + '|', "");
+      //     }
+      //     $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", connectData);
+      //   } else {
+      //     $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("connectors", "");
+      //   }
+
+      //   let textData = $("[data-drag=" + this.target.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
+
+      //   //테이블이 다른 데이터일 경우
+      //   let delData = "";
+      //   if(textData.indexOf(':') > -1) {
+      //     delData = $("[data-drag=" + this.target.outputPort.id + "\\:port]").attr('table') + ':' + $("[data-drag=" + this.target.outputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
+      //   } else {
+      //     delData = $("[data-drag=" + this.target.outputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
+      //   }
+
+      //   if(textData.indexOf('|') > -1) {
+      //     if(textData.indexOf('|' + delData) > -1) {
+      //       textData = textData.replace('|' + delData, "");
+      //     } else {
+      //       textData = textData.replace(delData + '|', "");
+      //     }
+
+      //     if(textData.split('|').length == 1 && textData.indexOf(':') > -1) {
+      //       textData = textData.split(':')[1];
+      //     }
+
+      //     $("[data-drag=" + this.target.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML = textData;
+      //     $("[data-drag=" + this.target.inputPort.id + "\\:port]").attr("columnName",textData);
+      //     shapes[1].inputs[parseInt(this.target.inputPort.id.substr(5)) - document.getElementsByClassName('input-field').length - 1].columnName = textData;
+      //   }
+      // }
 
       //
       // APP
