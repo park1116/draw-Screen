@@ -158,6 +158,7 @@
             listData.interfaceList[l].interfaceId !== "" &&
             listData.interfaceList[l].receiveAdapterId !== "") {
 
+          // interface목록을 opt 객체에 담아서 리스트 형식으로 표현
           opt.setAttribute('receiveChannelGroupId',listData.interfaceList[l].receiveChannelGroupId);
           opt.setAttribute('fromChannelGroupId',listData.interfaceList[l].fromChannelGroupId);
           opt.setAttribute('interfaceType',listData.interfaceList[l].interfaceType);
@@ -169,6 +170,7 @@
       }
     }
 
+    // 송신, 수신, mapping 정보를 MappingConfig.xml에 저장하는 서비스
     function sendServer(objectData) {
       $.ajax({
         url : 'interface/mappingSave',
@@ -194,12 +196,15 @@
 
     //동적 생성
     var tempContentHeight = 0;
+    // data : requestServer함수로 interface명 조회 결과값
+    // sendOrReceive : send 데이터 또는 receive 데이터 설정
     function setNode(data, sendOrReceive) {
 
       let createData = data;
       let headerTitle;
       let createDataColumns;
 
+      // 송/수신 어뎁터서비스 아이디 설정 및 컬럼 설정
       if(sendOrReceive == "send") {
         headerTitle = createData.sendAdapterServiceId;
         createDataColumns = createData.sendColumns;
@@ -208,15 +213,19 @@
         createDataColumns = createData.receiveColumns;
       }
 
+      // 테이블 갯수 체크
       let tableCnt = createData.tableNames.length;
       let columnsCnt = 0;
 
+      // 모든 컬럼 갯수 체크
       for(let col = 0; col < tableCnt; col++) {
         columnsCnt += createDataColumns[col].length;
       }
 
+      // shape 총 높이 설정
       // header: 40, content: (15 * (tableCnt + columnsCnt)) + (10 * (tableCnt + columnsCnt + 1)), 여백: (상단:2, 중단:2, 하단:2)
       let totalHeight = 40 + (15 * (tableCnt + columnsCnt)) + (10 * (tableCnt + columnsCnt + 1)) + 6;
+      // header, 여백 제외한 content 총 높이 설정
       let contentHeight = (15 * (tableCnt + columnsCnt)) + (10 * (tableCnt + columnsCnt + 1));
 
       let line = null;
@@ -228,12 +237,14 @@
         tempContentHeight = 0;
 
         // 왼쪽 out/in
+        // 송신(out) = lineCheck:0, inAndOutCheck:out
+        // 송신 데이터(in) = lineCheck:0, inAndOutCheck:in
         lineCheck = "0|0"; 
         inAndOutCheck = "out|in";
 
         tempContentHeight = contentHeight;
 
-        //1번째 shap size 설정
+        //1번째 shape size 설정
         setSizeNode(0, totalHeight, contentHeight, headerTitle);
 
       } else {
@@ -254,11 +265,14 @@
       line = lineCheck.split('|');
       inAndOut = inAndOutCheck.split('|')
 
+      // line 설정
       for(let a = 0; a < line.length; a++) {
         cnt = 0;
+        // table 설정
         for(let b = 0; b < tableCnt; b++) {
           createNode(createData.tableNames[b],inAndOut[a],cnt,false,line[a]);
           cnt++;
+          // table에 해당하는 column 설정
           for(let c = 0; c < createDataColumns[b].length; c++) {
             createNode(createDataColumns[b][c], inAndOut[a], cnt, true, line[a]);
             cnt++;
@@ -290,6 +304,7 @@
       let labelX = '0';
       let portX = '0';
 
+      // 0, 1번째 out / 0번째 in label, port 위치 설정
       if(inAndOut == "out") {
         if(line == 0) {
           labelX = '226';
@@ -578,36 +593,7 @@
 
         return false;
       }
-    } 
-
-    // // 인터페이스 아이디
-    // var interfaceId = "";
-    // function clickEvent() {
-    //   let checkClickEvent = document;
-    //   let clickEl = "";
-
-    //   checkClickEvent.addEventListener('click',function(event) {
-
-    //     console.log("checkClickEvent - start");
-
-    //     clickEl = event.target;
-    //     if(clickEl.tagName == "rect") {
-    //       event.eventValue = false;
-    //     }
-    //     // console.log("click check");
-
-    //     if((event.target.getAttribute('class') !== null && event.target.getAttribute('class').indexOf('port') > -1) || 
-    //     (event.target.getAttribute('id') !== null && event.target.getAttribute('id').indexOf('diagram') > -1)) {
-    //       connectorClean();
-    //     } else {
-    //       if(event.target.id.indexOf('save') > -1) {
-    //         //저장버튼 클릭
-    //         saveData(interfaceId);
-    //       }
-    //     }
-    //   });
-
-    // }
+    }
 
     function cleanElement() {
       let outs = document.getElementsByClassName('outputs');
@@ -856,33 +842,57 @@
             // this.stopDragging(this);
             return true;
           } else {
-            // event.target이 path, port-scrim일 경우 해당 connector의 connector-handle input-handle로 설정
+            // event.target이 path, circle일 경우
+            let connectorId = "";
+
             if(event.target.tagName == "path") {
 
+              // connector-handle.input-handle
               elCheck = event.target.parentElement.children[2];
 
-              let currentId = elCheck.parentElement.getAttribute('id');
-
-              //선택된 connector를 최하위로 이동
-              $('#'+currentId).appendTo($('#connections-layer'));
+              connectorId = elCheck.parentElement.getAttribute('id');
 
               outputCheck = true;
 
             } else if(event.target.tagName == "circle") {
               
               if (event.target.className.baseVal == "port-scrim") {
+
+                // port 선택시 port의 마지막 connector로 element 포커스 설정
                 let connectors = event.target.getAttribute('connectors');
                 
                 if(connectors !== null && connectors !== "") {
-                  let connectorId = connectors.split('|', connectors.split('|').length);
+
+                  connectorId = connectors.split('|')[connectors.split('|').length-1];
+
                   elCheck = document.getElementById(connectorId).children[2];
-                  $('#'+connectorId).appendTo($('#connections-layer'));
+
                 }
-              } else if(event.target.className.baseVal == "connector-handle output-handle") {
+              } else if(event.target.className.baseVal == "connector-handle output-handle" && 
+                        event.target.getAttribute('data-drag').indexOf(":connector") > -1) {
+                  
+                  // path 클릭후 input port 선택시 포커스 설정하기 위해서 위와 같은 조건 추가
+
+                  elCheck = event.target.parentElement.children[2];
+                  connectorId = elCheck.parentElement.getAttribute('id');
+
+              } else if(event.target.className.baseVal == "connector-handle input-handle") {
+
+                // input-handle 선택시 connector 생성되는 증상 막기위해 조건 추가
+                
                 elCheck = event.target.parentElement.children[2];
+                connectorId = elCheck.parentElement.getAttribute('id');
+
               } else {
-                $('#'+event.target.parentElement.getAttribute('id')).appendTo($('#connections-layer'));
+
+                connectorId = event.target.parentElement.getAttribute('id')
+
               }
+            }
+
+            // 선택된 connector element를 최하위로 이동시켜서 포커싱 시킴
+            if(connectorId !== "") {
+              $('#'+connectorId).appendTo($('#connections-layer'));
             }
 
             dragYN = false;
@@ -1487,7 +1497,7 @@
           } else if(textData.indexOf(checkData + '|') > -1) {
             textData = textData.replace(checkData + '|', "");
           } 
-          // else {
+          else {
 
             if(connectData.split('|').length == 1) {
               // connector가 1개 또는 없을때
@@ -1523,7 +1533,7 @@
                 }
               }
             }
-          // }
+          }
         // }
 
         // connectors 속성이 정의되어 있지 않거나 없으면 초기값으로 설정
