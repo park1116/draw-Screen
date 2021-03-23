@@ -429,7 +429,7 @@
         if(className == 'output-title') {
 
           if(className == 'output-title') {
-            tempTalbe.push(sendElement[1].children[i].lastElementChild.innerHTML);
+            tempTalbe.push(sendElement[0].children[i].lastElementChild.innerHTML);
           }
           
           if(tempColumn !== "") {
@@ -492,7 +492,7 @@
 
       resultData.receiveTableNames = tempTalbe;
       resultData.receiveColumns = tempColumnList;
-      
+
       resultData.receiveSendTableNames = sendTableNames;
 
       tempColumnList = [];
@@ -883,7 +883,7 @@
 
         // drag target 지정시 진행
         prepareTarget(event) {
-          console.log("prepareTarget - start");
+          // console.log("prepareTarget - start");
 
           // target 재설정 변수
           let elCheck = "";
@@ -971,7 +971,7 @@
           const id = split[0];
           var dragType = split[1];
 
-          console.log("dragType : " + dragType);
+          // console.log("dragType : " + dragType);
 
           switch (dragType) {
             case "diagram":
