@@ -143,13 +143,19 @@
 
       // 인터페이스 선택시 update 이벤트
       function updateInputValue() {
+        // 인터페이스 검색 input element
         var inputEl = document.getElementsByClassName('interfaceListInput')[0];
+        // input element에 input속성 updateValue이벤트 등록
         inputEl.addEventListener('input', updateValue);
 
         function updateValue(e) {
-          let cnt = -1;
-          console.log(e);
 
+          console.log(e);
+          
+          // 인터페이스에 해당하는 내용 조회 유무 판단 flag
+          let cnt = -1;
+
+          // 인터페이스 검색 input element 값을 option에 등록된 인터페이스 목록과 비교
           interfaceId = e.target.value;
           let opts = document.getElementsByTagName('option');
           for(let i = 0; i < opts.length; i++) {
@@ -164,27 +170,34 @@
             return true;
           }
           
+          // output, input, connector 초기화
           cleanElement();
 
+          // 선택된 인터페이스에서 상세 조회에 필요한 값 추출
           let receiveChannelGroupId = opts[cnt].getAttribute('receiveChannelGroupId');
           let fromChannelGroupId = opts[cnt].getAttribute('fromChannelGroupId');
           let interfaceType = opts[cnt].getAttribute('interfaceType');
           let receiveAdapterId = opts[cnt].getAttribute('receiveAdapterId');
 
+          // 상세 조회에 필요한 값 null 체크
           if(receiveChannelGroupId !== "" && fromChannelGroupId !== "" && interfaceType !== "" && interfaceId !== "" && receiveAdapterId !== "") {
+            
+            // 인터페이스 상세 조회
             requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId);
 
             // 변수 초기화
             initData();
 
-            // 화면 다시 그리기
+            // 화면 그리기
             const diagram = new Diagram();
 
+            // 상세 조회 후 숨겨진 svg 보여지도록 속성 변경
             document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
           }
         }
       }
 
+      // Chrome 48에서 더 이상 사용되지 않는 getTransformToElement에 대한 Polyfill은 이제 globalToLocal을 단순화하고 polyfill을 생략 할 수 있습니다.
       SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
         return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
       };
@@ -375,8 +388,6 @@
 
           if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
             dragYN = true;
-            // stopDragging 함수 실행 안해도 정상 동작
-            // this.stopDragging(this);
             return true;
           } else {
             // event.target이 path, circle일 경우
@@ -760,7 +771,7 @@
           });
         }
 
-        //connetor position 설정
+        //Connector position 설정
         updatePath() {
 
           const x1 = this.inputHandle._gsTransform.x;
@@ -869,11 +880,11 @@
             //동일한 connector가 존재할 경우 중복되지 않도록 설정
             var chkSame = false;
             if(this.dragElement.getAttribute('class').indexOf("connector-handle input-handle") > -1 && document.getElementsByClassName('connector-path-outline').length > 1) {
-              var allConnetor = [].slice.call(document.getElementsByClassName('connector'));
-              var currentConnetor = allConnetor.pop();
+              var allConnector = [].slice.call(document.getElementsByClassName('connector'));
+              var currentConnector = allConnector.pop();
               var nSelfData = true;
 
-              for(var value of allConnetor) {
+              for(var value of allConnector) {
                 //output port 비교
                 if(value.children[3].getAttribute('data-drag').split(':')[0] == this.element.children[3].getAttribute('data-drag').split(':')[0]) {
                   //intput port 비교
@@ -881,7 +892,7 @@
                     if(nSelfData == true) {
                       nSelfData = false;
                       //신규 생성된 connector 삭제 - 기존에 존재하는 connector 사용
-                      document.getElementById(currentConnetor.getAttribute('id')).remove();
+                      document.getElementById(currentConnector.getAttribute('id')).remove();
                       continue;
                     } else {
                       //모든 connector 중에서 중복되는게 없도록 첫번째 데이터를 제외하고 모두 삭제
@@ -1481,7 +1492,7 @@
 
         let tempColumnList = new Array();
         let tempColumn = "";
-        let tempTalbe = new Array();
+        let tempTable = new Array();
 
         //송신부 데이터 생성
         let sendElement = document.getElementsByClassName('outputs');
@@ -1494,7 +1505,7 @@
           if(className == 'output-title') {
 
             if(className == 'output-title') {
-              tempTalbe.push(sendElement[0].children[i].lastElementChild.innerHTML);
+              tempTable.push(sendElement[0].children[i].lastElementChild.innerHTML);
             }
             
             if(tempColumn !== "") {
@@ -1516,12 +1527,12 @@
           }
         }
 
-        resultData.sendTableNames = tempTalbe;
+        resultData.sendTableNames = tempTable;
         resultData.sendColumns = tempColumnList;
 
         tempColumnList = [];
         tempColumn = "";
-        tempTalbe = [];
+        tempTable = [];
 
 
         //수신수 데이터 생성
@@ -1534,7 +1545,7 @@
           let className = receiveElement.children[i].getAttribute('class');
           if(className == 'output-title') {
 
-            tempTalbe.push(receiveElement.children[i].lastElementChild.innerHTML);
+            tempTable.push(receiveElement.children[i].lastElementChild.innerHTML);
             
             if(tempColumn !== "") {
               tempColumnList.push(tempColumn);
@@ -1555,14 +1566,14 @@
           }
         }
 
-        resultData.receiveTableNames = tempTalbe;
+        resultData.receiveTableNames = tempTable;
         resultData.receiveColumns = tempColumnList;
 
         resultData.receiveSendTableNames = sendTableNames;
 
         tempColumnList = [];
         tempColumn = "";
-        tempTalbe = [];
+        tempTable = [];
 
         //connector 데이터 생성
         let tempConnector = new Array();
