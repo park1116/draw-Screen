@@ -913,9 +913,9 @@
             //   colNameData = hitPort.columnName;
             // }
 
-            // this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + colNameData);
+            let portInitCol = $('.port .port-scrim[data-drag^=' + hitPort.id + ']');
 
-            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + hitPort.initCol);
+            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + portInitCol[0].getAttribute('initCol'));
 
             //동일한 connector가 존재할 경우 중복되지 않도록 설정
             // var chkSame = false;
