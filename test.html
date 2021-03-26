@@ -1199,32 +1199,34 @@
 
           // port 클릭시 생성되는 connector(점)을 제거 하기 위함
           // port에 connector가 존재할 때 port-inner 부분 클릭시 (event.target : connector-handle)
-          // port에 connector가 없을 때 port-inner 부분 클릭시 (event.target : )
+          // port에 connector가 없을 때 port-inner 부분 클릭시 (event.target : diagram)
           // port의 port-scrim 부분 클릭시 (event.target : port-scrim)
           // 위 3가지 경우에 생성되는 점 모양의 connector 제거
 
-          // if((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) || 
-          //   (event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) || 
-          //   ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && 
-          //     (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == ""))) {
+          if((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) || 
+            (event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) || 
+            ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && 
+              (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == ""))) {
 
-          //   connectorClean();
+            connectorClean();
 
-          // } else {
-          //   if(event.target.id.indexOf('save') > -1) {
-          //     //저장버튼 클릭
-          //     saveData(interfaceId);
-          //   }
-          // }
-
-          connectorClean();
-
-          if(event.target.id.indexOf('save') > -1) {
-            //저장버튼 클릭
-            saveData(interfaceId);
-          } else if(event.target.id.indexOf('clear') > -1) {
-            clearData();
+          } else {
+            if(event.target.id.indexOf('save') > -1) {
+              //저장버튼 클릭
+              saveData(interfaceId);
+            } else if(event.target.id.indexOf('clear') > -1) {
+              clearData();
+            }
           }
+
+          // connectorClean();
+
+          // if(event.target.id.indexOf('save') > -1) {
+          //   //저장버튼 클릭
+          //   saveData(interfaceId);
+          // } else if(event.target.id.indexOf('clear') > -1) {
+          //   clearData();
+          // }
 
         });
 
