@@ -1,127 +1,129 @@
 <!DOCTYPE html>
 <head>
-  <!--애니메이션 라이브러리-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
-  <!-- <script src="./js/TweenMax.min.js"></script> -->
-  <!-- <script src="./js/TweenMax.js"></script> -->
+<!--애니메이션 라이브러리-->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
+<!-- <script src="./js/TweenMax.min.js"></script> -->
+<!-- <script src="./js/TweenMax.js"></script> -->
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
-  <!-- <script src="./js/Draggable.min.js"></script> -->
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
-  <!-- <script src="./js/browser/browser.js"></script> -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
+<!-- <script src="./js/Draggable.min.js"></script> -->
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
-  <!-- <script src="./js/browser/browser-polyfill.min.js"></script> -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+<!-- <script src="./js/browser/browser.js"></script> -->
 
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
-  <!-- <script src="./js/lodash.min.js"></script> -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
+<!-- <script src="./js/browser/browser-polyfill.min.js"></script> -->
 
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <!-- <script src="./js/jquery/jquery-3.2.1.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+<!-- <script src="./js/lodash.min.js"></script> -->
 
-  <style>
-      body {
-          overflow: hidden;
-          background: #1a1a1a;
-      }
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<!-- <script src="./js/jquery/jquery-3.2.1.min.js"></script> -->
 
-      #svg {
-          /* display: none; */
-          position: fixed;
-          width: 100%;
-          height: 100%;
-          font-family: Arial, sans-serif;
+<style>
+body {
+	overflow: hidden;
+	background: #1a1a1a;
+}
 
-          -webkit-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-          user-select: none;
-      }
+#svg {
+	/* display: none; */
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	font-family: Arial, sans-serif;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
 
-      .node-container {
-          cursor: move;
-      }
+.node-container {
+	cursor: move;
+}
 
-      .node-background {
-          fill: #1a1c1d;
-      }
+.node-background {
+	fill: #1a1c1d;
+}
 
-      .node-header {
-          fill: #426D92;
-      }
+.node-header {
+	fill: #426D92;
+}
 
-      .node-header .header-title {
-          font-size: 13px;
-          fill: #fff;
-          text-anchor: middle;
-      }
+.node-header .header-title {
+	font-size: 13px;
+	fill: #fff;
+	text-anchor: middle;
+}
 
-      .node-content {
-          fill: #949ebf;
-      }
+.node-content {
+	fill: #949ebf;
+}
 
-      .port {
-          cursor: pointer;
-      }
+.port {
+	cursor: pointer;
+}
 
-      .port-scrim {
-          fill: transparent;
-      }
+.port-scrim {
+	fill: transparent;
+}
 
-      .port-outer {
-          fill: #777777;
-      }
+.port-outer {
+	fill: #777777;
+}
 
-      .port-inner {
-          fill: #202020;
-      }
+.port-inner {
+	fill: #202020;
+}
 
-      .port-label {
-          font-size: 12px;
-          fill: #fff;
-      }
+.port-label {
+	font-size: 12px;
+	fill: #fff;
+}
 
-      .input-field .port-label {
-          text-anchor: start;
-      }
+.input-field .port-label {
+	text-anchor: start;
+}
 
-      .output-field .port-label {
-          text-anchor: end;
-      }
+.output-field .port-label {
+	text-anchor: end;
+}
 
-      .port-title {
-          font-size: 12px;
-          fill: #426DCA;
-          font-weight: 800;
-      }
+.port-title {
+	font-size: 12px;
+	fill: #426DCA;
+	font-weight: 800;
+}
 
-      .input-title .port-title {
-          text-anchor: start;
-      }
+.input-title .port-title {
+	text-anchor: start;
+}
 
-      .output-title .port-title {
-          text-anchor: end;
-      }
+.output-title .port-title {
+	text-anchor: end;
+}
 
-      .connector-handle {
-          fill: #E88802;
-      }
+.connector-handle {
+	fill: #E88802;
+}
 
-      .connector-path {
-          stroke: #E88802;
-          stroke-width: 4;
-          fill: none;
-      }
+.connector-path {
+	stroke: #E88802;
+	stroke-width: 4;
+	fill: none;
+}
 
-      .connector-path-outline {
-          stroke: #333;
-          stroke-width: 6;
-          fill: none;
-      }
-      
-  </style>
-  <script>
+.connector-path-outline {
+	stroke: #333;
+	stroke-width: 6;
+	fill: none;
+}
+</style>
+<script>
     //"use strict";
 
     window.onload = function(){
@@ -143,13 +145,19 @@
 
       // 인터페이스 선택시 update 이벤트
       function updateInputValue() {
+        // 인터페이스 검색 input element
         var inputEl = document.getElementsByClassName('interfaceListInput')[0];
+        // input element에 input속성 updateValue이벤트 등록
         inputEl.addEventListener('input', updateValue);
 
         function updateValue(e) {
-          let cnt = -1;
-          console.log(e);
 
+          console.log(e);
+          
+          // 인터페이스에 해당하는 내용 조회 유무 판단 flag
+          let cnt = -1;
+
+          // 인터페이스 검색 input element 값을 option에 등록된 인터페이스 목록과 비교
           interfaceId = e.target.value;
           let opts = document.getElementsByTagName('option');
           for(let i = 0; i < opts.length; i++) {
@@ -164,27 +172,34 @@
             return true;
           }
           
+          // output, input, connector 초기화
           cleanElement();
 
+          // 선택된 인터페이스에서 상세 조회에 필요한 값 추출
           let receiveChannelGroupId = opts[cnt].getAttribute('receiveChannelGroupId');
           let fromChannelGroupId = opts[cnt].getAttribute('fromChannelGroupId');
           let interfaceType = opts[cnt].getAttribute('interfaceType');
           let receiveAdapterId = opts[cnt].getAttribute('receiveAdapterId');
 
+          // 상세 조회에 필요한 값 null 체크
           if(receiveChannelGroupId !== "" && fromChannelGroupId !== "" && interfaceType !== "" && interfaceId !== "" && receiveAdapterId !== "") {
+            
+            // 인터페이스 상세 조회
             requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId);
 
             // 변수 초기화
             initData();
 
-            // 화면 다시 그리기
+            // 화면 그리기
             const diagram = new Diagram();
 
+            // 상세 조회 후 숨겨진 svg 보여지도록 속성 변경
             document.getElementsByTagName('svg')[0].setAttribute('style','visibility: visible');
           }
         }
       }
 
+      // Chrome 48에서 더 이상 사용되지 않는 getTransformToElement에 대한 Polyfill은 이제 globalToLocal을 단순화하고 polyfill을 생략 할 수 있습니다.
       SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
         return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
       };
@@ -374,10 +389,13 @@
           outportId = "";
 
           if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
-            dragYN = true;
-            // stopDragging 함수 실행 안해도 정상 동작
-            // this.stopDragging(this);
-            return true;
+            if(event.target.className.baseVal == "port-label" && event.target.getAttribute('x') == "226") {
+           		elCheck = event.target.parentElement.children[0].children[2];
+           		dragYN = false;
+            } else{
+	    	  dragYN = true;
+	    	  return true;
+            }
           } else {
             // event.target이 path, circle일 경우
             let connectorId = "";
@@ -1180,6 +1198,10 @@
               //저장버튼 클릭
               saveData(interfaceId);
             }
+            if(event.target.id.indexOf('clear') > -1) {
+              //CLEAR버튼 클릭
+              clearData(this);
+            }
           }
         });
 
@@ -1471,6 +1493,55 @@
         }
       }
 
+      function clearData(data) {
+    	  autoCon = true;
+          //기본 connector 생성
+          
+          //송신데이터 기준 컬럼 갯수
+    	  let outputs = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
+
+          //수신데이터 기준 컬럼 갯수
+          let inputs = document.getElementsByClassName('inputs')[0].getElementsByClassName('input-field').length;
+          let el = document.querySelector("#diagram");
+          let port = document.getElementsByClassName('port-scrim');
+    		
+          // 1번째 out/in 생성
+          for(let n = 0; n < outputs; n++) {
+
+            data.target = document.getElementsByClassName('port-scrim')[n];
+            
+            //output table, columnName
+            let outputTable = data.target.getAttribute('table');
+            let outputColName = data.target.getAttribute('columnName');
+            
+            let matchTable = $(".inputs .input-field .port .port-scrim[table=" + outputTable + "]").length;
+            // 동일 테이블명이 1개 이상 있는지 유무 확인
+            if(matchTable > 0) {
+              // 동일 테이블명, 동일 컬럼명이 존재하는지 확인
+              let matchCol = $(".inputs .input-field .port .port-scrim[table=" + outputTable + "][initCol=" + outputColName + "]");
+              if(matchCol[0] !== undefined) {
+                // connector 시작점 설정
+              const split = data.target.getAttribute("data-drag").split(":");
+              const id = split[0];
+              var dragType = split[1];
+
+              const port = portLookup[id];
+
+              startInputPort = false;
+              port.createConnector();
+              data.target = port.lastConnector;
+              data.dragType = data.target.dragType;
+              
+                let matchPos = matchCol.attr('data-drag').split(':')[0].split('_')[1] - 1;
+                let pos = document.getElementsByClassName('port-scrim')[matchPos].getTransformToElement(el);
+                data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
+                data.stopDragging(data);
+              }
+            }
+          }
+    	alert("clear");
+      }
+      
       function saveData(interfaceIdValue) {
 
         // 송/수신 데이터 샘플
@@ -1481,7 +1552,7 @@
 
         let tempColumnList = new Array();
         let tempColumn = "";
-        let temptable = new Array();
+        let tempTable = new Array();
 
         //송신부 데이터 생성
         let sendElement = document.getElementsByClassName('outputs');
@@ -1494,7 +1565,7 @@
           if(className == 'output-title') {
 
             if(className == 'output-title') {
-              temptable.push(sendElement[0].children[i].lastElementChild.innerHTML);
+              tempTable.push(sendElement[0].children[i].lastElementChild.innerHTML);
             }
             
             if(tempColumn !== "") {
@@ -1516,15 +1587,15 @@
           }
         }
 
-        resultData.sendTableNames = temptable;
+        resultData.sendTableNames = tempTable;
         resultData.sendColumns = tempColumnList;
 
         tempColumnList = [];
         tempColumn = "";
-        temptable = [];
+        tempTable = [];
 
 
-        //수신수 데이터 생성
+        //수신부 데이터 생성
         let receiveElement = document.getElementsByClassName('outputs')[1];
 
         resultData.receiveAdapterServiceId = document.getElementsByClassName('header-title')[1].innerHTML;
@@ -1534,7 +1605,7 @@
           let className = receiveElement.children[i].getAttribute('class');
           if(className == 'output-title') {
 
-            temptable.push(receiveElement.children[i].lastElementChild.innerHTML);
+            tempTable.push(receiveElement.children[i].lastElementChild.innerHTML);
             
             if(tempColumn !== "") {
               tempColumnList.push(tempColumn);
@@ -1555,14 +1626,14 @@
           }
         }
 
-        resultData.receiveTableNames = temptable;
+        resultData.receiveTableNames = tempTable;
         resultData.receiveColumns = tempColumnList;
 
         resultData.receiveSendTableNames = sendTableNames;
 
         tempColumnList = [];
         tempColumn = "";
-        temptable = [];
+        tempTable = [];
 
         //connector 데이터 생성
         let tempConnector = new Array();
@@ -1598,14 +1669,39 @@
 
         document.getElementsByTagName("svg")[0].appendChild(rectBtn);
 
-        let text = document.createElementNS(svgUrl,"text");
-        text.setAttribute('x','80');
-        text.setAttribute('y','26');
+        let saveText = document.createElementNS(svgUrl,"text");
+        saveText.setAttribute('x','80');
+        saveText.setAttribute('y','26');
 
-        text.setAttribute('id','saveText');
+        saveText.setAttribute('id','saveText');
         
-        text.innerHTML = "SAVE";
-        document.getElementsByTagName("svg")[0].appendChild(text);
+        saveText.innerHTML = "SAVE";
+        document.getElementsByTagName("svg")[0].appendChild(saveText);
+        
+        rectBtn = document.createElementNS(svgUrl,"rect");
+
+        rectBtn.setAttribute('width','100');
+        rectBtn.setAttribute('height','30');
+
+        rectBtn.setAttribute('rx','6');
+
+        rectBtn.setAttribute('x','182');
+        rectBtn.setAttribute('y','5');
+      
+        rectBtn.setAttribute('style','fill:#fff');
+
+        rectBtn.setAttribute('id','clearRect');
+
+        document.getElementsByTagName("svg")[0].appendChild(rectBtn);
+
+        let clearText = document.createElementNS(svgUrl,"text");
+        clearText.setAttribute('x','205');
+        clearText.setAttribute('y','26');
+
+        clearText.setAttribute('id','clearText');
+        
+        clearText.innerHTML = "CLEAR";
+        document.getElementsByTagName("svg")[0].appendChild(clearText);
       }
 
       function requestServer(receiveChannelGroupId, fromChannelGroupId, interfaceId, receiveAdapterId) {
@@ -1775,36 +1871,44 @@
 </script>
 </head>
 <body contenteditable="true">
-  <div>
-    <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList" style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
-    <datalist id="interfaceList">
-      <!--
+	<div>
+		<input class="interfaceListInput" type="text"
+			name="interfaceListInput" list="interfaceList"
+			style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
+		<datalist id="interfaceList">
+			<!--
       <option value="Boston">
       <option value="Cambridge">
       -->
-    </datalist>
-  </div>
-    <!-- <svg id="svg" style="visibility: hidden;"> -->
-    <svg id="svg">
+		</datalist>
+	</div>
+	<!-- <svg id="svg" style="visibility: hidden;"> -->
+	<svg id="svg">
       <text contentEditable="true" required="true"></text>
       <!-- <svg id="svg"> -->
-      <g id="diagram" data-drag="diagram:diagram" data-drag-type="diagram">     
+      <g id="diagram" data-drag="diagram:diagram"
+			data-drag-type="diagram">     
         <g id="node-layer">
           
           <!-- PROCESS 1 -->   
           <g class="node-container">    
-            <rect class="node-background" width="254" height="128" x="0" y="0" rx="6" ry="6"></rect>
+            <rect class="node-background" width="254" height="128" x="0"
+			y="0" rx="6" ry="6"></rect>
     
             <g class="node-header">
-              <rect class="header-round-rect" width="250" height="40" x="2" y="2" rx="4" ry="4"></rect>
-              <rect class="header-rect" width="250" height="36" x="2" y="6"></rect>
+              <rect class="header-round-rect" width="250" height="40"
+			x="2" y="2" rx="4" ry="4"></rect>
+              <rect class="header-rect" width="250" height="36" x="2"
+			y="6"></rect>
               <text class="header-title" x="122" y="30">Process 1</text>
             </g>
     
             <g class="node-content">
     
-              <rect class="content-round-rect" width="250" height="82" x="2" y="44" rx="4" ry="4"></rect>
-              <rect class="content-rect" width="250" height="77" x="2" y="44"></rect>
+              <rect class="content-round-rect" width="250" height="82"
+			x="2" y="44" rx="4" ry="4"></rect>
+              <rect class="content-rect" width="250" height="77" x="2"
+			y="44"></rect>
 
               <g class="outputs">
 
@@ -1814,18 +1918,23 @@
           
           <!-- PROCESS 2 -->      
           <g class="node-container">    
-            <rect class="node-background" width="804" height="128" x="0" y="0" rx="6" ry="6"></rect>
+            <rect class="node-background" width="804" height="128" x="0"
+			y="0" rx="6" ry="6"></rect>
     
             <g class="node-header">
-              <rect class="header-round-rect" width="800" height="40" x="2" y="2" rx="4" ry="4"></rect>
-              <rect class="header-rect" width="800" height="36" x="2" y="6"></rect>
+              <rect class="header-round-rect" width="800" height="40"
+			x="2" y="2" rx="4" ry="4"></rect>
+              <rect class="header-rect" width="800" height="36" x="2"
+			y="6"></rect>
               <text class="header-title" x="102" y="30">Process 2</text>
             </g>
     
             <g class="node-content">
     
-              <rect class="content-round-rect" width="800" height="82" x="2" y="44" rx="4" ry="4"></rect>
-              <rect class="content-rect" width="800" height="77" x="2" y="44"></rect>
+              <rect class="content-round-rect" width="800" height="82"
+			x="2" y="44" rx="4" ry="4"></rect>
+              <rect class="content-rect" width="800" height="77" x="2"
+			y="44"></rect>
     
               <g class="inputs">
               </g>
@@ -1844,14 +1953,16 @@
           <path class="connector-path-outline"></path>
           <path class="connector-path"></path>
     
-          <circle class="connector-handle input-handle" cx="0" cy="0" r="4"></circle>
-          <circle class="connector-handle output-handle" cx="0" cy="0" r="4"></circle>
+          <circle class="connector-handle input-handle" cx="0" cy="0"
+			r="4"></circle>
+          <circle class="connector-handle output-handle" cx="0" cy="0"
+			r="4"></circle>
         </g>
         
         <circle id="drag-proxy" cx="0" cy="0" r="1" fill="none"></circle>
       </g>
     </svg>
-    
+
 
 </body>
 </html>
