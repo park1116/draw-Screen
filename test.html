@@ -149,7 +149,7 @@
 
         function updateValue(e) {
 
-          console.log(e);
+          // console.log(e);
           
           // 인터페이스에 해당하는 내용 조회 유무 판단 flag
           let cnt = -1;
@@ -241,6 +241,7 @@
             onPress: this.prepareTarget
           });
           
+          //diagram 초기 this값 설정
           initDiagram = this;
 
           createAutoConnector(this, false);
@@ -383,10 +384,12 @@
 
               }
 
+              // connector 생성
               port.createConnector();
               this.target = port.lastConnector;
               this.dragType = this.target.dragType;
 
+              // path 선택시 output값 설정 필요
               if(outputCheck == true) {
                 outportId = element.parentElement.lastElementChild.getAttribute('data-drag').split(':',1)[0];
               }
@@ -462,8 +465,15 @@
 
               if(this.target.hasOwnProperty("inputPort") && this.target.hasOwnProperty("outputPort")) {
                 if(this.target.inputPort.id == saveThis.inputPort.id && this.target.outputPort.id == saveThis.outputPort.id) {
-                  assignObject(this.target,saveThis);
-                  break;
+                  if(document.getElementById(saveThis.id) !== null) {
+                    assignObject(this.target,saveThis);
+                  } else {
+                    let index = saveThisList.indexOf(saveThis);
+
+                    if (index > -1) {
+                      saveThisList.splice(index, 1);
+                    }  
+                  }
                 }
               } else {
                 break;
@@ -644,6 +654,11 @@
       class Connector {
 
         constructor() {
+
+          // 중복되는 connector id값이 존재할 경우 1 증가
+          if(document.getElementById("connector_" + nextUidConnector + 1) !== null) {
+            nextUidConnector++;
+          }
 
           this.id = `connector_${++nextUidConnector}`;
           this.dragType = "connector";
@@ -1044,6 +1059,11 @@
 
       //inputport id값으로 outputport 정보 리스트 추출 함수
       function getOutputPortList(currentElement,inputPortId) {
+
+        if(outputPortList.length > 0) {
+          outputPortList = [];
+        }
+
         let connectors = currentElement.getElementsByClassName('connector');
         for(let connector of connectors) {
           if(connector.getElementsByClassName('input-handle')[0].getAttribute('data-drag').split(':')[0] == inputPortId) {
