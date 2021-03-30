@@ -931,9 +931,9 @@
             if(type == "delete" || type == "update") {
               connectData = connectData.replace(currentEl.id, "");
             } else {
-              // type이 insert일 경우 
+              // type이 insert, change일 경우 
               // 빈값 추가
-              if(connectData == "") {
+              if(connectData == "" || type == "change") {
                 connectData = currentEl.id;
               } else if($('#' + currentEl.id)[0] !== undefined){
                 connectData += ('|' + currentEl.id);
@@ -1000,16 +1000,16 @@
               }
             } else {
               // connector가 여러개 있을때
-              if(type == "delete") {
+              if(type == "delete" || type == "update") {
                 textData = textData.replace(checkData, "");
-              } else if(currentEl.outputPort.tableName == currentEl.inputPort.tableName) {
-                //테이블 동일할 때는 컬럼명만 더함
-                textData += ('|' + checkData);
+              // } else if(currentEl.outputPort.tableName == currentEl.inputPort.tableName) {
+              //   //테이블 동일할 때는 컬럼명만 더함
+              //   textData += ('|' + checkData);
               } else {
                 //테이블이 다를 때는 테이블명:컬럼명 구조로 더함
-                if(type == "update") {
-                  textData = textData.replace(checkData, "");
-                } else {
+                // if(type == "update") {
+                //   textData = textData.replace(checkData, "");
+                // } else {
                   // if(textData.indexOf(':') < 0) {
                   //   textData = currentEl.inputPort.tableName + ':' + textData;
                   // }
@@ -1019,7 +1019,7 @@
                   // } else {
                     textData += ('|' + checkData);
                   // }
-                }
+                // }
               }
             }
           }
