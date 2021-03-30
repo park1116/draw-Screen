@@ -3,7 +3,6 @@
   <!--애니메이션 라이브러리-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
   <!-- <script src="./js/TweenMax.min.js"></script> -->
-  <!-- <script src="./js/TweenMax.js"></script> -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/utils/Draggable.min.js"></script>
   <!-- <script src="./js/Draggable.min.js"></script> -->
@@ -28,7 +27,7 @@
 
       #svg {
           /* display: none; */
-          position: fixed;
+          /* position: fixed; */
           width: 100%;
           height: 100%;
           font-family: Arial, sans-serif;
@@ -248,117 +247,6 @@
 
           // 최초 생성된(자동으로 그려졌는지 유무) connector 유무 확인 flag
           autoCon = false;
-
-          // // 자동으로 connector 생성 함수
-          // function createAutoConnector(data) {
-          //   autoCon = true;
-          //   //기본 connector 생성
-            
-          //   //송신데이터 기준 컬럼 갯수
-          //   let outputs = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
-
-          //   //수신데이터 기준 컬럼 갯수
-          //   let inputs = document.getElementsByClassName('inputs')[0].getElementsByClassName('input-field').length;
-          //   let el = document.querySelector("#diagram");
-          //   let port = document.getElementsByClassName('port-scrim');
-
-          //   // 인터페이스 상세 조회시 송,수신 맵핑정보 유무 확인
-          //   if(mappingData.length > 0) {
-
-          //     for(let a = 0; a < mappingData.length; a++) {
-
-          //       let outMatch = -1;
-          //       let inMatch = -1;
-
-          //       let findInputData = mappingData[a].split(',')[0]; // 수신데이터 정보(테이블명:컬럼명)
-          //       let findOutputDataList = mappingData[a].split(',')[1]; //송신데이터 정보(테이블명:컬럼명|테이블명:컬럼명|...)
-          //       let findOutputDataLen = findOutputDataList.split('|').length; //송신데이터 정보 길이
-
-          //       for(let b = 0; b < findOutputDataLen; b++) {
-                  
-          //         let findOutputData = "";
-
-          //         // 길이가 1이면 findOutputData는 findOutputDataList와 동일
-          //         // 길이가 1보다 크면 findOutputDataList.split('|')[b];하여 잘라서 사용
-          //         if(findOutputDataLen == 1) {
-          //           findOutputData = findOutputDataList;
-          //         } else if(findOutputDataLen > 1) {
-          //           findOutputData = findOutputDataList.split('|')[b];
-          //         } else {
-          //           continue;
-          //         }
-
-          //         let outData = findOutputData.split(':');
-          //         let outTable = outData[0];
-          //         let outColumn = outData[1];
-
-          //         // mapping 정보에 해당하는 output을 조회
-          //         let selectOutput = $(".outputs:first .port .port-scrim[table=" + outTable + "][initCol=" + outColumn + "]")[0];
-          //         if(selectOutput !== undefined) {
-          //           let outPos = selectOutput.getAttribute('data-drag').split(':')[0].split('_')[1] - 1;
-          //           if(outPos > -1) {
-          //             outMatch = outPos;
-          //           }
-          //         }
-
-
-          //         let inData = findInputData.split(':');
-          //         let inTable = inData[0];
-          //         let inColumn = inData[1];
-
-          //         // mapping 정보에 해당하는 input을 조회
-          //         let selectInput = $(".inputs:first .port .port-scrim[table=" + inTable + "][initCol=" + inColumn + "]")[0];
-          //         if(selectInput !== undefined) {
-          //           let inPos = selectInput.getAttribute('data-drag').split(':')[0].split('_')[1] - 1;
-          //           if(inPos > -1) {
-          //             inMatch = inPos;
-          //           }
-          //         }
-
-          //         // output, input port 위치 값이 -1보다 크면 connector 생성
-          //         if(outMatch > -1 && inMatch > -1) {
-          //           // output 시작점
-          //           data.target = port[outMatch];
-          //           // 시작점 설정
-          //           data.prepareTarget(data);
-
-          //           // input 끝점 위치 찾기
-          //           let pos = document.getElementsByClassName('port-scrim')[inMatch].getTransformToElement(el);
-          //           // 끝점 위치 설정
-          //           data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
-          //           // connector 그리기
-          //           data.stopDragging(data);
-          //         }
-          //       }
-          //     }
-
-          //   } else {
-
-          //     // output 기준으로 connector 자동 생성
-          //     for(let n = 0; n < outputs; n++) {
-          //       data.target = document.getElementsByClassName('port-scrim')[n];
-                
-          //       //output table, columnName
-          //       let outputTable = data.target.getAttribute('table');
-          //       let outputColName = data.target.getAttribute('columnName');
-                
-          //       let matchTable = $(".inputs .input-field .port .port-scrim[table=" + outputTable + "]").length;
-          //       // 동일 테이블명이 1개 이상 있는지 유무 확인
-          //       if(matchTable > 0) {
-          //         // 동일 테이블명, 동일 컬럼명이 존재하는지 확인
-          //         let matchCol = $(".inputs .input-field .port .port-scrim[table=" + outputTable + "][columnName=" + outputColName + "]");
-          //         if(matchCol[0] !== undefined) {
-          //           // connector 시작점 설정
-          //           data.prepareTarget(data);
-          //           let matchPos = matchCol.attr('data-drag').split(':')[0].split('_')[1] - 1;
-          //           let pos = document.getElementsByClassName('port-scrim')[matchPos].getTransformToElement(el);
-          //           data.target.inputHandle.setAttribute('transform','matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
-          //           data.stopDragging(data);
-          //         }
-          //       }
-          //     }
-          //   }
-          // }
         }
 
         // drag stop할 때 진행
@@ -377,20 +265,15 @@
           // outportId 변수 초기화
           outportId = "";
 
-          // if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
-          //   //drag 대상 유무 확인
-          //   dragYN = true;
-          //   return true;
-          // } else {
-          //   // event.target이 path, circle일 경우
-          //   let connectorId = "";
           if(event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
+
+            // 송신 컬럼 클릭시 drag 가능하도록 수정
             if(event.target.className.baseVal == "port-label" && event.target.getAttribute('x') == "226") {
                  elCheck = event.target.parentElement.children[0].children[2];
                  dragYN = false;
             } else{
-            dragYN = true;
-            return true;
+              dragYN = true;
+              return true;
             }
           } else {
             // event.target이 path, circle일 경우
@@ -682,6 +565,7 @@
           //컬럼명 정보
           this.tableName = element.getElementsByClassName('port-scrim')[0].getAttribute('table');
           this.columnName = element.lastElementChild.innerHTML;
+          this.initCol = element.lastElementChild.innerHTML;
 
           this.connectors = [];
           this.lastConnector;
@@ -904,21 +788,12 @@
               this.inputPort = hitPort;
             }
 
-            // let colNames = hitPort.columnName.split('|');
-            // let colNameData = "";
+            // let portInitCol = $('.port .port-scrim[data-drag^=' + hitPort.id + ']');
+            // this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + portInitCol[0].getAttribute('initCol'));
 
-            // if(colNames.length > 0) {
-            //   colNameData = colNames[0];
-            // } else {
-            //   colNameData = hitPort.columnName;
-            // }
-
-            let portInitCol = $('.port .port-scrim[data-drag^=' + hitPort.id + ']');
-
-            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + portInitCol[0].getAttribute('initCol'));
+            this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + hitPort.initCol);
 
             //동일한 connector가 존재할 경우 중복되지 않도록 설정
-            // var chkSame = false;
             if(this.dragElement.getAttribute('class').indexOf("connector-handle input-handle") > -1 && document.getElementsByClassName('connector-path-outline').length > 1) {
               var allConnector = [].slice.call(document.getElementsByClassName('connector'));
               var currentConnector = allConnector.pop();
@@ -943,11 +818,6 @@
                 }
               }
             }
-
-            //동일한 connector가 존재할 경우 connector 삭제
-            // if(chkSame == true) {
-            //   return true;
-            // } 
 
             //connector 목록에 추가
             //동일한 connector 추가 안되도록 설정 필요
@@ -1044,10 +914,18 @@
         if(connectData !== undefined) {
           // connectors 속성값 (중복 제거, 빈값 추가)
           // 중복 제거
-          if(connectData.indexOf('|' + currentEl.id) > -1) {
+          // if(connectData.indexOf('|' + currentEl.id) > -1) {
+          //   connectData = connectData.replace('|' + currentEl.id, "");
+          // } else if(connectData.indexOf(currentEl.id + '|') > -1) {
+          //   connectData = connectData.replace(currentEl.id + '|', "");
+          if(connectData.indexOf('|' + currentEl.id) > -1 || connectData.indexOf(currentEl.id + '|') > -1) {
             connectData = connectData.replace('|' + currentEl.id, "");
-          } else if(connectData.indexOf(currentEl.id + '|') > -1) {
             connectData = connectData.replace(currentEl.id + '|', "");
+
+            if(type == "change") {
+              connectData += ('|' + currentEl.id);
+            }
+
           } else {
             // type이 delete, update일 경우
             if(type == "delete" || type == "update") {
@@ -1096,10 +974,17 @@
         // if(currentEl.outputPort.columnName !== currentEl.inputPort.columnName) {
           // label (중복 제거, 빈값 추가)
           // 중복 제거
-          if(textData.indexOf('|' + checkData) > -1) {
+          // if(textData.indexOf('|' + checkData) > -1) {
+          //   textData = textData.replace('|' + checkData, "");
+          // } else if(textData.indexOf(checkData + '|') > -1) {
+          //   textData = textData.replace(checkData + '|', "");
+          if(textData.indexOf('|' + checkData) > -1 || textData.indexOf(checkData + '|') > -1) {
             textData = textData.replace('|' + checkData, "");
-          } else if(textData.indexOf(checkData + '|') > -1) {
             textData = textData.replace(checkData + '|', "");
+
+            if(type == "change") {
+              textData += ('|' + checkData);
+            }
           } 
           else {
 
@@ -1191,10 +1076,10 @@
 
           // console.log("checkClickEvent - start");
 
-          clickEl = event.target;
-          if(clickEl.tagName == "rect") {
-            event.eventValue = false;
-          }
+          // clickEl = event.target;
+          // if(clickEl.tagName == "rect") {
+          //   event.eventValue = false;
+          // }
           // console.log("click check");
 
           // port 클릭시 생성되는 connector(점)을 제거 하기 위함
@@ -1210,6 +1095,16 @@
 
             connectorClean();
 
+            // 현재 사용중인 connector id
+            let currentId = $('.connector').last().attr('id');
+
+            let idx = saveThisList.findIndex(function(item){return item.id === currentId});
+
+            if(idx > -1) {
+              let data = saveThisList[idx];
+              rename(data, "change");
+            }
+
           } else {
             if(event.target.id.indexOf('save') > -1) {
               //저장버튼 클릭
@@ -1218,16 +1113,6 @@
               clearData();
             }
           }
-
-          // connectorClean();
-
-          // if(event.target.id.indexOf('save') > -1) {
-          //   //저장버튼 클릭
-          //   saveData(interfaceId);
-          // } else if(event.target.id.indexOf('clear') > -1) {
-          //   clearData();
-          // }
-
         });
 
       }
@@ -1889,6 +1774,18 @@
 
       // connector 초기화 함수
       function clearData() {
+
+        //변수 초기화
+        renameCheck = true;
+        outportId = "";
+        autoCon = false;
+        dragYN = false;
+        inputPortMapping = false;
+        saveThisList = [];
+        startInputPort = false;
+        outputPortList = [];
+        nextUidConnector = 0;
+
         // 모든 connector 삭제
         let cons = document.getElementById('connections-layer');
         while(cons.hasChildNodes()) {
@@ -1922,8 +1819,6 @@
         startInputPort = false;
         // inputPortList = [];
         outputPortList = [];
-        // nodeParent = document.querySelector("#node-layer");
-        // currentTableName = "";
         nextUidPort = 0;
         nextUidConnector = 0;
         nextUidShape = 0;
@@ -2040,74 +1935,72 @@
       -->
     </datalist>
   </div>
-    <!-- <svg id="svg" style="visibility: hidden;"> -->
-    <svg id="svg">
-      <text contentEditable="true" required="true"></text>
-      <!-- <svg id="svg"> -->
-      <g id="diagram" data-drag="diagram:diagram" data-drag-type="diagram">     
-        <g id="node-layer">
-          
-          <!-- PROCESS 1 -->   
-          <g class="node-container">    
-            <rect class="node-background" width="254" height="128" x="0" y="0" rx="6" ry="6"></rect>
-    
-            <g class="node-header">
-              <rect class="header-round-rect" width="250" height="40" x="2" y="2" rx="4" ry="4"></rect>
-              <rect class="header-rect" width="250" height="36" x="2" y="6"></rect>
-              <text class="header-title" x="122" y="30">Process 1</text>
-            </g>
-    
-            <g class="node-content">
-    
-              <rect class="content-round-rect" width="250" height="82" x="2" y="44" rx="4" ry="4"></rect>
-              <rect class="content-rect" width="250" height="77" x="2" y="44"></rect>
+  <!-- <svg id="svg" style="visibility: hidden;"> -->
+  <svg id="svg">
+    <text contentEditable="true" required="true"></text>
+    <!-- <svg id="svg"> -->
+    <g id="diagram" data-drag="diagram:diagram" data-drag-type="diagram">     
+      <g id="node-layer">
+        
+        <!-- PROCESS 1 -->   
+        <g class="node-container">    
+          <rect class="node-background" width="254" height="128" x="0" y="0" rx="6" ry="6"></rect>
+  
+          <g class="node-header">
+            <rect class="header-round-rect" width="250" height="40" x="2" y="2" rx="4" ry="4"></rect>
+            <rect class="header-rect" width="250" height="36" x="2" y="6"></rect>
+            <text class="header-title" x="122" y="30">Process 1</text>
+          </g>
+  
+          <g class="node-content">
+  
+            <rect class="content-round-rect" width="250" height="82" x="2" y="44" rx="4" ry="4"></rect>
+            <rect class="content-rect" width="250" height="77" x="2" y="44"></rect>
 
-              <g class="outputs">
-
-              </g>
-            </g>
-          </g> 
-          
-          <!-- PROCESS 2 -->      
-          <g class="node-container">    
-            <rect class="node-background" width="804" height="128" x="0" y="0" rx="6" ry="6"></rect>
-    
-            <g class="node-header">
-              <rect class="header-round-rect" width="800" height="40" x="2" y="2" rx="4" ry="4"></rect>
-              <rect class="header-rect" width="800" height="36" x="2" y="6"></rect>
-              <text class="header-title" x="102" y="30">Process 2</text>
-            </g>
-    
-            <g class="node-content">
-    
-              <rect class="content-round-rect" width="800" height="82" x="2" y="44" rx="4" ry="4"></rect>
-              <rect class="content-rect" width="800" height="77" x="2" y="44"></rect>
-    
-              <g class="inputs">
-              </g>
-              <g class="outputs">
-              </g> 
+            <g class="outputs">
 
             </g>
           </g>
-          
-        </g>
-    
-        <g id="connections-layer"></g>
-    
-        <g class="connector">
-    
-          <path class="connector-path-outline"></path>
-          <path class="connector-path"></path>
-    
-          <circle class="connector-handle input-handle" cx="0" cy="0" r="4"></circle>
-          <circle class="connector-handle output-handle" cx="0" cy="0" r="4"></circle>
+        </g> 
+        
+        <!-- PROCESS 2 -->      
+        <g class="node-container">    
+          <rect class="node-background" width="804" height="128" x="0" y="0" rx="6" ry="6"></rect>
+  
+          <g class="node-header">
+            <rect class="header-round-rect" width="800" height="40" x="2" y="2" rx="4" ry="4"></rect>
+            <rect class="header-rect" width="800" height="36" x="2" y="6"></rect>
+            <text class="header-title" x="102" y="30">Process 2</text>
+          </g>
+  
+          <g class="node-content">
+  
+            <rect class="content-round-rect" width="800" height="82" x="2" y="44" rx="4" ry="4"></rect>
+            <rect class="content-rect" width="800" height="77" x="2" y="44"></rect>
+  
+            <g class="inputs">
+            </g>
+            <g class="outputs">
+            </g> 
+
+          </g>
         </g>
         
-        <circle id="drag-proxy" cx="0" cy="0" r="1" fill="none"></circle>
       </g>
-    </svg>
-    
-
+  
+      <g id="connections-layer"></g>
+  
+      <g class="connector">
+  
+        <path class="connector-path-outline"></path>
+        <path class="connector-path"></path>
+  
+        <circle class="connector-handle input-handle" cx="0" cy="0" r="4"></circle>
+        <circle class="connector-handle output-handle" cx="0" cy="0" r="4"></circle>
+      </g>
+      
+      <circle id="drag-proxy" cx="0" cy="0" r="1" fill="none"></circle>
+    </g>
+  </svg>
 </body>
 </html>
