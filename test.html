@@ -469,7 +469,6 @@
                 if(this.target.inputPort.id == saveThis.inputPort.id && this.target.outputPort.id == saveThis.outputPort.id) {
                   if(document.getElementById(saveThis.id) !== null) {
                     assignObject(this.target,saveThis);
-                    dragYN = true;
                   } else {
                     let index = saveThisList.indexOf(saveThis);
 
@@ -816,7 +815,6 @@
               var currentConnector = allConnector.pop();
               // var nSelfData = true;
 
-              let indexSaveList = 0;
               for(var value of allConnector) {
                 //output port 비교
                 if(value.children[3].getAttribute('data-drag').split(':')[0] == this.element.children[3].getAttribute('data-drag').split(':')[0]) {
@@ -829,20 +827,16 @@
                     // } else 
                     {
                       //모든 connector 중에서 중복되는게 없도록 첫번째 데이터를 제외하고 모두 삭제
-                      document.getElementById(value.getAttribute('id')).remove();
-                      
-                      saveThisList.splice(indexSaveList, 1);
-                      // let idx = saveThisList.findIndex(function(item){return item.id === value.getAttribute('id')});
-
-                      // if(idx > -1) {
-                      //   saveThisList.splice(idx, 1);
-                      // }
+                      // document.getElementById(value.getAttribute('id')).remove();
+                      document.getElementById(this.id).remove();
                     }
                   }
                 } else if(currentConnector.id == value.id) {
-                  saveThisList.splice(indexSaveList, 1);
+                  let idx = saveThisList.findIndex(function(item){return item.id === currentConnector.id});
+                  if(idx > -1) {
+                    saveThisList.splice(idx, 1);
+                  }
                 }
-                indexSaveList++;
               }
             }
 
@@ -851,9 +845,9 @@
             hitPort.addConnector(this);
             this.updateHandle(hitPort);
             
-            // 삭제된 connector가 this로 설정되었을 경우 return 함
             let connectorId = this.id;
-            if(document.getElementById(this.id) !== null) {
+            // 삭제된 connector가 this로 설정되었을 경우 return 함
+            if(document.getElementById(connectorId) !== null) {
               let idx = saveThisList.findIndex(function(item){return item.id == connectorId});
               if(idx > -1) {
                 saveThisList.splice(idx, 1, this);
