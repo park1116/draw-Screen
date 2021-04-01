@@ -26,11 +26,7 @@
       }
       
       #svg {
-          /* display: none; */
-/*            position: fixed; */
-/*           width: 100%; */
-/*           height: 100%; */
-/*           font-family: Arial, sans-serif; */
+          font-family: Arial, sans-serif; 
 
           -webkit-user-select: none;
           -moz-user-select: none;
@@ -38,11 +34,10 @@
           user-select: none;
       }
 
-	/* scroll이 700px의 높이 고정값으로 생성 */
+	/* scroll 생성 */
       .svgScroll {
 		  position: relative;
 		  width: 100%;
-		  height: 700px;
 		  overflow-y: scroll;
 		}
 		
@@ -71,7 +66,7 @@
       .port {
           cursor: pointer;
       }
-
+      
       .port-scrim {
           fill: transparent;
       }
@@ -131,8 +126,16 @@
   <script>
     //"use strict";
 
+    window.onresize = function(event) {
+        // 화면의 height를 브라우저 크기에 따라 동적으로 생성
+        document.getElementsByTagName('div')[1].setAttribute('style','height:'+ (2 * window.innerHeight - window.outerHeight) +'px');
+	};
+    
     window.onload = function(){
-      
+    	
+   		// 화면의 height를 브라우저 크기에 따라 동적으로 생성
+        document.getElementsByTagName('div')[1].setAttribute('style','height:'+ (2 * window.innerHeight - window.outerHeight) +'px');
+    	
       // svg element 생성시 필요한 인수값
       var svgUrl = "http://www.w3.org/2000/svg";
 
@@ -234,11 +237,14 @@
             //테이블 넓이에 따라서 위지 수정
             let tableWidth = element.children[0].getAttribute('width');
             tablePos = Math.floor(tableWidth / 200) - 1;
-
-            // viewBox의 동적으로 변화하는 값
-            x = 50 + shapeElements.length * 300 + (tablePos * 200);
-            y = y >= (Math.floor(element.children[0].getAttribute('height')) + 100)? y : (Math.floor(element.children[0].getAttribute('height')) + 100);
+			
+            let tableHeight = element.children[0].getAttribute('height');
+            
+            // viewBox의 동적으로 변화하는 y값
+            y = y >= (Math.floor(tableHeight) + 100) ? y : (Math.floor(tableHeight) + 100);
           });
+            // viewBox의 동적으로 변화하는 x값
+            x = 50 + shapeElements.length * 300 + (tablePos * 200) + (window.innerWidth / 10);
 
           this.target = null;
           this.dragType = null;
@@ -1571,7 +1577,7 @@
         rectBtn.setAttribute('x','52');
         rectBtn.setAttribute('y','5');
       
-        rectBtn.setAttribute('style','fill:#fff');
+        rectBtn.setAttribute('style','fill:#fff; cursor: pointer;');
 
         rectBtn.setAttribute('id','saveRect');
 
@@ -1582,6 +1588,7 @@
         text.setAttribute('y','26');
 
         text.setAttribute('id','saveText');
+        text.setAttribute('style','cursor: pointer');
         
         text.innerHTML = "SAVE";
         document.getElementsByTagName("svg")[0].appendChild(text);
@@ -1597,7 +1604,7 @@
         rectBtn.setAttribute('x','182');
         rectBtn.setAttribute('y','5');
       
-        rectBtn.setAttribute('style','fill:#fff');
+        rectBtn.setAttribute('style','fill:#fff; cursor: pointer;');
 
         rectBtn.setAttribute('id','clearRect');
 
@@ -1608,6 +1615,7 @@
         clearText.setAttribute('y','26');
 
         clearText.setAttribute('id','clearText');
+        clearText.setAttribute('style','cursor: pointer');
         
         clearText.innerHTML = "CLEAR";
         document.getElementsByTagName("svg")[0].appendChild(clearText);
