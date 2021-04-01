@@ -128,13 +128,13 @@
 
     window.onresize = function(event) {
         // 화면의 height를 브라우저 크기에 따라 동적으로 생성
-        document.getElementsByTagName('div')[1].setAttribute('style','height:'+ (2 * window.innerHeight - window.outerHeight) +'px');
+        document.getElementsByTagName('div')[1].setAttribute('style','height:'+ (screen.height * 4 / 5) +'px');
 	};
     
     window.onload = function(){
     	
    		// 화면의 height를 브라우저 크기에 따라 동적으로 생성
-        document.getElementsByTagName('div')[1].setAttribute('style','height:'+ (2 * window.innerHeight - window.outerHeight) +'px');
+        document.getElementsByTagName('div')[1].setAttribute('style','height:'+ (screen.height * 4 / 5) +'px');
     	
       // svg element 생성시 필요한 인수값
       var svgUrl = "http://www.w3.org/2000/svg";
@@ -244,7 +244,7 @@
             y = y >= (Math.floor(tableHeight) + 100) ? y : (Math.floor(tableHeight) + 100);
           });
             // viewBox의 동적으로 변화하는 x값
-            x = 50 + shapeElements.length * 300 + (tablePos * 200) + (window.innerWidth / 10);
+            x = 50 + shapeElements.length * 300 + (tablePos * 200) + (screen.width / 10);
 
           this.target = null;
           this.dragType = null;
