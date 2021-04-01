@@ -43,7 +43,7 @@
 		  position: relative;
 		  width: 100%;
 		  height: 700px;
-		  overflow-y: auto;
+		  overflow-y: scroll;
 		}
 		
       .node-container {
@@ -221,9 +221,12 @@
           this.dragElement = this.element = diagramElement;
 
           let tablePos = 0;
-
+          
+          // viewBox를 동적으로 그리기 위한 변수
+          let x = 0;
+       	  let y = 0;
+       	  
           shapeElements.forEach((element, i) => {
-
             const shape = new NodeShape(element, 50 + i * 300 + (tablePos * 200), 50);
             shapeLookup[shape.id] = shape;
             shapes.push(shape);
@@ -231,6 +234,10 @@
             //테이블 넓이에 따라서 위지 수정
             let tableWidth = element.children[0].getAttribute('width');
             tablePos = Math.floor(tableWidth / 200) - 1;
+
+            // viewBox의 동적으로 변화하는 값
+            x = 50 + shapeElements.length * 300 + (tablePos * 200);
+            y = y >= (Math.floor(element.children[0].getAttribute('height')) + 100)? y : (Math.floor(element.children[0].getAttribute('height')) + 100);
           });
 
           this.target = null;
@@ -256,6 +263,9 @@
 
           // 최초 생성된(자동으로 그려졌는지 유무) connector 유무 확인 flag
           autoCon = false;
+          
+       	  // svg의 viewBox 속성값을 그려지는 그림에 따라서 동적으로 그림
+          document.getElementsByTagName('svg')[0].setAttribute('viewBox','0 0' + ' '+ x + ' ' + y);
         }
 
         // drag stop할 때 진행
@@ -1979,8 +1989,7 @@
     </datalist>
   </div>
   <div class="svgScroll">
-	  <!-- viewbox의 크기를 넘지 않는 이미지는 (1300, 800)안에 그려짐 , viewbox의 크기를 넘는 이미지는 이미지가 짤린채 그려짐-->
-	  <svg id="svg" style="visibility: hidden;" viewbox="0 0 1200 800">
+	  <svg id="svg" style="visibility: hidden;">
 	    <text contentEditable="true" required="true"></text>
 	    <g id="diagram" data-drag="diagram:diagram" data-drag-type="diagram">     
 	      <g id="node-layer">
