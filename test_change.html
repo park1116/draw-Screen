@@ -236,10 +236,10 @@
 
                      let tableHeight = element.children[0].getAttribute('height');
 
-                     // viewBox의 동적으로 변화하는 y값 (+50하는 부분은 상단에 selectbox를 포함하는 div의 높이)
+                     // viewBox의 동적으로 변화하는 y값 ("+50" 하는 부분은 상단에 selectbox가 있는 div부분의 높이)
                      y = y >= (Math.floor(tableHeight) + 50) ? y : (Math.floor(tableHeight) + 50);
                  });
-                 // viewBox의 동적으로 변화하는 x값
+                 // viewBox의 동적으로 변화하는 x값 ("+screen.width/10" 하는 부분은 시각적으로 글자가 너무 커보이는 것을 방지하기 위해 단순히 넣은 데이터 값(제거해도됨))
                  x = 50 + shapeElements.length * 300 + (tablePos * 200) + (screen.width/10);
 
                  this.target = null;
