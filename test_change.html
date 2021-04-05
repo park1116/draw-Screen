@@ -36,7 +36,7 @@
         .svgScroll {
             position: relative;
             width: 100%;
-            height: 90%;
+            height: 100%;
             overflow-y: scroll;
         }
 
@@ -122,8 +122,17 @@
         }
     </style>
     <script>
+    window.onresize = function() {
+   	 	// scroll을 브라우저의 크기에 맞추는 동작
+        document.getElementById("svgScroll").style.height=100+"%";
+        document.getElementById("svgScroll").style.height=(document.getElementById("svgScroll").offsetHeight-50)+"px";
+    };
+    
      window.onload = function () {
-         // svg element 생성시 필요한 인수값
+    	 // scroll을 브라우저의 크기에 맞추는 동작
+         document.getElementById("svgScroll").style.height=(document.getElementById("svgScroll").offsetHeight-50)+"px";
+    	 
+    	 // svg element 생성시 필요한 인수값
          var svgUrl = "http://www.w3.org/2000/svg";
 
          // 인터페이스 목록 조회
@@ -227,11 +236,11 @@
 
                      let tableHeight = element.children[0].getAttribute('height');
 
-                     // viewBox의 동적으로 변화하는 y값
-                     y = y >= (Math.floor(tableHeight) + 100) ? y : (Math.floor(tableHeight) + 100);
+                     // viewBox의 동적으로 변화하는 y값 (+50하는 부분은 상단에 selectbox를 포함하는 div의 높이)
+                     y = y >= (Math.floor(tableHeight) + 50) ? y : (Math.floor(tableHeight) + 50);
                  });
                  // viewBox의 동적으로 변화하는 x값
-                 x = 50 + shapeElements.length * 300 + (tablePos * 200) + (screen.width / 10);
+                 x = 50 + shapeElements.length * 300 + (tablePos * 200) + (screen.width/10);
 
                  this.target = null;
                  this.dragType = null;
@@ -279,7 +288,7 @@
                  // outportId 변수 초기화
                  outportId = "";
                  // preScroll 변수 초기화
-                 preScroll = document.getElementById('svgScroll').scrollTop;
+                 preScroll = document.getElementById("svgScroll").scrollTop;
                  
                  if (event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
 
@@ -509,10 +518,10 @@
 				
                  // scroll 하는 만큼 drag도 함께 움직이도록
                  let scrollGap = 0;
-                 let scroll = document.getElementById('svgScroll').scrollTop;
+                 let scroll = document.getElementById("svgScroll").scrollTop;
                  scrollGap = scroll - preScroll;
                  preScroll = scroll;
-
+                 
                  TweenLite.set(this.target.dragElement, {
                      x: `+=${this.draggable.deltaX}`,
                      y: `+=${this.draggable.deltaY + scrollGap}`
