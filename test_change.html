@@ -82,6 +82,23 @@
             font-size: 12px;
             fill: #fff;
         }
+        
+        /* psh */
+        .tableport {
+            cursor: pointer;
+        }
+
+        .tableport-scrim {
+            fill: transparent;
+        }
+
+        .tableport-outer {
+            fill: #777777;
+        }
+
+        .tableport-inner {
+            fill: #202020;
+        }
 
         .input-field .port-label {
             text-anchor: start;
@@ -571,6 +588,24 @@
                      ports.push(port);
                      return port;
                  });
+                 
+                 // tableport 생성---------psh
+                 const inputTableElements = Array.prototype.slice.call(element.querySelectorAll(".input-title"));
+                 const outputTableElements = Array.prototype.slice.call(element.querySelectorAll(".output-title"));
+
+                 this.inputTables = inputTableElements.map(element => {
+                     const tableport = new NodeTablePort(this, element, true);
+                     tableportLookup[tableport.id] = tableport;
+                     tableports.push(tableport);
+                     return tableport;
+                 });
+
+                 this.outputTables = outputTableElements.map(element => {
+                     const tableport = new NodeTablePort(this, element, false);
+                     tableportLookup[tableport.id] = tableport;
+                     tableports.push(tableport);
+                     return tableport;
+                 });
 
              }
 
@@ -586,6 +621,99 @@
              }
          }
 
+         //
+         // NODE TABLE PORT
+         // =========================================================================== 
+         class NodeTablePort {
+
+             constructor(parentNode, element, isInput) {
+
+                 this.id = `tableport_${++nextUidTablePort}`;
+                 this.dragType = "tableport";
+
+                 this.parentNode = parentNode;
+                 this.isInput = isInput;
+
+                 this.element = element;
+                 this.tableportElement = element.querySelector(".tableport");
+                 this.tableportScrim = element.querySelector(".tableport-scrim");
+
+                 this.tableportScrim.setAttribute("data-drag", `${this.id}:tableport`);
+
+                 //컬럼명 정보
+                 this.tableName = element.getElementsByClassName('tableport-scrim')[0].getAttribute('table');
+                 
+//                  this.connectors = [];
+//                  this.lastConnector;
+
+                 //getBBox(); 함수는 SVGRect객체 리턴(위치정보, 너비, 높이)
+                 const bbox = this.tableportElement.getBBox();
+
+                 //createSVGPoint(); SVGPoint객체 반환
+                 this.global = svg.createSVGPoint();
+                 this.center = svg.createSVGPoint();
+                 this.center.x = bbox.x + bbox.width / 2;
+                 this.center.y = bbox.y + bbox.height / 2;
+
+                 this.update();
+
+             }
+
+             update() {
+
+                 //getTransformToElement() Transformation Matrix를 반환
+                 const transform = this.tableportElement.getTransformToElement(diagramElement);
+                 //matrixTransform() 2-D 평명에서 개체 또는 좌표계를 조작하는데 사용할 임의의 Affine 행렬 변형을 만듬
+                 this.global = this.center.matrixTransform(transform);
+
+//                  for (let connector of this.connectors) {
+//                      connector.updateHandle(this);
+//                  }
+             }
+
+//              createConnector() {
+
+//                  let connector;
+
+//                  // connectorPool은 삭제된 connector 정보가 저정된 곳
+//                  if (connectorPool.length) {
+//                      // connector 삭제 후 신규 생성시 마지막에 삭제한 connector id로 설정
+//                      connector = connectorPool.pop();
+//                      connectorLookup[connector.id] = connector;
+//                  } else {
+//                      connector = new Connector();
+//                  }
+
+//                  // connector 생성에 필요한 this객체 속성값 초기 설정
+//                  connector.init(this);
+
+//                  this.lastConnector = connector;
+
+//                  // output port에서 생성된 connector일 경우 connectors에 저장
+//                  if (startInputPort == false) {
+//                      this.connectors.push(connector);
+//                  }
+//              }
+
+//              // connectors에서 connection 항목 삭제
+//              removeConnector(connection) {
+
+//                  //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
+//                  const index = this.connectors.indexOf(connection);
+
+//                  if (index > -1) {
+//                      this.connectors.splice(index, 1);
+//                  }
+//              }
+
+//              // connectors에 connection 추가 
+//              addConnector(connection) {
+//                  this.connectors.push(connection);
+//                  // 중복된 값 없도록 설정
+//                  this.connectors = _.uniqBy(this.connectors, 'id');
+//              }
+         }
+         
          //
          // NODE PORT
          // =========================================================================== 
@@ -1287,7 +1415,7 @@
 
              if (sendOrReceive == "send") {
 
-                 // 왼쪽 out/in
+                 // 왼쪽 out
                  // 송신(out) = lineCheck:0, inAndOutCheck:out
                  // 송신 데이터(in) = lineCheck:0, inAndOutCheck:in
                  // lineCheck = "0|0"; 
@@ -1301,7 +1429,7 @@
                  setSizeNode(0, totalHeight, contentHeight, headerTitle);
 
              } else {
-                 // 오른쪽 out
+                 // 오른쪽 in/out
                  lineCheck = "0|1"
                  inAndOutCheck = "in|out";
 
@@ -1378,7 +1506,6 @@
              }
 
              if (checkData) {
-
                  //column명 일 경우
                  let field = document.createElementNS(svgUrl, "g");
                  let label = null;
@@ -1449,7 +1576,7 @@
                  titleLabel.innerHTML = name;
                  currentTableName = name;
                  
-                 //port 설정
+                 //port 설정---------psh
                  document.getElementsByClassName(inAndOut + 'put-title')[len - 1].appendChild(port);
                  port.setAttribute('class', 'tableport');        
                  
@@ -1918,6 +2045,11 @@
 
              portLookup = {};
              ports = [];
+             
+             // tableport----------psh
+             tableportLookup = {};
+             tableports = [];
+             nextUidTablePort = 0;
 
              connectorLookup = {};
              connectorPool = [];
@@ -2002,6 +2134,14 @@
          var portLookup = {};
          // ports 배열 저장변수
          var ports = [];
+         
+         //-------psh
+         // tableportLookup object 저장변수
+         var tableportLookup = {};
+         // tableports 배열 저장변수
+         var tableports = [];
+         // tableport id 값 설정
+         var nextUidTablePort = 0;
 
          // connectorLookup object 저장변수
          var connectorLookup = {};
