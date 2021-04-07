@@ -123,13 +123,13 @@
     </style>
     <script>
     window.onresize = function() {
-   	 	// scroll을 브라우저의 크기에 맞추는 동작
+   	 	// scroll을 브라우저의 크기에 맞추는 동작 ("-50" 하는 부분은 상단에 selectbox가 있는 div부분의 높이)
         document.getElementById("svgScroll").style.height=100+"%";
         document.getElementById("svgScroll").style.height=(document.getElementById("svgScroll").offsetHeight-50)+"px";
     };
     
      window.onload = function () {
-    	 // scroll을 브라우저의 크기에 맞추는 동작
+    	 // scroll을 브라우저의 크기에 맞추는 동작 ("-50" 하는 부분은 상단에 selectbox가 있는 div부분의 높이)
          document.getElementById("svgScroll").style.height=(document.getElementById("svgScroll").offsetHeight-50)+"px";
     	 
     	 // svg element 생성시 필요한 인수값
@@ -239,8 +239,8 @@
                      // viewBox의 동적으로 변화하는 y값 ("+50" 하는 부분은 상단에 selectbox가 있는 div부분의 높이)
                      y = y >= (Math.floor(tableHeight) + 50) ? y : (Math.floor(tableHeight) + 50);
                  });
-                 // viewBox의 동적으로 변화하는 x값 ("+screen.width/10" 하는 부분은 시각적으로 글자가 너무 커보이는 것을 방지하기 위해 단순히 넣은 데이터 값(제거해도됨))
-                 x = 50 + shapeElements.length * 300 + (tablePos * 200) + (screen.width/10);
+                 // viewBox의 동적으로 변화하는 x값 ("+screen.width/10" 하는 부분은 시각적으로 글자가 너무 커보이는 것을 방지하기 위해 단순히 넣은 공백(제거해도됨))
+                 x = 50 + shapeElements.length * 300 + (tablePos * 200);
 
                  this.target = null;
                  this.dragType = null;
@@ -521,6 +521,7 @@
                  let scroll = document.getElementById("svgScroll").scrollTop;
                  scrollGap = scroll - preScroll;
                  preScroll = scroll;
+                 
                  
                  TweenLite.set(this.target.dragElement, {
                      x: `+=${this.draggable.deltaX}`,
@@ -1357,6 +1358,10 @@
          function createNode(name, inAndOut, position, checkData, line) {
              let labelX = '0';
              let portX = '0';
+             let port = document.createElementNS(svgUrl, "g");
+             let portOuter = document.createElementNS(svgUrl, "circle");
+             let portInner = document.createElementNS(svgUrl, "circle");
+             let portScrim = document.createElementNS(svgUrl, "circle");
 
              // 0, 1번째 out / 0번째 in label, port 위치 설정
              if (inAndOut == "out") {
@@ -1364,24 +1369,19 @@
                      labelX = '226';
                      portX = '239';
                  } else {
-                     labelX = '776';
-                     portX = '789';
+                     labelX = '846';
+                     portX = '859';
                  }
              } else {
                  labelX = '28';
                  portX = '15';
              }
 
-             //table명일 경우 circle생성하지 않음
              if (checkData) {
 
                  //column명 일 경우
                  let field = document.createElementNS(svgUrl, "g");
-                 let port = document.createElementNS(svgUrl, "g");
                  let label = null;
-                 let portOuter = document.createElementNS(svgUrl, "circle");
-                 let portInner = document.createElementNS(svgUrl, "circle");
-                 let portScrim = document.createElementNS(svgUrl, "circle");
 
                  //field 설정
                  document.getElementsByClassName(inAndOut + 'puts')[line].appendChild(field);
@@ -1432,14 +1432,6 @@
                  portScrim.setAttribute('table', currentTableName);
                  portScrim.setAttribute('columnName', name);
                  portScrim.setAttribute('initCol', name);
-
-
-                 if (inAndOut == "out" && line == "1") {
-                     portOuter.setAttribute('style', 'visibility: hidden;');
-                     portInner.setAttribute('style', 'visibility: hidden;');
-                     portScrim.setAttribute('style', 'visibility: hidden;');
-                 }
-
              } else {
                  //table명 일 경우
                  let title = document.createElementNS(svgUrl, "g");
@@ -1456,6 +1448,39 @@
                  document.getElementsByClassName(inAndOut + 'put-title')[len - 1].appendChild(titleLabel);
                  titleLabel.innerHTML = name;
                  currentTableName = name;
+                 
+                 //port 설정
+                 document.getElementsByClassName(inAndOut + 'put-title')[len - 1].appendChild(port);
+                 port.setAttribute('class', 'tableport');        
+                 
+                 //portOuter 설정
+                 document.getElementsByClassName(inAndOut + 'put-title')[len - 1].children[1].appendChild(portOuter);
+                 portOuter.setAttribute('class', 'tableport-outer');
+                 portOuter.setAttribute('cx', portX);
+                 portOuter.setAttribute('cy', '10');
+                 portOuter.setAttribute('r', '7.5');
+
+                 //portInner 설정
+                 document.getElementsByClassName(inAndOut + 'put-title')[len - 1].children[1].appendChild(portInner);
+                 portInner.setAttribute('class', 'tableport-inner');
+                 portInner.setAttribute('cx', portX);
+                 portInner.setAttribute('cy', '10');
+                 portInner.setAttribute('r', '5');
+
+                 //portScrim 설정
+                 document.getElementsByClassName(inAndOut + 'put-title')[len - 1].children[1].appendChild(portScrim);
+                 portScrim.setAttribute('class', 'tableport-scrim');
+                 portScrim.setAttribute('cx', portX);
+                 portScrim.setAttribute('cy', '10');
+                 portScrim.setAttribute('r', '7.5');
+                 portScrim.setAttribute('table', name);
+             }
+
+             // 가장 우측에 그려지는 부분의 port는 전부 hidden 처리
+             if (inAndOut == "out" && line == "1") {
+                 portOuter.setAttribute('style', 'visibility: hidden;');
+                 portInner.setAttribute('style', 'visibility: hidden;');
+                 portScrim.setAttribute('style', 'visibility: hidden;');
              }
          }
 
@@ -1982,7 +2007,7 @@
          var connectorLookup = {};
          // connectorPool object 저장변수
          var connectorPool = [];
-
+         
          const dragProxy = document.querySelector("#drag-proxy");
          const shapeElements = Array.prototype.slice.call(document.querySelectorAll(".node-container"));
 
@@ -2030,18 +2055,18 @@
 
                     <!-- PROCESS 2 -->
                     <g class="node-container">
-                        <rect class="node-background" width="804" height="128" x="0" y="0" rx="6" ry="6"></rect>
+                        <rect class="node-background" width="874" height="128" x="0" y="0" rx="6" ry="6"></rect>
 
                         <g class="node-header">
-                            <rect class="header-round-rect" width="800" height="40" x="2" y="2" rx="4" ry="4"></rect>
-                            <rect class="header-rect" width="800" height="36" x="2" y="6"></rect>
+                            <rect class="header-round-rect" width="870" height="40" x="2" y="2" rx="4" ry="4"></rect>
+                            <rect class="header-rect" width="870" height="36" x="2" y="6"></rect>
                             <text class="header-title" x="102" y="30">Process 2</text>
                         </g>
 
                         <g class="node-content">
 
-                            <rect class="content-round-rect" width="800" height="82" x="2" y="44" rx="4" ry="4"></rect>
-                            <rect class="content-rect" width="800" height="77" x="2" y="44"></rect>
+                            <rect class="content-round-rect" width="870" height="82" x="2" y="44" rx="4" ry="4"></rect>
+                            <rect class="content-rect" width="870" height="77" x="2" y="44"></rect>
 
                             <g class="inputs">
                             </g>
