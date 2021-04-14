@@ -2495,9 +2495,17 @@
 
              nextUidConnector = 0;
              
+             
              //------psh
+             // 모든 tableconnector 삭제
+             let tcons = document.getElementById('tableconnections-layer');
+             while (tcons.hasChildNodes()) {
+                 tcons.removeChild(tcons.firstChild);
+             }
              nextUidTableConnector = 0;
 
+             
+             
              createAutoConnector(initDiagram, true);
          }
 
