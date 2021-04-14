@@ -83,7 +83,7 @@
             fill: #fff;
         }
         
-        /* psh */
+        /*---------------psh start------------- */
         .tableport {
             cursor: pointer;
         }
@@ -99,11 +99,27 @@
         .tableport-inner {
             fill: #202020;
         }
+        
+        .tableconnector-handle {
+            fill: #e8d502;
+        }
+
+        .tableconnector-path {
+            stroke: #e8d502;
+            stroke-width: 4;
+            fill: none;
+        }
+
+        .tableconnector-path-outline {
+            stroke: #333;
+            stroke-width: 6;
+            fill: none;
+        }
+		/*-------------psh end-----------------------*/
 
         .input-field .port-label {
             text-anchor: start;
         }
-
         .output-field .port-label {
             text-anchor: end;
         }
@@ -193,7 +209,7 @@
                      return true;
                  }
 
-                 // output, input, connector 초기화
+                 // output, input, connector, tableconnector 초기화
                  cleanElement();
 
                  // 선택된 인터페이스에서 상세 조회에 필요한 값 추출
@@ -313,6 +329,9 @@
                      if (event.target.className.baseVal == "port-label" && event.target.getAttribute('x') == "226") {
                          elCheck = event.target.parentElement.children[0].children[2];
                          dragYN = true;
+                     } else if(event.target.className.baseVal == "port-title" && event.target.getAttribute('x') == "226"){
+                    	 elCheck = event.target.parentElement.children[1].children[2];
+                         dragYN = true;
                      } else {
                          dragYN = false;
                          return true;
@@ -320,17 +339,31 @@
                  } else {
                      // event.target이 path, circle일 경우
                      let connectorId = "";
+                     
+                     // event.target이 table명 관련 path, circle일 경우 -------psh
+                     let tableconnectorId = "";
 
                      // path 선택시 핸들링 가능하도록 설정
                      if (event.target.tagName == "path") {
+                    	 
+                    	 //--------------------psh
+                    	 if (event.target.className.baseVal == "tableconnector-path-outline" || event.target.className.baseVal == "tableconnector-path") {
+                             // connector-handle.input-handle
+                             elCheck = event.target.parentElement.children[2];
+                             tableconnectorId = elCheck.parentElement.getAttribute('id');
+                             outputCheck = true;
+                    		 
+                             
+                             
+                    	 } else {
+                             // connector-handle.input-handle
+                             elCheck = event.target.parentElement.children[2];
 
-                         // connector-handle.input-handle
-                         elCheck = event.target.parentElement.children[2];
+                             connectorId = elCheck.parentElement.getAttribute('id');
 
-                         connectorId = elCheck.parentElement.getAttribute('id');
-
-                         outputCheck = true;
-
+                             outputCheck = true;
+                    		 
+                    	 }
                      } else if (event.target.tagName == "circle") {
 
                          // port-scrim 선택시 핸들링 가능하도록 설정
@@ -361,6 +394,29 @@
                              elCheck = event.target.parentElement.children[2];
                              connectorId = elCheck.parentElement.getAttribute('id');
 
+                             
+                         // ----------psh
+	                   	// tableport-scrim 선택시 핸들링 가능하도록 설정
+                         } else if (event.target.className.baseVal == "tableport-scrim") {
+                             // tableport 선택시 tableport의 마지막 tableconnector로 element 포커스 설정
+                             let connectors = event.target.getAttribute('tableconnectors');
+                             if (connectors !== null && connectors !== "") {
+                                 tableconnectorId = connectors.split('|')[connectors.split('|').length - 1];
+                                 elCheck = document.getElementById(tableconnectorId).children[2];
+                             }
+                         } else if (event.target.className.baseVal == "tableconnector-handle tableoutput-handle" &&
+                             event.target.getAttribute('data-drag').indexOf(":tableconnector") > -1) {
+                             // path 클릭후 input port 선택시 포커스 설정하기 위해서 위와 같은 조건 추가
+                             elCheck = event.target.parentElement.children[2];
+                             tableconnectorId = elCheck.parentElement.getAttribute('id');
+                         } else if (event.target.className.baseVal == "tableconnector-handle tableinput-handle") {
+                             // input-handle 선택시 connector 생성되는 증상 막기위해 조건 추가
+                             elCheck = event.target.parentElement.children[2];
+                             tableconnectorId = elCheck.parentElement.getAttribute('id');
+                         } else if (event.target.className.baseVal == "tableconnector-handle tableoutput-handle") {
+                             tableconnectorId = event.target.parentElement.getAttribute('id');
+                             
+                             
                          } else {
 
                              connectorId = event.target.parentElement.getAttribute('id')
@@ -371,6 +427,11 @@
                      // 선택된 connector element를 최하위로 이동시켜서 포커싱 시킴
                      if (connectorId !== "") {
                          $('#' + connectorId).appendTo($('#connections-layer'));
+                     }
+                     
+                     // 선택된 tableconnector element를 최하위로 이동시켜서 포커싱 시킴----------psh
+                     if (tableconnectorId !== "") {
+                         $('#' + tableconnectorId).appendTo($('#tableconnections-layer'));
                      }
 
                      //drag 대상 유무 확인
@@ -384,6 +445,8 @@
                  startInputPort = false;
                  //inputport connector 존재 유무 판단 flag 초기화
                  inputPortMapping = false;
+                 //inputport tableconnector 존재 유무 판단 flag 초기화----psh
+                 inputTablePortMapping = false;
 
                  while (!(drag = element.getAttribute("data-drag")) && element !== svg) {
                      element = element.parentNode;
@@ -439,11 +502,54 @@
                      case "connector":
                          this.target = connectorLookup[id];
                          break;
+				
+                     // ---------psh
+                     case "tableport":
+                         // portLookup : 모든 port가 저장된 변수
+                         const tableport = tableportLookup[id];
+                         // port.isInput : port 시작점이 input에서 시작되는 확인할 수 있는 속성
+                         if (tableport.isInput == true) {
+                             // input port에 connector 존재 확인 변수
+                             inputTablePortMapping = inputTablePortMappingCheck();
+                             // 시작점이 input인지 확인 변수
+                             startInputPort = true;
+                         } else {
+                             startInputPort = false;
+                         }
+                         // connector 생성
+                         tableport.createTableConnector();
+                         this.target = tableport.lastTableConnector;
+                         this.dragType = this.target.dragType;
+                         // path 선택시 output값 설정 필요
+                         if (outputCheck == true) {
+                             outportId = element.parentElement.lastElementChild.getAttribute('data-drag').split(':', 1)[0];
+                         }
+                         break;
+                     case "tableconnector":
+                         this.target = tableconnectorLookup[id];
+                         break;
                  }
 
                  // input port에 connector 존재 유무 확인
                  function inputPortMappingCheck() {
                      let allConnectorList = document.getElementsByClassName('connector');
+                     let bMapping = false;
+                     for (var checkHandle of allConnectorList) {
+                         let inputPortHandle = checkHandle.children[2].getAttribute('data-drag');
+
+                         if (inputPortHandle == drag) {
+                             bMapping = true;
+                             break;
+                         } else {
+                             bMapping = false;
+                         }
+                     }
+                     return bMapping;
+                 }
+
+                 // input tableport에 tableconnector 존재 유무 확인 -----------psh
+                 function inputTablePortMappingCheck() {
+                     let allConnectorList = document.getElementsByClassName('tableconnector');
                      let bMapping = false;
                      for (var checkHandle of allConnectorList) {
                          let inputPortHandle = checkHandle.children[2].getAttribute('data-drag');
@@ -529,9 +635,58 @@
                      // rename함수에서 튕겨낼수 있도록 flag 설정
                      renameCheck = false;
 
+                     
+                     //------------------psh
+                 } else if (startInputPort == true && inputTablePortMapping == true) {
+                	// this 객체에 input port가 존재하고 output port가 없을때
+                     if (this.target.inputPort !== null && (this.target.outputPort == null || this.target.outputPort == undefined)) {
+
+                         // input port id로 output port id 찾기
+                         getOutputTablePortList(this.element, this.target.inputPort.id);
+
+                         // if(this.target.outputPort == undefined) {
+                         // 설정된 output port id가 ""일 경우
+                         if (outportId == "") {
+                             this.target.outputPort = { id: outputTablePortList[outputTablePortList.length - 1] };
+                         } else {
+                             // outportId가 존재할 경우 outputPortList에서 찾아서 this객체에 저장
+                             for (let c = 0; c < outputTablePortList.length; c++) {
+                                 if (outportId == outputTablePortList[c]) {
+                                     this.target.outputPort = { id: outputTablePortList[c] };
+                                     outputTablePortList = [];
+                                     break;
+                                 }
+                             }
+                         }
+                         // }
+                     }
+                     for (var saveThis of saveTableThisList) {
+                         // outputport 여러개, intputport 한개 inputport 선택시
+                         // outputport 정보가 없으므로 inputport에 mapping된 outputport값 구해서 배열의 마지막 값을 사용
+                         // 마지막 값을 사용하는 이유 : 여러개의 connector 중에서 마직막에서 생성된 connector를 먼저 수정하도록 정의
+
+                         if (this.target.hasOwnProperty("inputPort") && this.target.hasOwnProperty("outputPort")) {
+                             if (this.target.inputPort.id == saveThis.inputPort.id && this.target.outputPort.id == saveThis.outputPort.id) {
+                                 if (document.getElementById(saveThis.id) !== null) {
+                                     assignObject(this.target, saveThis);
+                                 } else {
+                                     let index = saveTableThisList.indexOf(saveThis);
+
+                                     if (index > -1) {
+                                         saveTableThisList.splice(index, 1);
+                                     }
+                                     dragYN = false;
+                                     return;
+                                 }
+                             }
+                         } else {
+                             break;
+                         }
+                     }
+                     renameCheck = false;
                  } else if (startInputPort == true && inputPortMapping == false) {
                      return true;
-                 }
+                 } 
 				
                  // scroll 하는 만큼 drag도 함께 움직이도록
                  let scrollGap = 0;
@@ -643,8 +798,8 @@
                  //컬럼명 정보
                  this.tableName = element.getElementsByClassName('tableport-scrim')[0].getAttribute('table');
                  
-//                  this.connectors = [];
-//                  this.lastConnector;
+                 this.tableconnectors = [];
+                 this.lastTableConnector;
 
                  //getBBox(); 함수는 SVGRect객체 리턴(위치정보, 너비, 높이)
                  const bbox = this.tableportElement.getBBox();
@@ -666,52 +821,308 @@
                  //matrixTransform() 2-D 평명에서 개체 또는 좌표계를 조작하는데 사용할 임의의 Affine 행렬 변형을 만듬
                  this.global = this.center.matrixTransform(transform);
 
-//                  for (let connector of this.connectors) {
-//                      connector.updateHandle(this);
-//                  }
+                 for (let tableconnector of this.tableconnectors) {
+                     tableconnector.updateHandle(this);
+                 }
              }
 
-//              createConnector() {
+             createTableConnector() {
 
-//                  let connector;
+                 let tableconnector;
 
-//                  // connectorPool은 삭제된 connector 정보가 저정된 곳
-//                  if (connectorPool.length) {
-//                      // connector 삭제 후 신규 생성시 마지막에 삭제한 connector id로 설정
-//                      connector = connectorPool.pop();
-//                      connectorLookup[connector.id] = connector;
-//                  } else {
-//                      connector = new Connector();
-//                  }
+                 // tableconnectorPool은 삭제된 tableconnector 정보가 저정된 곳
+                 if (tableconnectorPool.length) {
+                     // tableconnector 삭제 후 신규 생성시 마지막에 삭제한 tableconnector id로 설정
+                     tableconnector = tableconnectorPool.pop();
+                     tableconnectorLookup[tableconnector.id] = tableconnector;
+                 } else {
+                     tableconnector = new TableConnector();
+                 }
 
-//                  // connector 생성에 필요한 this객체 속성값 초기 설정
-//                  connector.init(this);
+                 // tableconnector 생성에 필요한 this객체 속성값 초기 설정
+                 tableconnector.init(this);
 
-//                  this.lastConnector = connector;
+                 this.lastTableConnector = tableconnector;
 
-//                  // output port에서 생성된 connector일 경우 connectors에 저장
-//                  if (startInputPort == false) {
-//                      this.connectors.push(connector);
-//                  }
-//              }
+                 // output port에서 생성된 tableconnector일 경우 tableconnectors에 저장
+                 if (startInputPort == false) {
+                     this.tableconnectors.push(tableconnector);
+                 }
+             }
 
-//              // connectors에서 connection 항목 삭제
-//              removeConnector(connection) {
+             // tableconnectors에서 connection 항목 삭제
+             removeConnector(connection) {
 
-//                  //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
-//                  const index = this.connectors.indexOf(connection);
+                 //중복되는 connection이 존재하기 때문에 connection id값으로 반복 조회해서 삭제
+                 const index = this.tableconnectors.indexOf(connection);
 
-//                  if (index > -1) {
-//                      this.connectors.splice(index, 1);
-//                  }
-//              }
+                 if (index > -1) {
+                     this.tableconnectors.splice(index, 1);
+                 }
+             }
 
-//              // connectors에 connection 추가 
-//              addConnector(connection) {
-//                  this.connectors.push(connection);
-//                  // 중복된 값 없도록 설정
-//                  this.connectors = _.uniqBy(this.connectors, 'id');
-//              }
+             // tableconnectors에 connection 추가 
+             addConnector(connection) {
+                 this.tableconnectors.push(connection);
+                 // 중복된 값 없도록 설정
+                 this.tableconnectors = _.uniqBy(this.tableconnectors, 'id');
+             }
+         }
+         
+         //
+         // TABLE CONNECTOR
+         // ===========================================================================
+         class TableConnector {
+
+             constructor() {
+                 this.id = `tableConnector_${++nextUidTableConnector}`;
+                 this.dragType = "tableconnector";
+                 this.isSelected = false;
+                 this.element = tableconnectorElement.cloneNode(true);
+                 this.path = this.element.querySelector(".tableconnector-path");
+                 this.pathOutline = this.element.querySelector(".tableconnector-path-outline");
+                 this.inputHandle = this.element.querySelector(".tableinput-handle");
+                 this.outputHandle = this.element.querySelector(".tableoutput-handle");
+
+             }
+
+             // connector 생성에 필요한 this객체 속성값 초기 설정
+             init(port) {
+
+                 tableconnectorLayer.appendChild(this.element);
+
+                 this.isInput = port.isInput;
+
+                 if (port.isInput) {
+                     this.inputPort = port;
+                     this.dragElement = this.outputHandle;
+                     this.staticElement = this.inputHandle;
+                 } else {
+                     this.outputPort = port;
+                     this.dragElement = this.inputHandle;
+                     this.staticElement = this.outputHandle;
+                 }
+
+                 //tableconnector id 값 설정
+                 this.dragElement.parentElement.setAttribute('id', this.id);
+
+                 this.staticPort = port;
+                 this.dragElement.setAttribute("data-drag", `${this.id}:tableconnector`);
+                 this.staticElement.setAttribute("data-drag", `${port.id}:tableport:` + port.tableName);
+
+
+                 // this.inputHandle, this.outputHandle의 x,y 좌표 설정
+                 TweenLite.set([this.inputHandle, this.outputHandle], {
+                     x: port.global.x,
+                     y: port.global.y
+                 });
+             }
+
+             //Path position 설정
+             updatePath() {
+
+                 const x1 = this.inputHandle._gsTransform.x;
+                 const y1 = this.inputHandle._gsTransform.y;
+
+                 const x4 = this.outputHandle._gsTransform.x;
+                 const y4 = this.outputHandle._gsTransform.y;
+
+                 const dx = Math.abs(x1 - x4) * bezierWeight;
+
+                 const p1x = x1;
+                 const p1y = y1;
+
+                 const p2x = x1 - dx;
+                 const p2y = y1;
+
+                 const p4x = x4;
+                 const p4y = y4;
+
+                 const p3x = x4 + dx;
+                 const p3y = y4;
+
+                 const data = `M${p1x} ${p1y} C ${p2x} ${p2y} ${p3x} ${p3y} ${p4x} ${p4y}`;
+
+                 this.path.setAttribute("d", data);
+                 this.pathOutline.setAttribute("d", data);
+             }
+
+             //Handle x, y 좌표 업데이트
+             updateHandle(port) {
+
+                 if (port === this.inputPort) {
+
+                     TweenLite.set(this.inputHandle, {
+                         x: port.global.x,
+                         y: port.global.y
+                     });
+
+                 } else if (port === this.outputPort) {
+
+                     TweenLite.set(this.outputHandle, {
+                         x: port.global.x,
+                         y: port.global.y
+                     });
+                 }
+
+                 this.updatePath();
+             }
+
+             //drag 완료 후 진행
+             placeHandle() {
+                 //drag 대상 유무 확인
+                 if (dragYN == false) {
+                     return true;
+                 }
+
+                 tableconnectorClean();
+
+                 // dragTarget()함수가 연속해서 진행되기 때문에 rename함수를 반복 호출하여
+                 // rename함수에서 튕겨낼수 있도록 flag 설정
+                 renameCheck = true;
+
+                 const skipShape = this.staticPort.parentNode.element;
+
+                 let hitPort;
+
+                 for (let shape of shapes) {
+
+                     // this객체에 shape shapes(전체 shape 저장변수)에 포함되어 있는지 확인
+                     if (shape.element === skipShape) {
+                         continue;
+                     }
+
+                     // this객체의 dragElement가 shapes(전체 shape 저장변수)의 element에 포함되어 있는지 확인
+                     if (Draggable.hitTest(this.dragElement, shape.element)) {
+
+                         // this.isInput(시작점이 input이면 true 아니면 false)
+                         const ports = this.isInput ? shape.outputTables : shape.inputTables;
+
+                         for (let port of ports) {
+
+                             if (Draggable.hitTest(this.dragElement, port.tableportElement)) {
+                                 hitPort = port;
+                                 break;
+                             }
+                         }
+
+                         if (hitPort) {
+                             break;
+                         }
+                     }
+                 }
+
+                 if (hitPort) {
+
+                     if (this.isInput) {
+                         this.outputPort = hitPort;
+                     } else {
+                         this.inputPort = hitPort;
+                     }
+
+                     // let portInitCol = $('.port .port-scrim[data-drag^=' + hitPort.id + ']');
+                     // this.dragElement.setAttribute("data-drag", `${hitPort.id}:port:` + hitPort.tableName + ':' + portInitCol[0].getAttribute('initCol'));
+
+                     this.dragElement.setAttribute("data-drag", `${hitPort.id}:tableport:` + hitPort.tableName);
+
+                     //동일한 connector가 존재할 경우 중복되지 않도록 설정
+                     if (this.dragElement.getAttribute('class').indexOf("tableconnector-handle tableinput-handle") > -1 && document.getElementsByClassName('tableconnector-path-outline').length > 1) {
+                         var allConnector = [].slice.call(document.getElementsByClassName('tableconnector'));
+                         // var currentConnector = this;
+                         var currentConnector = allConnector.pop();
+                         // var nSelfData = true;
+
+                         for (var value of allConnector) {
+                             //output port 비교
+                             if (value.children[3].getAttribute('data-drag').split(':')[0] == this.element.children[3].getAttribute('data-drag').split(':')[0]) {
+                                 //intput port 비교
+                                 if (value.children[2].getAttribute('data-drag').split(':')[0] == this.element.children[2].getAttribute('data-drag').split(':')[0]) {
+                                     // if(nSelfData == true) {
+                                     //   nSelfData = false;
+                                     //   //신규 생성된 connector 삭제 - 기존에 존재하는 connector 사용
+                                     //   document.getElementById(currentConnector.getAttribute('id')).remove();
+                                     // } else 
+                                     {
+                                         //모든 connector 중에서 중복되는게 없도록 첫번째 데이터를 제외하고 모두 삭제
+                                         // document.getElementById(value.getAttribute('id')).remove();
+                                         document.getElementById(this.id).remove();
+                                     }
+                                 }
+                             } else if (currentConnector.id == value.id) {
+                                 let idx = saveTableThisList.findIndex(function (item) { return item.id === currentConnector.id });
+                                 if (idx > -1) {
+                                     saveTableThisList.splice(idx, 1);
+                                 }
+                             }
+                         }
+                     }
+
+                     //connector 목록에 추가
+                     //동일한 connector 추가 안되도록 설정 필요
+                     hitPort.addConnector(this);
+                     this.updateHandle(hitPort);
+
+                     let connectorId = this.id;
+                     // 삭제된 connector가 this로 설정되었을 경우 return 함
+                     if (document.getElementById(connectorId) !== null) {
+                         let idx = saveTableThisList.findIndex(function (item) { return item.id == connectorId });
+                         if (idx > -1) {
+                             saveTableThisList.splice(idx, 1, this);
+                         } else {
+                             saveTableThisList.push(this);
+                         }
+                     } else {
+                         return true;
+                     }
+                 } else {
+                     this.remove();
+                 }
+					
+                 // connectorClean();
+
+             }
+
+             // this 객체에 저정된 정보 삭제
+             remove() {
+
+                 if (this.inputPort) {
+                     this.inputPort.removeConnector(this);
+                 }
+
+                 if (this.outputPort) {
+                     this.outputPort.removeConnector(this);
+                 }
+
+                 this.isSelected = false;
+
+                 this.path.removeAttribute("d");
+                 this.pathOutline.removeAttribute("d");
+                 if (this.dragElement !== undefined) {
+                     this.dragElement.removeAttribute("data-drag");
+                 }
+                 if (this.staticElement !== undefined) {
+                     this.staticElement.removeAttribute("data-drag");
+                 }
+
+                 this.staticPort = null;
+                 this.inputPort = null;
+                 this.outputPort = null;
+                 this.dragElement = null;
+                 this.staticElement = null;
+
+                 if (this.element.parentElement !== null && this.element.parentElement !== undefined) {
+                     tableconnectorLayer.removeChild(this.element);
+                     tableconnectorPool.push(this);
+                 }
+             }
+
+             onDrag() {
+                 this.updatePath();
+             }
+
+             onDragEnd() {
+                 this.placeHandle();
+             }
          }
          
          //
@@ -1235,6 +1646,24 @@
                  }
              }
          }
+         
+       //inputport id값으로 outputport 정보 리스트 추출 함수
+         function getOutputTablePortList(currentElement, inputPortId) {
+
+             if (outputTablePortList.length > 0) {
+                 outputTablePortList = [];
+             }
+
+             let connectors = currentElement.getElementsByClassName('tableconnector');
+             for (let connector of connectors) {
+                 if (connector.getElementsByClassName('tableinput-handle')[0].getAttribute('data-drag').split(':')[0] == inputPortId) {
+                     let outputPortId = connector.getElementsByClassName('tableoutput-handle')[0].getAttribute('data-drag').split(':')[0];
+                     if (outputPortId.indexOf('tableport') > -1) {
+                         outputTablePortList.push(outputPortId);
+                     }
+                 }
+             }
+         }
 
          //outputport id값으로 inputport 정보 리스트 추출 함수
          // function getInputPortList(currentElement,outputPortId) {
@@ -1275,6 +1704,7 @@
                          (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == ""))) {
 
                      connectorClean();
+                     tableconnectorClean();
 
                      // 현재 사용중인 connector id
                      let currentId = $('.connector').last().attr('id');
@@ -1634,7 +2064,7 @@
                  if (className == 'output-title') {
 
                      if (className == 'output-title') {
-                         tempTable.push(sendElement[0].children[i].lastElementChild.innerHTML);
+                         tempTable.push(sendElement[0].children[i].firstElementChild.innerHTML);
                      }
 
                      if (tempColumn !== "") {
@@ -1674,7 +2104,7 @@
                  let className = receiveElement.children[i].getAttribute('class');
                  if (className == 'output-title') {
 
-                     tempTable.push(receiveElement.children[i].lastElementChild.innerHTML);
+                     tempTable.push(receiveElement.children[i].firstElementChild.innerHTML);
 
                      if (tempColumn !== "") {
                          tempColumnList.push(tempColumn);
@@ -1823,6 +2253,7 @@
              let outs = document.getElementsByClassName('outputs');
              let ins = document.getElementsByClassName('inputs');
              let cons = document.getElementById('connections-layer');
+             let tcons = document.getElementById('tableconnections-layer');
 
              for (let i = 0; i < 2; i++) {
                  while (outs[i].hasChildNodes()) {
@@ -1838,6 +2269,11 @@
              while (cons.hasChildNodes()) {
                  cons.removeChild(cons.firstChild);
              }
+			
+             //-------psh
+             while (tcons.hasChildNodes()) {
+                 tcons.removeChild(tcons.firstChild);
+             }
          }
 
          // 연결된 connector가 아닌 connector를 찾아서 삭제
@@ -1845,6 +2281,37 @@
              let connectors = document.getElementsByClassName('connector');
              if (connectors.length > 0) {
                  for (var checkConnector of connectors) {
+                     let inputPortCheck = checkConnector.children[2].getAttribute('transform');
+                     let outputPortCheck = checkConnector.children[3].getAttribute('transform');
+
+                     let inX = parseInt(inputPortCheck.split(',')[4]);
+                     let inY = parseInt(inputPortCheck.split(',')[5].split(')')[0]);
+
+                     let outX = parseInt(outputPortCheck.split(',')[4]);
+                     let outY = parseInt(outputPortCheck.split(',')[5].split(')')[0]);
+
+                     let checkX = Math.abs(inX - outX);
+                     let checkY = Math.abs(inY - outY);
+
+                     // let checkEct1 = checkConnector.children[0].getAttribute('d');
+                     // let checkEct2 = checkConnector.children[1].getAttribute('d');
+
+                     if (inputPortCheck !== null && outputPortCheck !== null) {
+                         // if(inputPortCheck == outputPortCheck && checkEct1 == null && checkEct2 == null) {
+                         if (checkX < 10 && checkY < 10) {
+                             checkConnector.remove();
+                             // nextUidConnector--;
+                         }
+                     }
+                 }
+             }
+         }
+
+         // 연결된 tableconnector가 아닌 tableconnector를 찾아서 삭제 -------------psh
+         function tableconnectorClean() {
+             let tableconnectors = document.getElementsByClassName('tableconnector');
+             if (tableconnectors.length > 0) {
+                 for (var checkConnector of tableconnectors) {
                      let inputPortCheck = checkConnector.children[2].getAttribute('transform');
                      let outputPortCheck = checkConnector.children[3].getAttribute('transform');
 
@@ -2002,6 +2469,12 @@
              startInputPort = false;
              outputPortList = [];
              nextUidConnector = 0;
+             
+             //--------psh
+             nextUidTableConnector = 0;
+             saveTableThisList = [];
+             inputTablePortMapping = false;
+             outputTablePortList = [];
 
              // 모든 connector 삭제
              let cons = document.getElementById('connections-layer');
@@ -2021,6 +2494,9 @@
              }
 
              nextUidConnector = 0;
+             
+             //------psh
+             nextUidTableConnector = 0;
 
              createAutoConnector(initDiagram, true);
          }
@@ -2050,7 +2526,14 @@
              tableportLookup = {};
              tableports = [];
              nextUidTablePort = 0;
-
+             // tableconnector-------psh
+             nextUidTableConnector = 0;
+             saveTableThisList = [];
+             tableconnectorLookup = {};
+             tableconnectorPool = [];
+             inputTablePortMapping = false;
+             outputTablePortList = [];
+             
              connectorLookup = {};
              connectorPool = [];
 
@@ -2142,7 +2625,19 @@
          var tableports = [];
          // tableport id 값 설정
          var nextUidTablePort = 0;
-
+         // tableconnector id 값 설정
+         var nextUidTableConnector = 0;
+         //this 저장 변수
+         var saveTableThisList = [];
+         // tableconnectorLookup object 저장변수
+         var tableconnectorLookup = {};
+         // tableconnectorPool object 저장변수
+         var tableconnectorPool = [];
+         //inputPort 맵핑 여부 판단 변수
+         var inputTablePortMapping = false;
+         //outport 리스트 배열
+         var outputTablePortList = [];
+         
          // connectorLookup object 저장변수
          var connectorLookup = {};
          // connectorPool object 저장변수
@@ -2155,6 +2650,12 @@
          frag.appendChild(document.querySelector(".connector"));
          const connectorElement = frag.querySelector(".connector");
          const connectorLayer = document.querySelector("#connections-layer");
+         
+         // ----psh
+         const tablefrag = document.createDocumentFragment();
+         tablefrag.appendChild(document.querySelector(".tableconnector"));
+         const tableconnectorElement = tablefrag.querySelector(".tableconnector");
+         const tableconnectorLayer = document.querySelector("#tableconnections-layer");
      };
     </script>
 </head>
@@ -2227,6 +2728,18 @@
 	
 	                    <circle class="connector-handle input-handle" cx="0" cy="0" r="4"></circle>
 	                    <circle class="connector-handle output-handle" cx="0" cy="0" r="4"></circle>
+	                </g>
+
+
+                <g id="tableconnections-layer"></g>
+
+	                <g class="tableconnector">
+	
+	                    <path class="tableconnector-path-outline"></path>
+	                    <path class="tableconnector-path"></path>
+	
+	                    <circle class="tableconnector-handle tableinput-handle" cx="0" cy="0" r="4"></circle>
+	                    <circle class="tableconnector-handle tableoutput-handle" cx="0" cy="0" r="4"></circle>
 	                </g>
 
                 <circle id="drag-proxy" cx="0" cy="0" r="1" fill="none"></circle>
