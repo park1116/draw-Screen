@@ -20,7 +20,7 @@
         body {
             height: 100%;
             overflow: hidden;
-            background: #1a1a1a;
+            background: #dfdfdf;
         }
 
         #svg {
@@ -37,7 +37,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            overflow-y: scroll;
+            overflow-y: auto;
         }
 
         .node-container {
@@ -45,11 +45,11 @@
         }
 
         .node-background {
-            fill: #1a1c1d;
+            fill: #dfe0e8;
         }
 
         .node-header {
-            fill: #426D92;
+            fill: #396aa4;
         }
 
         .node-header .header-title {
@@ -59,7 +59,7 @@
         }
 
         .node-content {
-            fill: #949ebf;
+            fill: #eff0f6;
         }
 
         .port {
@@ -80,7 +80,7 @@
 
         .port-label {
             font-size: 12px;
-            fill: #fff;
+            fill: #484848;
         }
         
         /*---------------psh start------------- */
@@ -101,11 +101,11 @@
         }
         
         .tableconnector-handle {
-            fill: #e8d502;
+            fill: #0b396c;
         }
 
         .tableconnector-path {
-            stroke: #e8d502;
+            stroke: #0b396c;
             stroke-width: 4;
             fill: none;
         }
@@ -139,11 +139,11 @@
         }
 
         .connector-handle {
-            fill: #E88802;
+            fill: #99a7bc;
         }
 
         .connector-path {
-            stroke: #E88802;
+            stroke: #99a7bc;
             stroke-width: 4;
             fill: none;
         }
@@ -2248,7 +2248,7 @@
              rectBtn.setAttribute('x', '52');
              rectBtn.setAttribute('y', '5');
 
-             rectBtn.setAttribute('style', 'fill:#fff; cursor: pointer;');
+             rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
 
              rectBtn.setAttribute('id', 'saveRect');
 
@@ -2259,7 +2259,7 @@
              text.setAttribute('y', '26');
 
              text.setAttribute('id', 'saveText');
-             text.setAttribute('style', 'cursor: pointer');
+             text.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
 
              text.innerHTML = "SAVE";
              document.getElementsByTagName("svg")[0].appendChild(text);
@@ -2275,7 +2275,7 @@
              rectBtn.setAttribute('x', '182');
              rectBtn.setAttribute('y', '5');
 
-             rectBtn.setAttribute('style', 'fill:#fff; cursor: pointer;');
+             rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
 
              rectBtn.setAttribute('id', 'clearRect');
 
@@ -2286,7 +2286,7 @@
              clearText.setAttribute('y', '26');
 
              clearText.setAttribute('id', 'clearText');
-             clearText.setAttribute('style', 'cursor: pointer');
+             clearText.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
 
              clearText.innerHTML = "CLEAR";
              document.getElementsByTagName("svg")[0].appendChild(clearText);
