@@ -1074,12 +1074,10 @@
                      } else {
                          return true;
                      }
+	                 createAutoTableConnector(initDiagram);
                  } else {
                      this.remove();
                  }
-					
-                 // connectorClean();
-
              }
 
              // this 객체에 저정된 정보 삭제
@@ -2454,6 +2452,40 @@
                      }
                  }
              }
+         }
+
+         // tableconnector를 기준으로 자동으로 connector 생성 함수------------psh
+         function createAutoTableConnector(data) {
+             //송신데이터 기준 컬럼 갯수
+             let outputs = document.getElementsByClassName('outputs')[0].getElementsByClassName('output-field').length;
+             let tconLength = document.getElementsByClassName('tableconnector').length;
+             let inputTable = document.getElementsByClassName('tableconnector')[tconLength - 1].children[2].getAttribute('data-drag').split(':')[2];
+             let outputTable = document.getElementsByClassName('tableconnector')[tconLength - 1].children[3].getAttribute('data-drag').split(':')[2];
+             let el = document.querySelector("#diagram");
+             
+              // output 기준으로 connector 자동 생성
+              for (let n = 0; n < outputs; n++) {
+            	  if (outputTable == document.getElementsByClassName('port-scrim')[n].getAttribute('table')){
+	                  data.target = document.getElementsByClassName('port-scrim')[n];
+	
+	                  //output columnName
+	                  let outputColName = data.target.getAttribute('columnName');
+	
+	                  // 동일 컬럼명이 존재하는지 확인
+	                  let matchCol = "";
+	                  
+	                  matchCol = $(".inputs .input-field .port .port-scrim[table=" + inputTable + "][initCol=" + outputColName + "]");
+	                  
+	                  if (matchCol[0] !== undefined) {
+	                      // connector 시작점 설정
+	                      data.prepareTarget(data);
+	                      let matchPos = matchCol.attr('data-drag').split(':')[0].split('_')[1] - 1;
+	                      let pos = document.getElementsByClassName('port-scrim')[matchPos].getTransformToElement(el);
+	                      data.target.inputHandle.setAttribute('transform', 'matrix(1,0,0,1,' + (parseInt(pos.e) + 15) + ',' + (parseInt(pos.f) + 10) + ')');
+	                      data.stopDragging(data);
+	                  }
+	              }
+              }
          }
 
          // connector 초기화 함수
