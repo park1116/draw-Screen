@@ -321,25 +321,28 @@
                  // preScroll 변수 초기화
                  preScroll = document.getElementById("svgScroll").scrollTop;
                  
+                 // event.target이 path, circle일 경우
+                 let connectorId = "";
+                 
+                 // event.target이 table명 관련 path, circle일 경우
+                 let tableconnectorId = "";
+                 
                  if (event.target.tagName == "rect" || event.target.tagName == "text" || event.target.tagName == "g" || event.target.tagName == "svg") {
 
                      // 송신 컬럼명 클릭시 drag 가능하도록 수정
                      if (event.target.className.baseVal == "port-label" && event.target.getAttribute('x') == "226") {
                          elCheck = event.target.parentElement.children[0].children[2];
+                         connectorId = elCheck.parentElement.getAttribute('id');
                          dragYN = true;
                      } else if(event.target.className.baseVal == "port-title" && event.target.getAttribute('x') == "226"){
                     	 elCheck = event.target.parentElement.children[1].children[2];
+                         tableconnectorId = elCheck.parentElement.getAttribute('id');
                          dragYN = true;
                      } else {
                          dragYN = false;
                          return true;
                      }
                  } else {
-                     // event.target이 path, circle일 경우
-                     let connectorId = "";
-                     
-                     // event.target이 table명 관련 path, circle일 경우
-                     let tableconnectorId = "";
 
                      // path 선택시 핸들링 가능하도록 설정
                      if (event.target.tagName == "path") {
@@ -417,19 +420,20 @@
                          }
                      }
 
-                     // 선택된 connector element를 최하위로 이동시켜서 포커싱 시킴
-                     if (connectorId !== "") {
-                         $('#' + connectorId).appendTo($('#connections-layer'));
-                     }
-                     
-                     // 선택된 tableconnector element를 최하위로 이동시켜서 포커싱 시킴
-                     if (tableconnectorId !== "") {
-                         $('#' + tableconnectorId).appendTo($('#tableconnections-layer'));
-                     }
-
                      //drag 대상 유무 확인
                      dragYN = true;
                  }
+
+                 // 선택된 connector element를 최하위로 이동시켜서 포커싱 시킴
+                 if (connectorId !== "") {
+                     $('#' + connectorId).appendTo($('#connections-layer'));
+                 }
+                 
+                 // 선택된 tableconnector element를 최하위로 이동시켜서 포커싱 시킴
+                 if (tableconnectorId !== "") {
+                     $('#' + tableconnectorId).appendTo($('#tableconnections-layer'));
+                 }
+                     
                  let element = (elCheck == "") ? event.target : elCheck;
                  // let element = event.target;
                  let drag;
@@ -1774,11 +1778,11 @@
 
                  if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) ||
                      (event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) ||
-                     ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) &&
-                         (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) ||
+                     ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) ||
                          (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableconnector-') > -1) ||
-                         ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableport-scrim') > -1) &&
-                                 (event.target.hasAttribute('tableconnectors') == false || event.target.hasAttribute('tableconnectors') && event.target.getAttribute('tableconnectors') == ""))) {
+                         ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableport-scrim') > -1) && (event.target.hasAttribute('tableconnectors') == false || event.target.hasAttribute('tableconnectors') && event.target.getAttribute('tableconnectors') == "")) ||
+                         (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('title') > -1) ||
+                         (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1)) {
 
                      connectorClean();
                      tableconnectorClean();
