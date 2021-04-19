@@ -677,9 +677,11 @@
                              break;
                          }
                      }
-                     tablerename(this.target, "update");
-                     renameCheck = false;
+
+                     // tableconnector의 연결이 끊어질 때
+                     clearTableConnectors();
                      
+                     renameCheck = false;
                      
                  } else if (startInputPort == true && inputPortMapping == false) {
                      return true;
@@ -1076,13 +1078,6 @@
 	                 
 	                 // 내려놓는 tableconnector의 위치가 tableport가 아닐 때
                  } else {
-                	 
-                     // tableconnector의 연결이 끊어질 때
-                     // tableconnector 목록 중 합쳐진 데이터가 있을 경우 remove할때 columnName 속성, text에서 삭제 필요함
-                     if ((this.hasOwnProperty('inputPort') && this.hasOwnProperty('outputPort')) &&
-                         (this.inputPort !== null && this.outputPort !== null)) {
-                         clearTableConnectors();
-                     }
 	                 this.remove();
                  }
              }           
@@ -1691,8 +1686,8 @@
         	 let cons = document.getElementById('connections-layer');
         	 let conLength = document.getElementsByClassName('connector').length;
         	 let tconLength = document.getElementsByClassName('tableconnector').length;
-        	 let outputTable = document.getElementsByClassName('tableconnector')[tconLength - 1].children[3].getAttribute('data-drag').split(':')[2];
-        	 let inputTable = document.getElementsByClassName('tableconnector')[tconLength - 1].children[2].getAttribute('data-drag').split(':')[2];
+        	 let outputTable = document.getElementsByClassName('tableconnector')[tconLength - 2].children[3].getAttribute('data-drag').split(':')[2];
+        	 let inputTable = document.getElementsByClassName('tableconnector')[tconLength - 2].children[2].getAttribute('data-drag').split(':')[2];
        		 let pos = 0;
         	 for (let n = 0; n < conLength; n++) {
         		 let connector = saveThisList[pos];
