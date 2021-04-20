@@ -673,8 +673,8 @@
                  let scrollGap = 0;
                  let scroll = document.getElementById("svgScroll").scrollTop;
                  scrollGap = scroll - preScroll;
-                 preScroll = scroll;
                  
+                 preScroll = scroll;
                  
                  TweenLite.set(this.target.dragElement, {
                      x: `+=${this.draggable.deltaX}`,
@@ -1050,12 +1050,28 @@
 	                 
 	             // 내려놓는 tableconnector의 위치가 tableport가 아닐 때
                  } else {
+                	//connector 목록 중 합쳐진 데이터가 있을 경우 remove할때 columnName 속성, text에서 삭제 필요함
+                     if ((this.hasOwnProperty('inputPort') && this.hasOwnProperty('outputPort')) &&
+                         (this.inputPort !== null && this.outputPort !== null)) {
+                         tablerename(this, "delete");
+                     }
 	                 this.remove();
                  }
              }           
 
              // this 객체에 저정된 정보 삭제
              remove() {
+
+            	 let connectorId = this.id;
+                 // 삭제된 connector가 this로 설정되었을 경우 return 함
+                 if (document.getElementById(connectorId) !== null) {
+                     let idx = saveTableThisList.findIndex(function (item) { return item.id == connectorId });
+                     if (idx > -1) {
+                         saveTableThisList.splice(idx, 1);
+                     } else {
+                         saveTableThisList.push(this);
+                     }
+                 }
 
                  if (this.inputPort) {
                      this.inputPort.removeConnector(this);
@@ -1616,6 +1632,13 @@
         			 connector.remove();
 	             } else {
 	            	 pos++;
+	             }
+             }
+        	 for (let n = 0; n < tconLength - 1; n++) {
+        		 let tableconnector = saveTableThisList[n];
+        		 if ((outputTable == tableconnector.element.children[3].getAttribute('data-drag').split(':')[2]) && 
+        				 (inputTable == tableconnector.element.children[2].getAttribute('data-drag').split(':')[2])){
+        			 tablerename(tableconnector,"delete");
 	             }
              }
          }  
