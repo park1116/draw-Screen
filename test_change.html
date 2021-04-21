@@ -179,7 +179,7 @@
             getListServer();
 
             // svg로 조회 버튼 생성 함수
-            makeButton();
+//             makeButton();
 
             // 클릭 이벤트 설정
             clickEvent();
@@ -243,6 +243,14 @@
                         document
                             .getElementsByTagName('svg')[0]
                             .setAttribute('style', 'visibility: visible');
+                        
+                     	// 상세 조회 후 숨겨진 button 보여지도록 속성 변경
+                        document
+                            .getElementsByTagName('button')[0]
+                            .setAttribute('style', 'visibility: visible');
+                        document
+                        .getElementsByTagName('button')[1]
+                        .setAttribute('style', 'visibility: visible');
                     }
                 }
             }
@@ -275,7 +283,7 @@
                     let y = 0;
 
                     shapeElements.forEach((element, i) => {
-                        const shape = new NodeShape(element, 50 + i * 300 + (tablePos * 200), 50);
+                        const shape = new NodeShape(element, 50 + i * 300 + (tablePos * 200), 20);
                         shapeLookup[shape.id] = shape;
                         shapes.push(shape);
 
@@ -372,6 +380,7 @@
                                 .parentElement
                                 .getAttribute('id');
                             dragYN = true;
+                        // 송신 테이블명 클릭시 drag 가능하도록 수정
                         } else if (event.target.className.baseVal == "port-title" && event.target.getAttribute('x') == "226") {
                             elCheck = event
                                 .target
@@ -800,7 +809,7 @@
 
                     TweenLite.set(this.target.dragElement, {
                         x: `+=${this.draggable.deltaX}`,
-                        y: `+=${this.draggable.deltaY + (scrollGap * 0.8)}`
+                        y: `+=${this.draggable.deltaY + (scrollGap)}`
                     });
 
                     this.target.onDrag && this
@@ -2549,69 +2558,69 @@
                 sendServer(resultData);
             }
 
-            function makeButton() {
-                //SAVE 버튼
-                let rectBtn = document.createElementNS(svgUrl, "rect");
+//             function makeButton() {
+//                 //SAVE 버튼
+//                 let rectBtn = document.createElementNS(svgUrl, "rect");
 
-                rectBtn.setAttribute('width', '100');
-                rectBtn.setAttribute('height', '30');
+//                 rectBtn.setAttribute('width', '100');
+//                 rectBtn.setAttribute('height', '30');
 
-                rectBtn.setAttribute('rx', '6');
+//                 rectBtn.setAttribute('rx', '6');
 
-                rectBtn.setAttribute('x', '52');
-                rectBtn.setAttribute('y', '5');
+//                 rectBtn.setAttribute('x', '52');
+//                 rectBtn.setAttribute('y', '5');
 
-                rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
+//                 rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
 
-                rectBtn.setAttribute('id', 'saveRect');
+//                 rectBtn.setAttribute('id', 'saveRect');
 
-                document
-                    .getElementsByTagName("svg")[0]
-                    .appendChild(rectBtn);
+//                 document
+//                     .getElementsByTagName("svg")[0]
+//                     .appendChild(rectBtn);
 
-                let text = document.createElementNS(svgUrl, "text");
-                text.setAttribute('x', '80');
-                text.setAttribute('y', '26');
+//                 let text = document.createElementNS(svgUrl, "text");
+//                 text.setAttribute('x', '80');
+//                 text.setAttribute('y', '26');
 
-                text.setAttribute('id', 'saveText');
-                text.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
+//                 text.setAttribute('id', 'saveText');
+//                 text.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
 
-                text.innerHTML = "SAVE";
-                document
-                    .getElementsByTagName("svg")[0]
-                    .appendChild(text);
+//                 text.innerHTML = "SAVE";
+//                 document
+//                     .getElementsByTagName("svg")[0]
+//                     .appendChild(text);
 
-                //CLEAR 버튼
-                rectBtn = document.createElementNS(svgUrl, "rect");
+//                 //CLEAR 버튼
+//                 rectBtn = document.createElementNS(svgUrl, "rect");
 
-                rectBtn.setAttribute('width', '100');
-                rectBtn.setAttribute('height', '30');
+//                 rectBtn.setAttribute('width', '100');
+//                 rectBtn.setAttribute('height', '30');
 
-                rectBtn.setAttribute('rx', '6');
+//                 rectBtn.setAttribute('rx', '6');
 
-                rectBtn.setAttribute('x', '182');
-                rectBtn.setAttribute('y', '5');
+//                 rectBtn.setAttribute('x', '182');
+//                 rectBtn.setAttribute('y', '5');
 
-                rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
+//                 rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
 
-                rectBtn.setAttribute('id', 'clearRect');
+//                 rectBtn.setAttribute('id', 'clearRect');
 
-                document
-                    .getElementsByTagName("svg")[0]
-                    .appendChild(rectBtn);
+//                 document
+//                     .getElementsByTagName("svg")[0]
+//                     .appendChild(rectBtn);
 
-                let clearText = document.createElementNS(svgUrl, "text");
-                clearText.setAttribute('x', '205');
-                clearText.setAttribute('y', '26');
+//                 let clearText = document.createElementNS(svgUrl, "text");
+//                 clearText.setAttribute('x', '205');
+//                 clearText.setAttribute('y', '26');
 
-                clearText.setAttribute('id', 'clearText');
-                clearText.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
+//                 clearText.setAttribute('id', 'clearText');
+//                 clearText.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
 
-                clearText.innerHTML = "CLEAR";
-                document
-                    .getElementsByTagName("svg")[0]
-                    .appendChild(clearText);
-            }
+//                 clearText.innerHTML = "CLEAR";
+//                 document
+//                     .getElementsByTagName("svg")[0]
+//                     .appendChild(clearText);
+//             }
 
             function requestServer(
                 receiveChannelGroupId,
@@ -3196,10 +3205,12 @@
 </head>
 
 <body contenteditable="true">
-    <div id="searchInterface">
+    <div id="searchInterface" align="center">
         <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList"
             style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
         <datalist id="interfaceList"></datalist>
+        <button id="saveBtn" style="visibility: hidden;" contenteditable="false">SAVE</button>
+        <button id="clearBtn" style="visibility: hidden;" contenteditable="false">CLEAR</button>
     </div>
     <div class="svgScroll" id="svgScroll">
         <svg id="svg" style="visibility: hidden;">
