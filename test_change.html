@@ -151,6 +151,19 @@
             stroke-width: 6;
             fill: none;
         }
+        
+        #my_modal {
+            display: none;
+            background-color: #fefefe;
+            border: 1px solid #888;
+            border-radius: 3px;
+        }
+        
+	    #my_modal .modal_close_btn {
+	        position: absolute;
+	        top: 10px;
+	        right: 10px;
+	    }        
     </style>
     <script>
         window.onresize = function () {
@@ -488,10 +501,7 @@
                     //field 설정
                     document.getElementsByClassName(inAndOut + 'puts')[line].appendChild(field);
                     field.setAttribute('class', inAndOut + 'put-field');
-                    field.setAttribute(
-                        'transform',
-                        'translate(0, ' + parseInt(50 + (25 * position)) + ')'
-                    );
+                    field.setAttribute('transform', 'translate(0, ' + parseInt(50 + (25 * position)) + ')');
 
                     let putField = document.getElementsByClassName(inAndOut + 'put-field');
 
@@ -601,7 +611,13 @@
                     // text 클릭시 (event.target : port-title, port-label) 위 4가지 경우에 생성되는 점 모양의
                     // connector 제거
 
-                    if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) || (event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) || ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) || (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableconnector-') > -1) || ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableport-scrim') > -1) && (event.target.hasAttribute('tableconnectors') == false || event.target.hasAttribute('tableconnectors') && event.target.getAttribute('tableconnectors') == "")) || (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('title') > -1) || (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1)) {
+                    if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) || 
+                    		(event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) || 
+                    		((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) || 
+                    		(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableconnector-') > -1) || 
+                    		((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableport-scrim') > -1) && (event.target.hasAttribute('tableconnectors') == false || event.target.hasAttribute('tableconnectors') && event.target.getAttribute('tableconnectors') == "")) || 
+                    		(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('title') > -1 && event.target.parentElement.getAttribute('class').indexOf('out') > -1) || 
+                    		(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1  && event.target.parentElement.getAttribute('class').indexOf('out') > -1)) {
 
                         connectorClean();
                         tableconnectorClean();
@@ -628,14 +644,17 @@
                             tablerename(tdata, "change");
                         }
 
-                    } else {
-                        if (event.target.id.indexOf('save') > -1) {
-                            //저장버튼 클릭
-                            saveData(interfaceId);
-                        } else if (event.target.id.indexOf('clear') > -1) {
-                            clearData();
-                        }
-                    }
+                    } else if(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1  && event.target.parentElement.getAttribute('class').indexOf('in') > -1) {
+                		viewModal(event.target.innerHTML);
+                	}
+//                     else {
+//                         if (event.target.id.indexOf('save') > -1) {
+//                             //저장버튼 클릭
+//                             saveData(interfaceId);
+//                         } else if (event.target.id.indexOf('clear') > -1) {
+//                             clearData();
+//                         }
+//                     }
                 });
 
             }
@@ -1294,10 +1313,10 @@
                 let scroll = document.getElementById("svgScroll").scrollTop;
                 scrollGap = scroll - preScroll;
                 preScroll = scroll;
-
+                
                 TweenLite.set(this.target.dragElement, {
                     x: `+=${this.draggable.deltaX}`,
-                    y: `+=${this.draggable.deltaY + (scrollGap)}`
+                    y: `+=${this.draggable.deltaY + scrollGap}`
                 });
 
                 this.target.onDrag && this.target.onDrag();
@@ -2592,14 +2611,16 @@
                 alert("SendError");
             }
         }
-
-
+		
+        function saveData() {
+        	saveData(interfaceId);
+        }
+		
         function saveData(interfaceIdValue) {
 
-            // 송/수신 데이터 샘플 var sendData =
-            // '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":["USER_NOa,USER_IDa,USER_NAMEa,USER_POSITIONa,USER_DEPTa,USER_TELEPHONEa,USER_MAILa,USER_PHONEa,USER_ADDRESSa,CHG_DTTMa,TRN_IDa,MSG_IDa,TRN_STATSa,TRN_DTa,TRN_MSGa","USER_NO1,USER_ID1,USER_NAME1,USER_POSITION1,USER_DEPT1,USER_TELEPHONE1,USER_MAIL1,USER_PHONE1,USER_ADDRESS1,CHG_DTTM1,TRN_ID1,MSG_ID1,TRN_STATS1,TRN_DT1,TRN_MSG1"]}';
-            // var receiveData =
-            // '{"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005","tableNames":["IF_TB_USERSa","IF_TB_USERSb"],"receiveColumns":["USER_NOb,USER_IDb,USER_NAMEb,USER_POSITIONb,USER_DEPTb,USER_TELEPHONEb,USER_MAILb,USER_PHONEb,USER_ADDRESSb,CHG_DTTMb,TRN_IDb,MSG_IDb,TRN_STATSb,TRN_DTb,TRN_MSGb","USER_NO2,USER_ID2,USER_NAME2,USER_POSITION2,USER_DEPT2,USER_TELEPHONE2,USER_MAIL2,USER_PHONE2,USER_ADDRESS2,CHG_DTTM2,TRN_ID2,MSG_ID2,TRN_STATS2,TRN_DT2,TRN_MSG2"]}';
+            // 송/수신 데이터 샘플 
+            // var sendData = '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":["USER_NOa,USER_IDa,USER_NAMEa,USER_POSITIONa,USER_DEPTa,USER_TELEPHONEa,USER_MAILa,USER_PHONEa,USER_ADDRESSa,CHG_DTTMa,TRN_IDa,MSG_IDa,TRN_STATSa,TRN_DTa,TRN_MSGa","USER_NO1,USER_ID1,USER_NAME1,USER_POSITION1,USER_DEPT1,USER_TELEPHONE1,USER_MAIL1,USER_PHONE1,USER_ADDRESS1,CHG_DTTM1,TRN_ID1,MSG_ID1,TRN_STATS1,TRN_DT1,TRN_MSG1"]}';
+            // var receiveData = '{"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D005","tableNames":["IF_TB_USERSa","IF_TB_USERSb"],"receiveColumns":["USER_NOb,USER_IDb,USER_NAMEb,USER_POSITIONb,USER_DEPTb,USER_TELEPHONEb,USER_MAILb,USER_PHONEb,USER_ADDRESSb,CHG_DTTMb,TRN_IDb,MSG_IDb,TRN_STATSb,TRN_DTb,TRN_MSGb","USER_NO2,USER_ID2,USER_NAME2,USER_POSITION2,USER_DEPT2,USER_TELEPHONE2,USER_MAIL2,USER_PHONE2,USER_ADDRESS2,CHG_DTTM2,TRN_ID2,MSG_ID2,TRN_STATS2,TRN_DT2,TRN_MSG2"]}';
 
             var resultData = new Object();
 
@@ -2610,9 +2631,7 @@
             //송신부 데이터 생성
             let sendElement = document.getElementsByClassName('outputs');
 
-            resultData.sendAdapterServiceId = document.getElementsByClassName(
-                'header-title'
-            )[0].innerHTML;
+            resultData.sendAdapterServiceId = document.getElementsByClassName('header-title')[0].innerHTML;
 
             // 좌측에 있는 송신 원본 테이블 기준으로 송신(테이블, 컬럼) 전송
             for (let i = 0; i < sendElement[0].children.length; i++) {
@@ -2705,16 +2724,111 @@
 
             sendServer(resultData);
         }
+        
+        function viewModal(columnList) {
+        	var zIndex = 9999;
+        	var modal = document.getElementById('my_modal');
+        	
+            // 모달 div 뒤에 희끄무레한 레이어
+            var bg = document.createElement('div');
+            bg.setStyle({
+                position: 'fixed',
+                zIndex: zIndex,
+                left: '0px',
+                top: '0px',
+                width: '100%',
+                height: '100%',
+                overflow: 'auto',
+                // 레이어 색갈은 여기서 바꾸면 됨
+                backgroundColor: 'rgba(0,0,0,0.4)'
+            });
+            document.body.append(bg);
+			
+            var columns = columnList.split('|');
+            
+            for(var i = 1; i <= columns.length; i++) {
+				var div = document.createElement("div");
+	            div.setAttribute('class', 'columnDiv' + i);
+	            div.setAttribute('style', 'padding : 5px');
+				
+				// 위쪽 버튼
+            	var upbtn = document.createElement("button");
+            	upbtn.innerHTML = 'UP';
+	            upbtn.setAttribute('onclick', 'columnUp()');
+				
+				// 아래쪽 버튼
+				var downbtn = document.createElement("button");
+				downbtn.innerHTML = 'DOWN';
+	            downbtn.setAttribute('onclick', 'columnDown()');
+				
+            	// 컬럼명
+	            var columnName = document.createElement("text");
+	            columnName.setAttribute('class', 'column' + i);
+	            columnName.setAttribute('style', 'padding : 5px');
+	            columnName.innerHTML = columns[i - 1];
+	            
+	            div.append(upbtn);
+	            div.append(downbtn);
+	            div.append(columnName);
+				modal.append(div);
+            }
+            
+            // 닫기 버튼 처리, 시꺼먼 레이어와 모달 div 지우기
+            modal.querySelector('.modal_close_btn').addEventListener('click', function() {
+                bg.remove();
+                var div = event.target.parentElement.children;
+                var length = div.length - 1;
+                for(var i = 0; i < length; i++) {
+	                modal.removeChild(modal.lastChild);
+                }
+                modal.style.display = 'none';
+            });
+
+            modal.setStyle({
+	            padding: '2%',
+                position: 'fixed',
+                display: 'block',
+                boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+
+                // 시꺼먼 레이어 보다 한칸 위에 보이기
+                zIndex: zIndex + 1,
+
+                // div center 정렬
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                msTransform: 'translate(-50%, -50%)',
+                webkitTransform: 'translate(-50%, -50%)'
+            });
+        }
+        
+	 	// Element 에 style 한번에 오브젝트로 설정하는 함수 추가
+	    Element.prototype.setStyle = function(styles) {
+	        for (var k in styles) this.style[k] = styles[k];
+	        return this;
+	    };
+	    
+	    function columnUp() {
+	    	alert(this);
+	    }
+	    
+		function columnDown() {
+	    	alert("Down");
+	    }
     </script>
 </head>
 
-<body contenteditable="true">
-    <div id="searchInterface" align="center" contenteditable="false">
+<body>
+	<div id="my_modal">
+		<button class="modal_close_btn" style="cursor: pointer;">X</button>
+    </div>
+	
+	<div id="searchInterface" align="center" contenteditable="false">
         <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList"
             style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
         <datalist id="interfaceList"></datalist>
-        <button id="saveBtn" style="visibility: hidden;">SAVE</button>
-        <button id="clearBtn" style="visibility: hidden;">CLEAR</button>
+        <button id="saveBtn" style="visibility: hidden;" onclick="saveData()">SAVE</button>
+        <button id="clearBtn" style="visibility: hidden;" onclick="clearData()">CLEAR</button>
     </div>
     <div class="svgScroll" id="svgScroll">
         <svg id="svg" style="visibility: hidden;">
