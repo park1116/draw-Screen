@@ -2307,9 +2307,34 @@
         }
         
 
+         // bsh
+		function textReduce(textData, tmpData){
+			let moreData = "..."; 
+			
+			let pos = textData.indexOf('|');
+			let count = 0;
+			
+			//console.log(pos);
+			while(pos != -1){
+				count++;
+				pos=textData.indexOf('|', pos+1);
+			}
+            console.log("count : ",count, pos);
+            console.log((textData.match(/:/g)).length);
+            
+            if(count<3){
+                tmpData = textData;
+            }else{
+            	tmpData = textData.substring(0,textData.indexOf('|'))+('|'+moreData); 
+            }
+            return tmpData;
+		}
+		
         // 컬럼명 설정 함수
         function rename(currentEl, type) {
-
+			
+        	let tmpData=""; // bsh
+        	
             // rename 함수 호출 위치(dragTarget(), placeHandle()) dragTarget()함수에서 연속적인 호출이 발생하기
             // 때문에 renameCheck 변수를 flag로 설정해서 튕겨낼수 있도록 설정
             if (renameCheck == false)
@@ -2324,11 +2349,10 @@
                 if (connectData.indexOf('|' + currentEl.id) > -1 || connectData.indexOf(currentEl.id + '|') > -1) {
                     connectData = connectData.replace('|' + currentEl.id, "");
                     connectData = connectData.replace(currentEl.id + '|', "");
-
+                    
                     if (type == "change") {
                         connectData += ('|' + currentEl.id);
                     }
-
                 } else {
                     // type이 delete, update일 경우
                     if (type == "delete" || type == "update") {
@@ -2349,21 +2373,28 @@
                 connectData = currentEl.id
             }
 
-            $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr("connectors", connectData);
+            $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr(
+                "connectors",
+                connectData
+            );
             ////// connectors 속성 수정 -끝  inputport label 수정 -시작
-            let textData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
-
+            let textData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0].getAttribute('columnName'); // bsh
+            // 화면에 보여지는 컬럼명
+           // let tmpData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML; //bsh
             if (textData.indexOf(':') < 0) {
                 textData = currentEl.inputPort.tableName + ':' + textData;
             }
-
+            
             let checkData = "";
+            
             checkData = $("[data-drag=" + currentEl.outputPort.id + "\\:port]").attr('table') + ':' + $("[data-drag=" + currentEl.outputPort.id + "\\:port]").attr('initCol');
-
+            
             // 컬럼명이 다를 경우 label (중복 제거, 빈값 추가) 중복 제거
             if (textData.indexOf('|' + checkData) > -1 || textData.indexOf(checkData + '|') > -1) {
                 textData = textData.replace('|' + checkData, "");
                 textData = textData.replace(checkData + '|', "");
+                
+                tmpData = textReduce(textData, tmpData); // bsh
 
                 if (type == "change") {
                     textData += ('|' + checkData);
@@ -2374,28 +2405,48 @@
                     // connector가 1개 또는 없을때
                     if (type == "delete") {
                         textData = textData.replace(checkData, "");
+                        
+                        tmpData = textReduce(textData, tmpData); // bsh
+                        
+                        console.log("con 1개 - delete/update");
+                        
                         if (textData == "") {
                             textData = currentEl.inputPort.portScrim.getAttribute('initCol');
                         }
                     } else {
-                        textData = checkData;
+                       textData = checkData; 
+                       
+                       tmpData = textReduce(textData, tmpData); //bsh 
+                       
+                       console.log("con 1개 - insert");
                     }
-                } else {
+                    
+                } else { 
                     // connector가 여러개 있을때
                     if (type == "delete" || type == "update") {
-                        textData = textData.replace(checkData, "");
+                    	textData = textData.replace(checkData, ""); 
+                    	
+                    	tmpData = textReduce(textData, tmpData); // bsh
+                    	
+                        console.log("con 여러개 - delete/update");
                     } else {
                         textData += ('|' + checkData);
+                        
+                        tmpData = textReduce(textData, tmpData); // bsh
+                        
+                        console.log("con 여러개 - insert");
                     }
                 }
             }
+            console.log("textData",textData);
 
             // connectors 속성이 정의되어 있지 않거나 없으면 초기값으로 설정
             if (connectData == undefined || connectData == "") {
-                textData = currentEl.inputPort.portScrim.getAttribute('initCol');
+               tmpData = textData = currentEl.inputPort.portScrim.getAttribute('initCol'); //bsh
+                
             }
 
-            $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML = textData;
+            $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML = tmpData; // bsh
             $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr("columnName", textData);
             // shapes[1].inputs[parseInt(currentEl.inputPort.id.substr(5)) -
             // document.getElementsByClassName('input-field').length - 1].columnName =
