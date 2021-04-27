@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <head>
     <!--애니메이션 라이브러리-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
@@ -157,13 +157,7 @@
             background-color: #fefefe;
             border: 1px solid #888;
             border-radius: 3px;
-        }
-        
-	    #my_modal .modal_close_btn {
-	        position: absolute;
-	        top: 10px;
-	        right: 10px;
-	    }        
+        }     
     </style>
     <script>
         window.onresize = function () {
@@ -284,8 +278,8 @@
                         document.getElementsByTagName('svg')[0].setAttribute('style', 'visibility: visible');
 
                         // 상세 조회 후 숨겨진 button 보여지도록 속성 변경
-                        document.getElementsByTagName('button')[0].setAttribute('style', 'visibility: visible');
-                        document.getElementsByTagName('button')[1].setAttribute('style', 'visibility: visible');
+                        document.getElementById('saveBtn').setAttribute('style', 'visibility: visible');
+                        document.getElementById('clearBtn').setAttribute('style', 'visibility: visible');
                     }
                 }
             };
@@ -610,7 +604,6 @@
                     // (event.target : diagram) port의 port-scrim 부분 클릭시 (event.target : port-scrim)
                     // text 클릭시 (event.target : port-title, port-label) 위 4가지 경우에 생성되는 점 모양의
                     // connector 제거
-
                     if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) || 
                     		(event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) || 
                     		((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) || 
@@ -645,83 +638,11 @@
                         }
 
                     } else if(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1  && event.target.parentElement.getAttribute('class').indexOf('in') > -1) {
-                		viewModal(event.target.innerHTML);
+                		viewModal(event.target);
                 	}
-//                     else {
-//                         if (event.target.id.indexOf('save') > -1) {
-//                             //저장버튼 클릭
-//                             saveData(interfaceId);
-//                         } else if (event.target.id.indexOf('clear') > -1) {
-//                             clearData();
-//                         }
-//                     }
                 });
 
             }
-
-            //             function makeButton() {
-            //                 //SAVE 버튼
-            //                 let rectBtn = document.createElementNS(svgUrl, "rect");
-
-            //                 rectBtn.setAttribute('width', '100');
-            //                 rectBtn.setAttribute('height', '30');
-
-            //                 rectBtn.setAttribute('rx', '6');
-
-            //                 rectBtn.setAttribute('x', '52');
-            //                 rectBtn.setAttribute('y', '5');
-
-            //                 rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
-
-            //                 rectBtn.setAttribute('id', 'saveRect');
-
-            //                 document
-            //                     .getElementsByTagName("svg")[0]
-            //                     .appendChild(rectBtn);
-
-            //                 let text = document.createElementNS(svgUrl, "text");
-            //                 text.setAttribute('x', '80');
-            //                 text.setAttribute('y', '26');
-
-            //                 text.setAttribute('id', 'saveText');
-            //                 text.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
-
-            //                 text.innerHTML = "SAVE";
-            //                 document
-            //                     .getElementsByTagName("svg")[0]
-            //                     .appendChild(text);
-
-            //                 //CLEAR 버튼
-            //                 rectBtn = document.createElementNS(svgUrl, "rect");
-
-            //                 rectBtn.setAttribute('width', '100');
-            //                 rectBtn.setAttribute('height', '30');
-
-            //                 rectBtn.setAttribute('rx', '6');
-
-            //                 rectBtn.setAttribute('x', '182');
-            //                 rectBtn.setAttribute('y', '5');
-
-            //                 rectBtn.setAttribute('style', 'fill:#396aa4; cursor: pointer;'); // ---bsh
-
-            //                 rectBtn.setAttribute('id', 'clearRect');
-
-            //                 document
-            //                     .getElementsByTagName("svg")[0]
-            //                     .appendChild(rectBtn);
-
-            //                 let clearText = document.createElementNS(svgUrl, "text");
-            //                 clearText.setAttribute('x', '205');
-            //                 clearText.setAttribute('y', '26');
-
-            //                 clearText.setAttribute('id', 'clearText');
-            //                 clearText.setAttribute('style', 'fill:#fff; cursor: pointer'); // ---bsh
-
-            //                 clearText.innerHTML = "CLEAR";
-            //                 document
-            //                     .getElementsByTagName("svg")[0]
-            //                     .appendChild(clearText);
-            //             }
 
             function initData() {
 
@@ -852,6 +773,9 @@
 		   	inputTablePortMapping = false;
 		 	//outport 리스트 배열
 		   	outputTablePortList = [];
+
+		 	// click한 컬럼
+		 	nowClickColumn = "";
 		
 		  	dragProxy = document.querySelector("#drag-proxy");
 		  	shapeElements = Array.prototype.slice.call(document.querySelectorAll(".node-container"));
@@ -2425,10 +2349,7 @@
                 connectData = currentEl.id
             }
 
-            $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr(
-                "connectors",
-                connectData
-            );
+            $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr("connectors", connectData);
             ////// connectors 속성 수정 -끝  inputport label 수정 -시작
             let textData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML;
 
@@ -2613,10 +2534,6 @@
         }
 		
         function saveData() {
-        	saveData(interfaceId);
-        }
-		
-        function saveData(interfaceIdValue) {
 
             // 송/수신 데이터 샘플 
             // var sendData = '{"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D005","tableNames":["IF_TB_USERS1","IF_TB_USERS2"],"sendColumns":["USER_NOa,USER_IDa,USER_NAMEa,USER_POSITIONa,USER_DEPTa,USER_TELEPHONEa,USER_MAILa,USER_PHONEa,USER_ADDRESSa,CHG_DTTMa,TRN_IDa,MSG_IDa,TRN_STATSa,TRN_DTa,TRN_MSGa","USER_NO1,USER_ID1,USER_NAME1,USER_POSITION1,USER_DEPT1,USER_TELEPHONE1,USER_MAIL1,USER_PHONE1,USER_ADDRESS1,CHG_DTTM1,TRN_ID1,MSG_ID1,TRN_STATS1,TRN_DT1,TRN_MSG1"]}';
@@ -2720,14 +2637,18 @@
 
             resultData.mappingConnection = tempConnector;
 
-            resultData.interfaceId = interfaceIdValue;
+            resultData.interfaceId = interfaceId;
 
             sendServer(resultData);
         }
         
-        function viewModal(columnList) {
+        function viewModal(column) {
+        	nowClickColumn = column;
+        	var columnList = nowClickColumn.innerHTML;
+            var conList = nowClickColumn.parentElement.firstElementChild.lastElementChild.getAttribute('connectors');
         	var zIndex = 9999;
         	var modal = document.getElementById('my_modal');
+        	var btnModal = document.getElementById('btn_modal');
         	
             // 모달 div 뒤에 희끄무레한 레이어
             var bg = document.createElement('div');
@@ -2744,50 +2665,53 @@
             });
             document.body.append(bg);
 			
-            var columns = columnList.split('|');
-            
-            for(var i = 1; i <= columns.length; i++) {
+            var tcolumns = columnList.split('|');
+            var tconnectors = [];
+            if(!(conList == null || conList == '')) {
+	            tconnectors = conList.split('|');
+            }
+            var divAll = document.createElement("div");
+            divAll.setAttribute('style', 'flex: 1');
+            for(var i = 1; i <= tcolumns.length; i++) {
 				var div = document.createElement("div");
-	            div.setAttribute('class', 'columnDiv' + i);
 	            div.setAttribute('style', 'padding : 5px');
 				
 				// 위쪽 버튼
             	var upbtn = document.createElement("button");
             	upbtn.innerHTML = 'UP';
-	            upbtn.setAttribute('onclick', 'columnUp()');
+	            upbtn.setAttribute('onclick', 'columnUp(this)');
 				
 				// 아래쪽 버튼
 				var downbtn = document.createElement("button");
 				downbtn.innerHTML = 'DOWN';
-	            downbtn.setAttribute('onclick', 'columnDown()');
+	            downbtn.setAttribute('onclick', 'columnDown(this)');
 				
             	// 컬럼명
 	            var columnName = document.createElement("text");
-	            columnName.setAttribute('class', 'column' + i);
 	            columnName.setAttribute('style', 'padding : 5px');
-	            columnName.innerHTML = columns[i - 1];
+	            columnName.setAttribute('connector', tconnectors[i - 1])
+	            columnName.innerHTML = tcolumns[i - 1];
+	            
+	            // 첫번째줄과 마지막줄은 각각 위, 아래 버튼 비활성화
+	            if(i == 1) {
+	            	upbtn.setAttribute('disabled', 'disabled');
+	            }
+	            if(i == tcolumns.length) {
+	            	downbtn.setAttribute('disabled', 'disabled');
+	            }
 	            
 	            div.append(upbtn);
 	            div.append(downbtn);
 	            div.append(columnName);
-				modal.append(div);
+	            divAll.append(div);
             }
-            
-            // 닫기 버튼 처리, 시꺼먼 레이어와 모달 div 지우기
-            modal.querySelector('.modal_close_btn').addEventListener('click', function() {
-                bg.remove();
-                var div = event.target.parentElement.children;
-                var length = div.length - 1;
-                for(var i = 0; i < length; i++) {
-	                modal.removeChild(modal.lastChild);
-                }
-                modal.style.display = 'none';
-            });
+			modal.prepend(divAll);
+			editText();
 
             modal.setStyle({
 	            padding: '2%',
                 position: 'fixed',
-                display: 'block',
+                display: 'flex',
                 boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
 
                 // 시꺼먼 레이어 보다 한칸 위에 보이기
@@ -2808,24 +2732,88 @@
 	        return this;
 	    };
 	    
-	    function columnUp() {
-	    	alert(this);
+	    // 모달창에서 UP 버튼 눌렀을 때
+	    function columnUp(button) {
+	    	var temptext = button.parentElement.lastElementChild.innerText;
+	    	button.parentElement.lastElementChild.innerText = button.parentElement.previousElementSibling.lastElementChild.innerText;
+	    	button.parentElement.previousElementSibling.lastElementChild.innerText = temptext;
+	    	var tempcon = button.parentElement.lastElementChild.getAttribute('connector');
+	    	button.parentElement.lastElementChild.setAttribute('connector', button.parentElement.previousElementSibling.lastElementChild.getAttribute('connector'));
+	    	button.parentElement.previousElementSibling.lastElementChild.setAttribute('connector', tempcon);
+	    	editText();
 	    }
 	    
-		function columnDown() {
-	    	alert("Down");
+	    // 모달창에서 DOWN 버튼 눌렀을 때
+		function columnDown(button) {
+			var temptext = button.parentElement.lastElementChild.innerText;
+	    	button.parentElement.lastElementChild.innerText = button.parentElement.nextElementSibling.lastElementChild.innerText;
+	    	button.parentElement.nextElementSibling.lastElementChild.innerText = temptext;
+	    	var tempcon = button.parentElement.lastElementChild.getAttribute('connector');
+	    	button.parentElement.lastElementChild.setAttribute('connector', button.parentElement.nextElementSibling.lastElementChild.getAttribute('connector'));
+	    	button.parentElement.nextElementSibling.lastElementChild.setAttribute('connector', tempcon);
+	    	editText();
+	    }
+	    
+	    // 변경되는 컬럼 위치에 맞춰서 컬럼명 출력 
+	    function editText(){
+        	var modal = document.getElementById('my_modal');
+        	var textBox = document.getElementById('editText');
+        	var temptext = '';
+        	var length = modal.firstElementChild.childElementCount;
+            for(var i = 0; i < length; i++) {
+				temptext += modal.firstElementChild.childNodes[i].children[2].innerText + '|';
+            }
+            temptext = temptext.substring(0, temptext.lastIndexOf('|'));
+            textBox.innerHTML = temptext;
+	    }
+	    
+	    // 모달창에서 SAVE 버튼 눌렀을 때
+		function columnSave() {
+        	// 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
+        	var modal = document.getElementById('my_modal');
+            var tempcon = '';
+            var temptext = document.getElementById('editText').innerHTML;
+        	var length = modal.firstElementChild.childElementCount;
+            for(var i = 0; i < length; i++) {
+				tempcon += modal.firstElementChild.childNodes[i].children[2].getAttribute('connector') + '|';
+            }
+            tempcon = tempcon.substring(0, tempcon.lastIndexOf('|'));
+            nowClickColumn.innerHTML = temptext;
+            nowClickColumn.parentElement.firstElementChild.lastElementChild.setAttribute('columnName',temptext);
+            nowClickColumn.parentElement.firstElementChild.lastElementChild.setAttribute('connectors',tempcon);
+            modal.removeChild(modal.firstElementChild);
+            document.body.lastElementChild.remove();
+            modal.style.display = 'none';
+	    }
+
+	    // 모달창에서 CLOSE 버튼 눌렀을 때
+		function columnClose() {
+        	// 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
+        	var modal = document.getElementById('my_modal');
+        	var length = modal.childElementCount - 1;
+            for(var i = 0; i < length; i++) {
+                modal.removeChild(modal.firstElementChild);
+            }
+            document.body.lastElementChild.remove();
+            modal.style.display = 'none';
 	    }
     </script>
 </head>
 
 <body>
-	<div id="my_modal">
-		<button class="modal_close_btn" style="cursor: pointer;">X</button>
+	<!-- 컬럼명 클릭했을때 나타나는 모달창 -->
+	<div id="my_modal" style="height: auto; width: 80%; overflow-y: auto; max-height: 80%;">
+		<div style="flex: 1;  display: flex; flex-direction: column;">
+			<textarea id="editText" rows="40" style="overflow-y: auto;"></textarea>
+			<div id="btn_modal" style="margin-left: auto; margin-top : auto;">
+				<button class="modal_save_btn" onclick="columnSave()">SAVE</button>
+				<button class="modal_close_btn" onclick="columnClose()">CLOSE</button>
+			</div>
+		</div>
     </div>
 	
 	<div id="searchInterface" align="center" contenteditable="false">
-        <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList"
-            style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
+        <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList" style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
         <datalist id="interfaceList"></datalist>
         <button id="saveBtn" style="visibility: hidden;" onclick="saveData()">SAVE</button>
         <button id="clearBtn" style="visibility: hidden;" onclick="clearData()">CLEAR</button>
