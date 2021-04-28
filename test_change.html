@@ -2307,28 +2307,18 @@
         }
         
 
-         // bsh
-		function textReduce(textData, tmpData){
-			let moreData = "..."; 
-			
-			let pos = textData.indexOf('|');
-			let count = 0;
-			
-			//console.log(pos);
-			while(pos != -1){
-				count++;
-				pos=textData.indexOf('|', pos+1);
-			}
-            console.log("count : ",count, pos);
-            console.log((textData.match(/:/g)).length);
+        // bsh
+	function textReduce(textData, tmpData){
+		let moreData = "..."; 
             
-            if(count<3){
+            if(textData.length<50){
                 tmpData = textData;
             }else{
-            	tmpData = textData.substring(0,textData.indexOf('|'))+('|'+moreData); 
+            	let tmp = textData.substring(0,50);
+            	tmpData = textData.substring(0,tmp.lastIndexOf('|'))+('|'+moreData); 
             }
             return tmpData;
-		}
+	}
 		
         // 컬럼명 설정 함수
         function rename(currentEl, type) {
@@ -2407,9 +2397,7 @@
                         textData = textData.replace(checkData, "");
                         
                         tmpData = textReduce(textData, tmpData); // bsh
-                        
-                        console.log("con 1개 - delete/update");
-                        
+                                    
                         if (textData == "") {
                             textData = currentEl.inputPort.portScrim.getAttribute('initCol');
                         }
@@ -2418,7 +2406,6 @@
                        
                        tmpData = textReduce(textData, tmpData); //bsh 
                        
-                       console.log("con 1개 - insert");
                     }
                     
                 } else { 
@@ -2428,17 +2415,14 @@
                     	
                     	tmpData = textReduce(textData, tmpData); // bsh
                     	
-                        console.log("con 여러개 - delete/update");
                     } else {
                         textData += ('|' + checkData);
                         
                         tmpData = textReduce(textData, tmpData); // bsh
                         
-                        console.log("con 여러개 - insert");
                     }
                 }
             }
-            console.log("textData",textData);
 
             // connectors 속성이 정의되어 있지 않거나 없으면 초기값으로 설정
             if (connectData == undefined || connectData == "") {
