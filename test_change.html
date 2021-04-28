@@ -2309,8 +2309,10 @@
 
         // bsh
 	function textReduce(textData, tmpData){
-		let moreData = "..."; 
-            
+	    let moreData = "..."; 
+            let textAttr = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0]; //bsh
+	    textAttr.setAttribute('columnName',textData);
+		
             if(textData.length<50){
                 tmpData = textData;
             }else{
