@@ -472,6 +472,7 @@
                 let portOuter = document.createElementNS(svgUrl, "circle");
                 let portInner = document.createElementNS(svgUrl, "circle");
                 let portScrim = document.createElementNS(svgUrl, "circle");
+                
 
                 // 0, 1번째 out / 0번째 in label, port 위치 설정
                 if (inAndOut == "out") {
@@ -533,8 +534,10 @@
                     portScrim.setAttribute('cy', '10');
                     portScrim.setAttribute('r', '7.5');
                     portScrim.setAttribute('table', currentTableName);
-                    portScrim.setAttribute('columnName', name);
+                    portScrim.setAttribute('columnName', name); 
                     portScrim.setAttribute('initCol', name);
+                  //  portScrim.setAttribute('mappingColumnName', name); // bsh
+
                 } else {
                     //table명 일 경우
                     let title = document.createElementNS(svgUrl, "g");
@@ -2082,6 +2085,13 @@
                     let findInputData = mappingData[a].split(',')[0]; // 수신데이터 정보(테이블명:컬럼명)
                     let findOutputDataList = mappingData[a].split(',')[1]; //송신데이터 정보(테이블명:컬럼명|테이블명:컬럼명|...)
                     let findOutputDataLen = findOutputDataList.split('|').length; //송신데이터 정보 길이
+                   
+                    ////////////// bsh
+                   // console.log("?...",findOutputDataList);
+                   // let inputPort = $(".inputs:first .port .port-scrim").attr('mappingColumnName');
+                   // console.log(",,",inputPort);
+                   // inputPort[a].attr('mappingColumnName',mappingData[a].split(',')[1]);
+
 
                     for (let b = 0; b < findOutputDataLen; b++) {
 
@@ -2097,14 +2107,23 @@
                             continue;
                         }
 						
-//                         if (findOutputData.split('~').length == 5) {
-//                         	preAddText = findOutputData.split('~')[1];
-//                         	postAddText = findOutputData.split('~')[3];
-//                         }
+                        if (findOutputData.split('~').length == 5) {
+	                       	preAddText = findOutputData.split('~')[1];
+	                       	postAddText = findOutputData.split('~')[3];
+                        }
                         
                         let outData = findOutputData.split(':');
-                        let outTable = outData[0];
-                        let outColumn = outData[1];
+                        let outTable='';
+                        let outColumn='';
+                        
+                        if(findOutputData.indexOf('~') != -1){ // 텍스트(~)가 존재한다면
+                        	outTable = outData[0].split('~')[2]; // '~'기준으로 자른 테이블명
+                        	outColumn = outData[1].split('~')[0]; // '~'기준으로 자른 컬럼명
+                        }else{
+                        	outTable = outData[0];
+                        	outColumn = outData[1];
+                        }
+                        console.log(mappingData);
 
                         // mapping 정보에 해당하는 output을 조회
                         let selectOutput = $(".outputs:first .port .port-scrim[table=" + outTable + "][initCol=" + outColumn + "]")[0];
@@ -2144,7 +2163,7 @@
                         }
                     }
                 }
-
+			
             } else {
 
                 // output 기준으로 connector 자동 생성
@@ -2327,16 +2346,20 @@
         }
         
 
-     	// bsh
+     	// 컬럼명 텍스트를 줄이는 함수
     	function textReduce(textData, tmpData, currentEl){
-    	    let moreData = "..."; 
-            let textAttr = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0]; //bsh
+    		// 텍스트 줄여서 보여질 변수
+     		let moreData = "...";  
+    		// 컬럼명 텍스트 태그 속성
+            let textAttr = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0];
+    		// textArr에 속성 추가
     	    textAttr.setAttribute('editColumnName',textData);
-    		
-            if(textData.length<50){
-                tmpData = textData;
-            }else{
+            if(textData.length<50){ // 기존 데이터인 textData의 길이가 50보단 작을때
+                tmpData = textData; // textData에 화면에 보여줄 tmpData 대입
+            }else{ // 길이가 50보단 길때
+            	// textData를 50만큼 자른 변수
             	let tmp = textData.substring(0,50);
+            	// 자른 tmp를 마지막 | 기준으로 뒤에 줄임말을 붙여줌
             	tmpData = textData.substring(0,tmp.lastIndexOf('|'))+('|'+moreData); 
             }
             return tmpData;
@@ -2345,11 +2368,12 @@
         // 컬럼명 설정 함수
         function rename(currentEl, type) {
 			
-        	let tmpData=""; // bsh
+        	// 화면에 뿌려줄 컬럼명 데이터
+        	let tmpData=""; 
         	
             // rename 함수 호출 위치(dragTarget(), placeHandle()) dragTarget()함수에서 연속적인 호출이 발생하기
-            // 때문에 renameCheck 변수를 flag로 설정해서 튕겨낼수 있도록 설정
             if (renameCheck == false)
+            // 때문에 renameCheck 변수를 flag로 설정해서 튕겨낼수 있도록 설정
                 return true;
 
             ////// connectors 속성 수정 -시작
@@ -2390,7 +2414,7 @@
                 connectData
             );
             ////// connectors 속성 수정 -끝  inputport label 수정 -시작
-            let textData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0].getAttribute('columnName'); // bsh
+            let textData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0].getAttribute('ColumnName'); // bsh
             // 화면에 보여지는 컬럼명
            // let tmpData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML; //bsh
             if (textData.indexOf(':') < 0) {
@@ -2406,11 +2430,14 @@
                 textData = textData.replace('|' + checkData, "");
                 textData = textData.replace(checkData + '|', "");
                 
-                tmpData = textReduce(textData, tmpData, currentEl); // bsh
+                // textData 줄이는 함수
+                tmpData = textReduce(textData, tmpData, currentEl);
 
                 if (type == "change") {
                     textData += ('|' + checkData);
-		    tmpData = textReduce(textData, tmpData, currentEl); // bsh
+                    
+                 	// textData 줄이는 함수
+		    		tmpData = textReduce(textData, tmpData, currentEl); 
                 }
             } else {
 
@@ -2419,7 +2446,8 @@
                     if (type == "delete") {
                         textData = textData.replace(checkData, "");
                         
-                        tmpData = textReduce(textData, tmpData,currentEl); // bsh
+                    	 // textData 줄이는 함수
+                        tmpData = textReduce(textData, tmpData,currentEl);
                                     
                         if (textData == "") {
                             textData = currentEl.inputPort.portScrim.getAttribute('initCol');
@@ -2427,7 +2455,8 @@
                     } else {
                        textData = checkData; 
                        
-                       tmpData = textReduce(textData, tmpData, currentEl); //bsh 
+                  	  // textData 줄이는 함수
+                       tmpData = textReduce(textData, tmpData, currentEl);
                        
                     }
                     
@@ -2436,7 +2465,8 @@
                     if (type == "delete" || type == "update") {
                     	textData = textData.replace(checkData, ""); 
                     	
-                    	tmpData = textReduce(textData, tmpData, currentEl); // bsh
+                    	// textData 줄이는 함수
+                    	tmpData = textReduce(textData, tmpData, currentEl);
                     	
                     } else {
                         textData += ('|' + checkData);
@@ -2455,6 +2485,7 @@
 
             $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML = tmpData; // bsh
             $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr("columnName", textData);
+           // $("[data-drag=" + currentEl.inputPort.id + "\\:port]").attr("mappingColumnName", textData); //bsh
             // shapes[1].inputs[parseInt(currentEl.inputPort.id.substr(5)) -
             // document.getElementsByClassName('input-field').length - 1].columnName =
             // textData;
