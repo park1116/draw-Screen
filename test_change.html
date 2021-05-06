@@ -2113,8 +2113,6 @@
                         	outTable = outData[0];
                         	outColumn = outData[1];
                         }
-                        console.log(mappingData);
-
                         
                         // mapping 정보에 해당하는 output을 조회
                         let selectOutput = $(".outputs:first .port .port-scrim[table=" + outTable + "][initCol=" + outColumn + "]")[0];
@@ -2347,10 +2345,10 @@
     		// textArr에 속성 추가
     		textAttr.setAttribute('editColumnName',textData);
     		
-            if(textData.length<50){
+            if(textData.length<100){
                 tmpData = textData;
             }else{
-            	let tmp = textData.substring(0,50);
+            	let tmp = textData.substring(0,100);
             	// 자른 tmp를 마지막 | 기준으로 뒤에 줄임말을 붙여줌
             	tmpData = textData.substring(0,tmp.lastIndexOf('|'))+('|'+moreData); 
             }
@@ -2426,7 +2424,7 @@
 
                 if (type == "change") {
                     textData += ('|' + checkData);
-		    tmpData = textReduce(textData, tmpData, currentEl); // bsh
+		    		tmpData = textReduce(textData, tmpData, currentEl); // bsh
                 }
             } else {
 
@@ -2532,7 +2530,7 @@
             let pos = 0;
             for (let n = 0; n < conLength; n++) {
                 let connector = saveThisList[pos];
-                if ((outputTable == connector.element.children[3].getAttribute('data-drag').split(':')[2]) && (inputTable == connector.element.children[2].getAttribute('data-drag').split(':')[2])) {
+                if ((outputTable == connector.element.children[3].getAttribute('data-drag').split(':')[2].split('.')[0]) && (inputTable == connector.element.children[2].getAttribute('data-drag').split(':')[2].split('.')[0])) {
                     rename(connector, "delete");
                     connector.remove();
                 } else {
@@ -2747,16 +2745,15 @@
             }
             var divAll = document.createElement("div");
             divAll.setAttribute('style', 'flex: 1');
+            var conCount = 0;
             for(var i = 1; i <= tcolumns.length; i++) {
 				var div = document.createElement("div");
-				div.setAttribute('style', 'display:inline-flex;')
 				
 				// 위쪽 버튼
             	var upbtn = document.createElement("button");
             	upbtn.innerHTML = 'UP';
 	            upbtn.setAttribute('onclick', 'columnUp(this)');
 	            upbtn.setAttribute('style', 'margin:1%;');
-	            
 				
 				// 아래쪽 버튼
 				var downbtn = document.createElement("button");
@@ -2764,30 +2761,26 @@
 	            downbtn.setAttribute('onclick', 'columnDown(this)');
 	            downbtn.setAttribute('style', 'margin:1%;');
 				
+	            var columnName = '';
+	            if (tcolumns[i - 1].indexOf('\"') < 0) {
             	// 컬럼명
-	            var columnName = document.createElement("text");
-            	columnName.setAttribute('class', 'col' + i);
-            	columnName.setAttribute('style', 'margin-Top: 1%;');
-	            columnName.setAttribute('connector', tconnectors[i - 1])
-	            columnName.innerHTML = tcolumns[i - 1];
-	            
-	            // input type="text" PreText
-	            var addPreText = document.createElement("input");
-	            addPreText.setAttribute('class', 'edit');
-	            addPreText.setAttribute('type', 'text');
-	            addPreText.setAttribute('style', 'width : 15%; padding : 5px; margin: 1%; text-align: center;');
-	            
-	            // input type="text" NextText
-	            var addNextText = document.createElement("input");
-	            addNextText.setAttribute('class', 'edit');
-	            addNextText.setAttribute('type', 'text');
-	            addNextText.setAttribute('style', 'width : 15%; padding : 5px; margin: 1%; text-align: center;');
-	            
+		            columnName = document.createElement("text");
+	            	columnName.setAttribute('class', 'col' + i);
+	            	columnName.setAttribute('style', 'margin-Top: 1%;');
+		            columnName.setAttribute('connector', tconnectors[conCount++]);
+		            columnName.innerHTML = tcolumns[i - 1];
+	            } else {
+				// 공통 데이터
+	            	columnName = document.createElement("input");
+	            	columnName.setAttribute('class', 'edit');
+	            	columnName.setAttribute('type', 'text');
+	            	columnName.setAttribute('style', 'width : 15%; padding : 5px; text-align: center;');
+	            	columnName.value = tcolumns[i - 1].substring(tcolumns[i - 1].indexOf('\"') + 1, tcolumns[i - 1].lastIndexOf('\"'));
+	            }
+	           	            
 	            div.append(upbtn);
 	            div.append(downbtn);
-	            div.append(addPreText);
 	            div.append(columnName);
-	            div.append(addNextText);
 	            
 	            // 첫번째줄과 마지막줄은 각각 위, 아래 버튼 비활성화
 	            if(i == 1) {
@@ -2799,6 +2792,14 @@
 	            
 	            divAll.append(div);
             }
+        	// 추가 버튼
+			var addbtn = document.createElement("button");
+			addbtn.innerHTML = 'ADD';
+			addbtn.setAttribute('onclick', 'columnAdd(this)');
+			addbtn.setAttribute('style', 'margin:1%;');
+            
+            divAll.append(addbtn);
+            
 			modal.prepend(divAll);
 			editText();
 
@@ -2828,24 +2829,69 @@
 	    
 	    // 모달창에서 UP 버튼 눌렀을 때
 	    function columnUp(button) {
-	    	var tempText = button.parentElement.getElementsByTagName('text')[0].innerText;
-	    	button.parentElement.getElementsByTagName('text')[0].innerText = button.parentElement.previousElementSibling.getElementsByTagName('text')[0].innerText;
-	    	button.parentElement.previousElementSibling.getElementsByTagName('text')[0].innerText = tempText;
-	    	var tempCon = button.parentElement.getElementsByTagName('text')[0].getAttribute('connector');
-	    	button.parentElement.getElementsByTagName('text')[0].setAttribute('connector', button.parentElement.previousElementSibling.getElementsByTagName('text')[0].getAttribute('connector'));
-	    	button.parentElement.previousElementSibling.getElementsByTagName('text')[0].setAttribute('connector', tempCon);
+	    	if (button.parentElement.getElementsByTagName('text').length != 0 && button.parentElement.previousElementSibling.getElementsByTagName('text').length != 0) {
+				var tempText = button.parentElement.getElementsByTagName('text')[0].innerText;
+		    	button.parentElement.getElementsByTagName('text')[0].innerText = button.parentElement.previousElementSibling.getElementsByTagName('text')[0].innerText;
+		    	button.parentElement.previousElementSibling.getElementsByTagName('text')[0].innerText = tempText;
+		    	var tempCon = button.parentElement.getElementsByTagName('text')[0].getAttribute('connector');
+		    	button.parentElement.getElementsByTagName('text')[0].setAttribute('connector', button.parentElement.previousElementSibling.getElementsByTagName('text')[0].getAttribute('connector'));
+		    	button.parentElement.previousElementSibling.getElementsByTagName('text')[0].setAttribute('connector', tempCon);
+	    	} else {
+				temp = button.parentElement.lastElementChild;
+				button.parentElement.lastElementChild.replaceWith(button.parentElement.previousElementSibling.lastElementChild);
+				button.parentElement.previousElementSibling.append(temp);
+			}
 	    	editText();
 	    }
 	    
 	    // 모달창에서 DOWN 버튼 눌렀을 때
 		function columnDown(button) {
-			var tempText = button.parentElement.getElementsByTagName('text')[0].innerText;
-	    	button.parentElement.getElementsByTagName('text')[0].innerText = button.parentElement.nextElementSibling.getElementsByTagName('text')[0].innerText;
-	    	button.parentElement.nextElementSibling.getElementsByTagName('text')[0].innerText = tempText;
-	    	var tempCon = button.parentElement.getElementsByTagName('text')[0].getAttribute('connector');
-	    	button.parentElement.getElementsByTagName('text')[0].setAttribute('connector', button.parentElement.nextElementSibling.getElementsByTagName('text')[0].getAttribute('connector'));
-	    	button.parentElement.nextElementSibling.getElementsByTagName('text')[0].setAttribute('connector', tempCon);
+	    	var temp = '';
+			if (button.parentElement.getElementsByTagName('text').length != 0 && button.parentElement.nextElementSibling.getElementsByTagName('text').length != 0) {
+				var tempText = button.parentElement.getElementsByTagName('text')[0].innerText;
+		    	button.parentElement.getElementsByTagName('text')[0].innerText = button.parentElement.nextElementSibling.getElementsByTagName('text')[0].innerText;
+		    	button.parentElement.nextElementSibling.getElementsByTagName('text')[0].innerText = tempText;
+		    	var tempCon = button.parentElement.getElementsByTagName('text')[0].getAttribute('connector');
+		    	button.parentElement.getElementsByTagName('text')[0].setAttribute('connector', button.parentElement.nextElementSibling.getElementsByTagName('text')[0].getAttribute('connector'));
+		    	button.parentElement.nextElementSibling.getElementsByTagName('text')[0].setAttribute('connector', tempCon);
+			} else {
+				temp = button.parentElement.lastElementChild;
+				button.parentElement.lastElementChild.replaceWith(button.parentElement.nextElementSibling.lastElementChild);
+				button.parentElement.nextElementSibling.append(temp);
+			}
 	    	editText();
+	    }
+	    
+	    // 모달창에서 ADD 버튼 눌렀을 때
+		function columnAdd(button) {
+            var divAll = button.parentElement;
+			var div = document.createElement("div");
+			
+			// 위쪽 버튼
+        	var upbtn = document.createElement("button");
+        	upbtn.innerHTML = 'UP';
+            upbtn.setAttribute('onclick', 'columnUp(this)');
+            upbtn.setAttribute('style', 'margin:1%;');
+			
+			// 아래쪽 버튼
+			var downbtn = document.createElement("button");
+			downbtn.innerHTML = 'DOWN';
+            downbtn.setAttribute('onclick', 'columnDown(this)');
+            downbtn.setAttribute('style', 'margin:1%;');
+        	downbtn.setAttribute('disabled', 'disabled');
+            
+			// input type="text"
+            var addText = document.createElement("input");
+            addText.setAttribute('class', 'edit');
+            addText.setAttribute('type', 'text');
+            addText.setAttribute('style', 'width : 15%; padding : 5px; text-align: center;');
+            
+            div.append(upbtn);
+            div.append(downbtn);
+            div.append(addText);
+            
+            divAll.children[divAll.childElementCount-2].children[1].removeAttribute('disabled');
+            divAll.lastElementChild.before(div);
 	    }
 	    
 	    // 변경되는 컬럼 위치에 맞춰서 컬럼명 출력 
@@ -2853,24 +2899,12 @@
         	var modal = document.getElementById('my_modal');
         	var editText = document.getElementById('editText');
         	var tempText = '';
-        	var preText = '';
-        	var nextText = '';
-        	var length = modal.firstElementChild.childElementCount;
+        	var length = modal.firstElementChild.childElementCount - 1;
             for(var i = 0; i < length; i++) {
-            	preText = modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value;
-            	nextText = modal.firstElementChild.childNodes[i].getElementsByTagName('input')[1].value;
-				if(preText.trim() == "" && nextText.trim() == "") {
-					tempText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '| ';          	
-				} else if(nextText.trim() == "") {
-					tempText += '~' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '~';
-					tempText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '| ';
-				} else if(preText.trim() == "") {
-					tempText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText;
-					tempText += '~' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[1].value + '~| ';
+				if (modal.firstElementChild.childNodes[i].getElementsByTagName('text').length != 0) {
+	            	tempText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + ' | ';          	
 				} else {
-					tempText += '~' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '~';
-					tempText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText;
-					tempText += '~' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[1].value + '~| ';
+	            	tempText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\" | ';          	
 				}
             }
             tempText = tempText.substring(0, tempText.lastIndexOf('|'));
@@ -2883,10 +2917,14 @@
         	var modal = document.getElementById('my_modal');
             var colText = '';
             var colCon = '';
-        	var length = modal.firstElementChild.childElementCount;
+        	var length = modal.firstElementChild.childElementCount - 1;
             for(var i = 0; i < length; i++) {
-				colText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '|';
-				colCon += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].getAttribute('connector') + '|';
+            	if (modal.firstElementChild.childNodes[i].getElementsByTagName('text').length != 0) {
+					colText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '|';
+					colCon += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].getAttribute('connector') + '|';
+            	} else {
+            		colText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\" | ';          	
+				}
             }
             colText = colText.substring(0, colText.lastIndexOf('|'));
             colCon = colCon.substring(0, colCon.lastIndexOf('|'));
