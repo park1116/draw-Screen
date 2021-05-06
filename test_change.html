@@ -2097,22 +2097,9 @@
                             continue;
                         }
                         
-                        if (findOutputData.split('~').length == 5) {
-	                       	preAddText = findOutputData.split('~')[1];
-	                       	postAddText = findOutputData.split('~')[3];
-                        }
-                        
                         let outData = findOutputData.split('.');
-                        let outTable='';
-                        let outColumn='';
-
-                        if(findOutputData.indexOf('~') != -1){ // 텍스트(~)가 존재한다면
-                        	outTable = outData[0].split('~')[2]; // '~'기준으로 자른 테이블명
-                        	outColumn = outData[1].split('~')[0]; // '~'기준으로 자른 컬럼명
-                        }else{
-                        	outTable = outData[0];
-                        	outColumn = outData[1];
-                        }
+                        let outTable = outData[0];
+                        let outColumn = outData[1];
                         
                         // mapping 정보에 해당하는 output을 조회
                         let selectOutput = $(".outputs:first .port .port-scrim[table=" + outTable + "][initCol=" + outColumn + "]")[0];
@@ -2337,13 +2324,10 @@
 
     	// bsh
         // 컬럼명 텍스트를 줄이는 함수
-    	function textReduce(textData, tmpData, currentEl){
+    	function textReduce(textData){
     		// 텍스트 줄여서 보여질 변수
      		let moreData = "...";  
-    		// 컬럼명 텍스트 태그 속성
-            let textAttr = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0];
-    		// textArr에 속성 추가
-    		textAttr.setAttribute('editColumnName',textData);
+    		var tmpData = '';
     		
             if(textData.length<100){
                 tmpData = textData;
@@ -2420,11 +2404,9 @@
                 textData = textData.replace('|' + checkData, "");
                 textData = textData.replace(checkData + '|', "");
                 
-                tmpData = textReduce(textData, tmpData, currentEl); // bsh
 
                 if (type == "change") {
                     textData += ('|' + checkData);
-		    		tmpData = textReduce(textData, tmpData, currentEl); // bsh
                 }
             } else {
 
@@ -2432,9 +2414,6 @@
                     // connector가 1개 또는 없을때
                     if (type == "delete") {
                         textData = textData.replace(checkData, "");
-                     	
-                        // textData 줄이는 함수
-                        tmpData = textReduce(textData, tmpData,currentEl); // bsh
                                     
                         if (textData == "") {
                             textData = currentEl.inputPort.portScrim.getAttribute('initCol');
@@ -2442,25 +2421,19 @@
                     } else {
                        textData = checkData; 
 
-                       // textData 줄이는 함수
-                       tmpData = textReduce(textData, tmpData, currentEl); //bsh 
                     }
-                    
                 } else { 
                     // connector가 여러개 있을때
                     if (type == "delete" || type == "update") {
                     	textData = textData.replace(checkData, ""); 
 
-                        // textData 줄이는 함수
-                    	tmpData = textReduce(textData, tmpData, currentEl); // bsh
                     } else {
                         textData += ('|' + checkData);
 
-                        // textData 줄이는 함수
-                        tmpData = textReduce(textData, tmpData, currentEl); // bsh
                     }
                 }
             }
+            tmpData = textReduce(textData); // bsh
 
             // connectors 속성이 정의되어 있지 않거나 없으면 초기값으로 설정
             if (connectData == undefined || connectData == "") {
@@ -2704,7 +2677,7 @@
             //connector속성의 값을 가지고 있는 inputPort 추출
             let inputPort = $('.input-field .port .port-scrim[connectors^=connector]');
             for (let inputPos = 0; inputPos < inputPort.length; inputPos++) {
-                let temp = inputPort[inputPos].getAttribute('table') + '.' + inputPort[inputPos].getAttribute('initCol') + ',' + inputPort[inputPos].getAttribute('editColumnName');
+                let temp = inputPort[inputPos].getAttribute('table') + '.' + inputPort[inputPos].getAttribute('initCol') + ',' + inputPort[inputPos].getAttribute('columnName');
                 tempConnector.push(temp);
             }
 
@@ -2904,6 +2877,9 @@
 				if (modal.firstElementChild.childNodes[i].getElementsByTagName('text').length != 0) {
 	            	tempText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + ' | ';          	
 				} else {
+            		if (modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value == '') {
+            			continue;
+            		}
 	            	tempText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\" | ';          	
 				}
             }
@@ -2915,6 +2891,7 @@
 		function columnSave() {
         	// 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
         	var modal = document.getElementById('my_modal');
+            var reduceText = '';
             var colText = '';
             var colCon = '';
         	var length = modal.firstElementChild.childElementCount - 1;
@@ -2923,13 +2900,16 @@
 					colText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '|';
 					colCon += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].getAttribute('connector') + '|';
             	} else {
-            		colText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\" | ';          	
+            		if (modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value == '') {
+            			continue;
+            		}
+            		colText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\"|';          	
 				}
             }
             colText = colText.substring(0, colText.lastIndexOf('|'));
             colCon = colCon.substring(0, colCon.lastIndexOf('|'));
-            nowClickColumn.innerHTML = document.getElementById('editText').innerText;
-            nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('editColumnName', document.getElementById('editText').innerText);
+            reduceText = textReduce(colText);
+            nowClickColumn.innerHTML = reduceText;
             nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('columnName', colText);
             nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('connectors', colCon);
             modal.removeChild(modal.firstElementChild);
