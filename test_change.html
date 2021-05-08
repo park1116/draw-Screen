@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
 <head>
     <!--애니메이션 라이브러리-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
@@ -151,13 +152,13 @@
             stroke-width: 6;
             fill: none;
         }
-        
+
         #my_modal {
             display: none;
             background-color: #fefefe;
             border: 1px solid #888;
             border-radius: 3px;
-        }     
+        }
     </style>
     <script>
         window.onresize = function () {
@@ -172,7 +173,7 @@
 
             // 클릭 이벤트 설정
             clickEvent();
-            
+
             // keydown 이벤트 설정
             keyupEvent();
 
@@ -181,8 +182,8 @@
 
             // 인터페이스 목록 조회
             getListServer();
-            
-         	// 인터페이스 목록 조회 서비스
+
+            // 인터페이스 목록 조회 서비스
             function getListServer() {
                 $.ajax(
                     { url: '/dbcolumn', type: 'post', async: false, success: successCall, error: errorCall }
@@ -283,7 +284,7 @@
                     }
                 }
             };
-            
+
             // 기존에 그려진 화면 지우기 함수
             function cleanElement() {
                 let outs = document.getElementsByClassName('outputs');
@@ -604,13 +605,13 @@
                     // (event.target : diagram) port의 port-scrim 부분 클릭시 (event.target : port-scrim)
                     // text 클릭시 (event.target : port-title, port-label) 위 4가지 경우에 생성되는 점 모양의
                     // connector 제거
-                    if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) || 
-                    		(event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) || 
-                    		((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) || 
-                    		(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableconnector-') > -1) || 
-                    		((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableport-scrim') > -1) && (event.target.hasAttribute('tableconnectors') == false || event.target.hasAttribute('tableconnectors') && event.target.getAttribute('tableconnectors') == "")) || 
-                    		(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('title') > -1 && event.target.parentElement.getAttribute('class').indexOf('out') > -1) || 
-                    		(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1  && event.target.parentElement.getAttribute('class').indexOf('out') > -1)) {
+                    if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) ||
+                        (event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) ||
+                        ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) ||
+                        (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableconnector-') > -1) ||
+                        ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('tableport-scrim') > -1) && (event.target.hasAttribute('tableconnectors') == false || event.target.hasAttribute('tableconnectors') && event.target.getAttribute('tableconnectors') == "")) ||
+                        (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('title') > -1 && event.target.parentElement.getAttribute('class').indexOf('out') > -1) ||
+                        (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1 && event.target.parentElement.getAttribute('class').indexOf('out') > -1)) {
 
                         connectorClean();
                         tableconnectorClean();
@@ -637,11 +638,11 @@
                             tablerename(tdata, "change");
                         }
 
-                    } else if (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1  && event.target.parentElement.getAttribute('class').indexOf('in') > -1) {
-                		viewModal(event.target);
-                	} else if (event.target.tagName == 'tspan') {
-                		viewModal(event.target.parentElement);
-                	}
+                    } else if (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('label') > -1 && event.target.parentElement.getAttribute('class').indexOf('in') > -1) {
+                        viewModal(event.target);
+                    } else if (event.target.tagName == 'tspan') {
+                        viewModal(event.target.parentElement);
+                    }
                 });
             }
 
@@ -649,13 +650,13 @@
                 let keyupEvent = document;
 
                 keyupEvent.addEventListener('keyup', function (event) {
-					if(event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('edit') > -1 ) {
-						editText();				
-					}
+                    if (event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('edit') > -1) {
+                        editText();
+                    }
                 });
 
             }
-            
+
             function initData() {
 
                 renameCheck = true;
@@ -698,116 +699,116 @@
             // APP
             // ===========================================================================
 
-		   	initDiagram = {};
-		
-		 	// var tempContentHeight = 0; connector 맵핑 정보 저장 변수
-		  	mappingData = "";
-		
-			// 인터페이스 아이디
-		   	interfaceId = "";
-		
-		 	// 수신 테이블에 맵핑된 송신 테이블명
-		   	sendTableNames = "";
-		
-		 	//rename 함수 flag 설정
-		   	renameCheck = true;
-		
-			//path 선택시 outportId 설정
-		   	outportId = "";
-			
-			//createAutoConnector 대상 유무 확인
-			autoCon = false;
-			
-			//drag 대상 유무 확인
-			dragYN = true;
-		
-		 	//inputPort 맵핑 여부 판단 변수
-		   	inputPortMapping = false;
-		
-			//this 저장 변수
-			saveThisList = [];
-		
-		 	//InputPort 시작 여부
-		   	startInputPort = false;
-		
-		 	//inputport 리스트 배열 var inputPortList = []; outport 리스트 배열
-		   	outputPortList = [];
-		
-		 	// port id 값 설정
-		   	nextUidPort = 0;
-		
-		 	// connector id 값 설정
-		   	nextUidConnector = 0;
-		
-		 	// shape id 값 설정
-		   	nextUidShape = 0;
-		
-		 	// scroll 움직임을 계산하기 위한 기준값
-		   	preScroll = 0;
-		
-		 	// updatePath() 함수에서 사용하는 고정 연산값
-		  	bezierWeight = 0.675;
-		
-		  	svg = document.querySelector("#svg");
-		
-		  	diagramElement = document.querySelector("#diagram");
-		
-		 	// shape object 저장변수
-		   	shapeLookup = {};
-		 	// shape 배열 저장변수
-		   	shapes = [];
-		
-		 	// portLookup object 저장변수
-		   	portLookup = {};
-		 	// ports 배열 저장변수
-		   	ports = [];
-		
-		 	// connectorLookup object 저장변수
-		   	connectorLookup = {};
-		 	// connectorPool object 저장변수
-		   	connectorPool = [];
-		
-		 	// tableportLookup object 저장변수
-		   	tableportLookup = {};
-		 	// tableports 배열 저장변수
-		   	tableports = [];
-		 	// tableport id 값 설정
-		   	nextUidTablePort = 0;
-		 	// tableconnector id 값 설정
-		   	nextUidTableConnector = 0;
-		 	//this 저장 변수
-		   	saveTableThisList = [];
-		 	// tableconnectorLookup object 저장변수
-		   	tableconnectorLookup = {};
-		 	// tableconnectorPool object 저장변수
-		   	tableconnectorPool = [];
-		 	//inputPort 맵핑 여부 판단 변수
-		   	inputTablePortMapping = false;
-		 	//outport 리스트 배열
-		   	outputTablePortList = [];
+            initDiagram = {};
 
-		 	// click한 컬럼
-		 	nowClickColumn = "";
-		 	
-		 	// 컬럼 앞에 붙는 공통 데이터
-		 	preAddText = '';
-		 	// 컬럼 뒤에 붙는 공통 데이터
-		 	postAddText = '';
-		
-		  	dragProxy = document.querySelector("#drag-proxy");
-		  	shapeElements = Array.prototype.slice.call(document.querySelectorAll(".node-container"));
-		
-		  	frag = document.createDocumentFragment();
-		 	frag.appendChild(document.querySelector(".connector"));
-		  	connectorElement = frag.querySelector(".connector");
-		  	connectorLayer = document.querySelector("#connections-layer");
-		
-		  	tablefrag = document.createDocumentFragment();
-		 	tablefrag.appendChild(document.querySelector(".tableconnector"));
-			tableconnectorElement = tablefrag.querySelector(".tableconnector");
-		  	tableconnectorLayer = document.querySelector("#tableconnections-layer");
+            // var tempContentHeight = 0; connector 맵핑 정보 저장 변수
+            mappingData = "";
+
+            // 인터페이스 아이디
+            interfaceId = "";
+
+            // 수신 테이블에 맵핑된 송신 테이블명
+            sendTableNames = "";
+
+            //rename 함수 flag 설정
+            renameCheck = true;
+
+            //path 선택시 outportId 설정
+            outportId = "";
+
+            //createAutoConnector 대상 유무 확인
+            autoCon = false;
+
+            //drag 대상 유무 확인
+            dragYN = true;
+
+            //inputPort 맵핑 여부 판단 변수
+            inputPortMapping = false;
+
+            //this 저장 변수
+            saveThisList = [];
+
+            //InputPort 시작 여부
+            startInputPort = false;
+
+            //inputport 리스트 배열 var inputPortList = []; outport 리스트 배열
+            outputPortList = [];
+
+            // port id 값 설정
+            nextUidPort = 0;
+
+            // connector id 값 설정
+            nextUidConnector = 0;
+
+            // shape id 값 설정
+            nextUidShape = 0;
+
+            // scroll 움직임을 계산하기 위한 기준값
+            preScroll = 0;
+
+            // updatePath() 함수에서 사용하는 고정 연산값
+            bezierWeight = 0.675;
+
+            svg = document.querySelector("#svg");
+
+            diagramElement = document.querySelector("#diagram");
+
+            // shape object 저장변수
+            shapeLookup = {};
+            // shape 배열 저장변수
+            shapes = [];
+
+            // portLookup object 저장변수
+            portLookup = {};
+            // ports 배열 저장변수
+            ports = [];
+
+            // connectorLookup object 저장변수
+            connectorLookup = {};
+            // connectorPool object 저장변수
+            connectorPool = [];
+
+            // tableportLookup object 저장변수
+            tableportLookup = {};
+            // tableports 배열 저장변수
+            tableports = [];
+            // tableport id 값 설정
+            nextUidTablePort = 0;
+            // tableconnector id 값 설정
+            nextUidTableConnector = 0;
+            //this 저장 변수
+            saveTableThisList = [];
+            // tableconnectorLookup object 저장변수
+            tableconnectorLookup = {};
+            // tableconnectorPool object 저장변수
+            tableconnectorPool = [];
+            //inputPort 맵핑 여부 판단 변수
+            inputTablePortMapping = false;
+            //outport 리스트 배열
+            outputTablePortList = [];
+
+            // click한 컬럼
+            nowClickColumn = "";
+
+            // 컬럼 앞에 붙는 공통 데이터
+            preAddText = '';
+            // 컬럼 뒤에 붙는 공통 데이터
+            postAddText = '';
+
+            dragProxy = document.querySelector("#drag-proxy");
+            shapeElements = Array.prototype.slice.call(document.querySelectorAll(".node-container"));
+
+            frag = document.createDocumentFragment();
+            frag.appendChild(document.querySelector(".connector"));
+            connectorElement = frag.querySelector(".connector");
+            connectorLayer = document.querySelector("#connections-layer");
+
+            tablefrag = document.createDocumentFragment();
+            tablefrag.appendChild(document.querySelector(".tableconnector"));
+            tableconnectorElement = tablefrag.querySelector(".tableconnector");
+            tableconnectorLayer = document.querySelector("#tableconnections-layer");
         };
-        
+
         //
         // DIAGRAM
         // ===========================================================================
@@ -1254,7 +1255,7 @@
                 let scroll = document.getElementById("svgScroll").scrollTop;
                 scrollGap = scroll - preScroll;
                 preScroll = scroll;
-                
+
                 TweenLite.set(this.target.dragElement, {
                     x: `+=${this.draggable.deltaX}`,
                     y: `+=${this.draggable.deltaY + scrollGap}`
@@ -1590,11 +1591,11 @@
 
                         for (var value of allConnector) {
                             //output port 비교
-                            if (value.children[3].getAttribute('data-drag').split(':')[0] == 
-                            this.element.children[3].getAttribute('data-drag').split(':')[0]) {
+                            if (value.children[3].getAttribute('data-drag').split(':')[0] ==
+                                this.element.children[3].getAttribute('data-drag').split(':')[0]) {
                                 //intput port 비교
-                                if (value.children[2].getAttribute('data-drag').split(':')[0] == 
-                                this.element.children[2].getAttribute('data-drag').split(':')[0]) {
+                                if (value.children[2].getAttribute('data-drag').split(':')[0] ==
+                                    this.element.children[2].getAttribute('data-drag').split(':')[0]) {
                                     {
                                         //모든 connector 중에서 중복되는게 없도록 첫번째 데이터를 제외하고 모두 삭제
                                         document.getElementById(this.id).remove();
@@ -1957,8 +1958,8 @@
                             if (value.children[3].getAttribute('data-drag').split(':')[0] ==
                                 this.element.children[3].getAttribute('data-drag').split(':')[0]) {
                                 //intput port 비교
-                                if (value.children[2].getAttribute('data-drag').split(':')[0] == 
-                                this.element.children[2].getAttribute('data-drag').split(':')[0]) {
+                                if (value.children[2].getAttribute('data-drag').split(':')[0] ==
+                                    this.element.children[2].getAttribute('data-drag').split(':')[0]) {
                                     {
                                         // 모든 connector 중에서 중복되는게 없도록 첫번째 데이터를 제외하고 모두 삭제
                                         // document.getElementById(value.getAttribute('id')).remove();
@@ -2061,7 +2062,7 @@
                 this.placeHandle();
             }
         }
-        
+
         // 자동으로 connector 생성 함수
         function createAutoConnector(data, clearCheck) {
             autoCon = true;
@@ -2098,11 +2099,11 @@
                         } else {
                             continue;
                         }
-                        
+
                         let outData = findOutputData.split('.');
                         let outTable = outData[0];
                         let outColumn = outData[1];
-                        
+
                         // mapping 정보에 해당하는 output을 조회
                         let selectOutput = $(".outputs:first .port .port-scrim[table=" + outTable + "][initCol=" + outColumn + "]")[0];
                         if (selectOutput !== undefined) {
@@ -2267,7 +2268,7 @@
 
             createAutoConnector(initDiagram, true);
         }
-        
+
 
         // 연결된 connector가 아닌 connector를 찾아서 삭제
         function connectorClean() {
@@ -2322,52 +2323,52 @@
                 }
             }
         }
-        
 
-    	// bsh
+
+        // bsh
         // 컬럼명 텍스트를 줄이는 함수
-    	function textReduce(textData){
-    		// 텍스트 줄여서 보여질 변수
-     		let moreData = "...";  
-    		var tmpData = '';
+        function textReduce(textData) {
+            // 텍스트 줄여서 보여질 변수
+            let moreData = "...";
+            var tmpData = '';
 
             if (textData.length < 100) {
                 tmpData = textData;
             } else {
-            	// 자른 tmp를 마지막 | 기준으로 뒤에 줄임말을 붙여줌
-            	tmpData = textData.substring(0, textData.substring(0,100).lastIndexOf('|')) + ('|'+moreData); 
+                // 자른 tmp를 마지막 | 기준으로 뒤에 줄임말을 붙여줌
+                tmpData = textData.substring(0, textData.substring(0, 100).lastIndexOf('|')) + ('|' + moreData);
             }
-    		
+
             var columns = tmpData.split('|');
             var tmp = '';
-            for (var i = 0 ; i < columns.length; i++) {
-            	if (columns[i].indexOf('\"') > -1) {
-            		tmp += columns[i] + '|';
-            	} else if (columns[i].indexOf(moreData) > -1) {
-            		tmp += moreData;
-            	} else {
-	            	var tableName = columns[i].split('.')[0];
-	            	tableName = '<tspan style="fill:blue">' + tableName + '.</tspan>';
-            		var columnName = columns[i].split('.')[1];
-            		tmp += tableName + columnName + '|';
-            	}
+            for (var i = 0; i < columns.length; i++) {
+                if (columns[i].indexOf('\"') > -1) {
+                    tmp += columns[i] + '|';
+                } else if (columns[i].indexOf(moreData) > -1) {
+                    tmp += moreData;
+                } else {
+                    var tableName = columns[i].split('.')[0];
+                    tableName = '<tspan style="fill:blue">' + tableName + '.</tspan>';
+                    var columnName = columns[i].split('.')[1];
+                    tmp += tableName + columnName + '|';
+                }
             }
-            
+
             if (textData.length < 100) {
-	            tmp = tmp.substring(0, tmp.lastIndexOf('|'));
+                tmp = tmp.substring(0, tmp.lastIndexOf('|'));
             } else {
-	            tmp = tmp.substring(0, tmp.lastIndexOf('|')) + ('|'+moreData);
+                tmp = tmp.substring(0, tmp.lastIndexOf('|')) + ('|' + moreData);
             }
-            
+
             return tmp;
-    	}
-    		
+        }
+
         // 컬럼명 설정 함수
         function rename(currentEl, type) {
-			
-        	// 화면에 뿌려줄 컬럼명 데이터
-        	let tmpData=""; // bsh
-        	
+
+            // 화면에 뿌려줄 컬럼명 데이터
+            let tmpData = ""; // bsh
+
             // rename 함수 호출 위치(dragTarget(), placeHandle()) dragTarget()함수에서 연속적인 호출이 발생하기
             // 때문에 renameCheck 변수를 flag로 설정해서 튕겨낼수 있도록 설정
             if (renameCheck == false)
@@ -2382,7 +2383,7 @@
                 if (connectData.indexOf('|' + currentEl.id) > -1 || connectData.indexOf(currentEl.id + '|') > -1) {
                     connectData = connectData.replace('|' + currentEl.id, "");
                     connectData = connectData.replace(currentEl.id + '|', "");
-                    
+
                     if (type == "change") {
                         connectData += ('|' + currentEl.id);
                     }
@@ -2410,20 +2411,20 @@
             ////// connectors 속성 수정 -끝  inputport label 수정 -시작
             let textData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-scrim")[0].getAttribute('columnName'); // bsh
             // 화면에 보여지는 컬럼명
-           // let tmpData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML; //bsh
+            // let tmpData = $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML; //bsh
             if (textData.indexOf('.') < 0) {
                 textData = currentEl.inputPort.tableName + '.' + textData;
             }
-            
+
             let checkData = "";
-            
+
             checkData = $("[data-drag=" + currentEl.outputPort.id + "\\:port]").attr('table') + '.' + $("[data-drag=" + currentEl.outputPort.id + "\\:port]").attr('initCol');
-            
+
             // 컬럼명이 다를 경우 label (중복 제거, 빈값 추가) 중복 제거
             if (textData.indexOf('|' + checkData) > -1 || textData.indexOf(checkData + '|') > -1) {
                 textData = textData.replace('|' + checkData, "");
                 textData = textData.replace(checkData + '|', "");
-                
+
 
                 if (type == "change") {
                     textData += ('|' + checkData);
@@ -2434,18 +2435,18 @@
                     // connector가 1개 또는 없을때
                     if (type == "delete") {
                         textData = textData.replace(checkData, "");
-                                    
+
                         if (textData == "") {
                             textData = currentEl.inputPort.portScrim.getAttribute('initCol');
                         }
                     } else {
-                       textData = checkData; 
+                        textData = checkData;
 
                     }
-                } else { 
+                } else {
                     // connector가 여러개 있을때
                     if (type == "delete" || type == "update") {
-                    	textData = textData.replace(checkData, ""); 
+                        textData = textData.replace(checkData, "");
 
                     } else {
                         textData += ('|' + checkData);
@@ -2457,8 +2458,8 @@
 
             // connectors 속성이 정의되어 있지 않거나 없으면 초기값으로 설정
             if (connectData == undefined || connectData == "") {
-               tmpData = textData = currentEl.inputPort.portScrim.getAttribute('initCol'); //bsh
-                
+                tmpData = textData = currentEl.inputPort.portScrim.getAttribute('initCol'); //bsh
+
             }
 
             $("[data-drag=" + currentEl.inputPort.id + "\\:port]").parents().children(".port-label")[0].innerHTML = tmpData; // bsh
@@ -2595,7 +2596,7 @@
                 alert("SendError");
             }
         }
-		
+
         function saveData() {
 
             // 송/수신 데이터 샘플 
@@ -2704,15 +2705,15 @@
 
             sendServer(resultData);
         }
-        
+
         function viewModal(column) {
-        	nowClickColumn = column;
-        	var columnList = nowClickColumn.parentElement.firstElementChild.lastElementChild.getAttribute('columnName');
+            nowClickColumn = column;
+            var columnList = nowClickColumn.parentElement.firstElementChild.lastElementChild.getAttribute('columnName');
             var conList = nowClickColumn.parentElement.firstElementChild.lastElementChild.getAttribute('connectors');
-        	var zIndex = 9999;
-        	var modal = document.getElementById('my_modal');
-        	var btnModal = document.getElementById('btn_modal');
-        	
+            var zIndex = 9999;
+            var modal = document.getElementById('my_modal');
+            var btnModal = document.getElementById('btn_modal');
+
             // 모달 div 뒤에 희끄무레한 레이어
             var bg = document.createElement('div');
             bg.setStyle({
@@ -2727,80 +2728,80 @@
                 backgroundColor: 'rgba(0,0,0,0.4)'
             });
             document.body.append(bg);
-			
+
             var tcolumns = columnList.split('|');
             var tconnectors = [];
             var divAll = document.createElement("div");
             divAll.setAttribute('style', 'flex: 1');
             var conCount = 0;
-            for(var i = 1; i <= tcolumns.length; i++) {
-            	
-	            if(!(conList == null || conList == '')) {
-		            tconnectors = conList.split('|');
-	            } else if (column.parentElement.firstElementChild.lastElementChild.getAttribute('initCol') == column.parentElement.firstElementChild.lastElementChild.getAttribute('columnName')) {
-	            	// 연결된 connector가 없고 입력된 공통데이터도 없을 때
-	            	break;
-	            }
-	            
-				var div = document.createElement("div");
-				
-				// 위쪽 버튼
-            	var upbtn = document.createElement("button");
-            	upbtn.innerHTML = 'UP';
-	            upbtn.setAttribute('onclick', 'columnUp(this)');
-	            upbtn.setAttribute('style', 'margin:1%;');
-				
-				// 아래쪽 버튼
-				var downbtn = document.createElement("button");
-				downbtn.innerHTML = 'DOWN';
-	            downbtn.setAttribute('onclick', 'columnDown(this)');
-	            downbtn.setAttribute('style', 'margin:1%;');
-				
-	            var columnName = '';
-	            if (tcolumns[i - 1].indexOf('\"') < 0) {
-            	// 컬럼명
-		            columnName = document.createElement("text");
-	            	columnName.setAttribute('class', 'col' + i);
-	            	columnName.setAttribute('style', 'margin-Top: 1%;');
-		            columnName.setAttribute('connector', tconnectors[conCount++]);
-		            tcolumns[i - 1] = '<span style="color:blue">' + tcolumns[i - 1].split('.')[0] + '.</span>' + tcolumns[i - 1].split('.')[1];
-		            columnName.innerHTML = tcolumns[i - 1];
-	            } else {
-				// 공통 데이터
-	            	columnName = document.createElement("input");
-	            	columnName.setAttribute('class', 'edit');
-	            	columnName.setAttribute('type', 'text');
-	            	columnName.setAttribute('style', 'width : 15%; padding : 5px; text-align: center;');
-	            	columnName.value = tcolumns[i - 1].substring(tcolumns[i - 1].indexOf('\"') + 1, tcolumns[i - 1].lastIndexOf('\"'));
-	            }
-	           	            
-	            div.append(upbtn);
-	            div.append(downbtn);
-	            div.append(columnName);
-	            
-	            // 첫번째줄과 마지막줄은 각각 위, 아래 버튼 비활성화
-	            if(i == 1) {
-	            	upbtn.setAttribute('disabled', 'disabled');
-	            }
-	            if(i == tcolumns.length) {
-	            	downbtn.setAttribute('disabled', 'disabled');
-	            }
-	            
-	            divAll.append(div);
+            for (var i = 1; i <= tcolumns.length; i++) {
+
+                if (!(conList == null || conList == '')) {
+                    tconnectors = conList.split('|');
+                } else if (column.parentElement.firstElementChild.lastElementChild.getAttribute('initCol') == column.parentElement.firstElementChild.lastElementChild.getAttribute('columnName')) {
+                    // 연결된 connector가 없고 입력된 공통데이터도 없을 때
+                    break;
+                }
+
+                var div = document.createElement("div");
+
+                // 위쪽 버튼
+                var upbtn = document.createElement("button");
+                upbtn.innerHTML = 'UP';
+                upbtn.setAttribute('onclick', 'columnUp(this)');
+                upbtn.setAttribute('style', 'margin:1%;');
+
+                // 아래쪽 버튼
+                var downbtn = document.createElement("button");
+                downbtn.innerHTML = 'DOWN';
+                downbtn.setAttribute('onclick', 'columnDown(this)');
+                downbtn.setAttribute('style', 'margin:1%;');
+
+                var columnName = '';
+                if (tcolumns[i - 1].indexOf('\"') < 0) {
+                    // 컬럼명
+                    columnName = document.createElement("text");
+                    columnName.setAttribute('class', 'col' + i);
+                    columnName.setAttribute('style', 'margin-Top: 1%;');
+                    columnName.setAttribute('connector', tconnectors[conCount++]);
+                    tcolumns[i - 1] = '<span style="color:blue">' + tcolumns[i - 1].split('.')[0] + '.</span>' + tcolumns[i - 1].split('.')[1];
+                    columnName.innerHTML = tcolumns[i - 1];
+                } else {
+                    // 공통 데이터
+                    columnName = document.createElement("input");
+                    columnName.setAttribute('class', 'edit');
+                    columnName.setAttribute('type', 'text');
+                    columnName.setAttribute('style', 'width : 15%; padding : 5px; text-align: center;');
+                    columnName.value = tcolumns[i - 1].substring(tcolumns[i - 1].indexOf('\"') + 1, tcolumns[i - 1].lastIndexOf('\"'));
+                }
+
+                div.append(upbtn);
+                div.append(downbtn);
+                div.append(columnName);
+
+                // 첫번째줄과 마지막줄은 각각 위, 아래 버튼 비활성화
+                if (i == 1) {
+                    upbtn.setAttribute('disabled', 'disabled');
+                }
+                if (i == tcolumns.length) {
+                    downbtn.setAttribute('disabled', 'disabled');
+                }
+
+                divAll.append(div);
             }
-        	// 추가 버튼
-			var addbtn = document.createElement("button");
-			addbtn.innerHTML = 'ADD';
-			addbtn.setAttribute('onclick', 'columnAdd(this)');
-			addbtn.setAttribute('style', 'margin:1%;');
-            
+            // 추가 버튼
+            var addbtn = document.createElement("button");
+            addbtn.innerHTML = 'ADD';
+            addbtn.setAttribute('onclick', 'columnAdd(this)');
+            addbtn.setAttribute('style', 'margin:1%;');
+
             divAll.append(addbtn);
-            
-			modal.prepend(divAll);
-			editText();
+
+            modal.prepend(divAll);
+            editText();
 
             modal.setStyle({
-	            padding: '2%',
+                padding: '2%',
                 position: 'fixed',
                 display: 'flex',
                 boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
@@ -2816,169 +2817,170 @@
                 webkitTransform: 'translate(-50%, -50%)'
             });
         }
-        
-	 	// Element 에 style 한번에 오브젝트로 설정하는 함수 추가
-	    Element.prototype.setStyle = function(styles) {
-	        for (var k in styles) this.style[k] = styles[k];
-	        return this;
-	    };
-	    
-	    // 모달창에서 UP 버튼 눌렀을 때
-	    function columnUp(button) {
-	    	if (button.parentElement.getElementsByTagName('text').length != 0 && button.parentElement.previousElementSibling.getElementsByTagName('text').length != 0) {
-				var tempText = button.parentElement.getElementsByTagName('text')[0];
-				button.parentElement.getElementsByTagName('text')[0].replaceWith(button.parentElement.previousElementSibling.getElementsByTagName('text')[0]);
-		    	button.parentElement.previousElementSibling.append(tempText);
-	    	} else {
-				temp = button.parentElement.lastElementChild;
-				button.parentElement.lastElementChild.replaceWith(button.parentElement.previousElementSibling.lastElementChild);
-				button.parentElement.previousElementSibling.append(temp);
-			}
-	    	editText();
-	    }
-	    
-	    // 모달창에서 DOWN 버튼 눌렀을 때
-		function columnDown(button) {
-	    	var temp = '';
-			if (button.parentElement.getElementsByTagName('text').length != 0 && button.parentElement.nextElementSibling.getElementsByTagName('text').length != 0) {
-				var tempText = button.parentElement.getElementsByTagName('text')[0];
-				button.parentElement.getElementsByTagName('text')[0].replaceWith(button.parentElement.nextElementSibling.getElementsByTagName('text')[0]);
-		    	button.parentElement.nextElementSibling.append(tempText);
-			} else {
-				temp = button.parentElement.lastElementChild;
-				button.parentElement.lastElementChild.replaceWith(button.parentElement.nextElementSibling.lastElementChild);
-				button.parentElement.nextElementSibling.append(temp);
-			}
-	    	editText();
-	    }
-	    
-	    // 모달창에서 ADD 버튼 눌렀을 때
-		function columnAdd(button) {
+
+        // Element 에 style 한번에 오브젝트로 설정하는 함수 추가
+        Element.prototype.setStyle = function (styles) {
+            for (var k in styles) this.style[k] = styles[k];
+            return this;
+        };
+
+        // 모달창에서 UP 버튼 눌렀을 때
+        function columnUp(button) {
+            if (button.parentElement.getElementsByTagName('text').length != 0 && button.parentElement.previousElementSibling.getElementsByTagName('text').length != 0) {
+                var tempText = button.parentElement.getElementsByTagName('text')[0];
+                button.parentElement.getElementsByTagName('text')[0].replaceWith(button.parentElement.previousElementSibling.getElementsByTagName('text')[0]);
+                button.parentElement.previousElementSibling.append(tempText);
+            } else {
+                temp = button.parentElement.lastElementChild;
+                button.parentElement.lastElementChild.replaceWith(button.parentElement.previousElementSibling.lastElementChild);
+                button.parentElement.previousElementSibling.append(temp);
+            }
+            editText();
+        }
+
+        // 모달창에서 DOWN 버튼 눌렀을 때
+        function columnDown(button) {
+            var temp = '';
+            if (button.parentElement.getElementsByTagName('text').length != 0 && button.parentElement.nextElementSibling.getElementsByTagName('text').length != 0) {
+                var tempText = button.parentElement.getElementsByTagName('text')[0];
+                button.parentElement.getElementsByTagName('text')[0].replaceWith(button.parentElement.nextElementSibling.getElementsByTagName('text')[0]);
+                button.parentElement.nextElementSibling.append(tempText);
+            } else {
+                temp = button.parentElement.lastElementChild;
+                button.parentElement.lastElementChild.replaceWith(button.parentElement.nextElementSibling.lastElementChild);
+                button.parentElement.nextElementSibling.append(temp);
+            }
+            editText();
+        }
+
+        // 모달창에서 ADD 버튼 눌렀을 때
+        function columnAdd(button) {
             var divAll = button.parentElement;
-			var div = document.createElement("div");
-			
-			// 위쪽 버튼
-        	var upbtn = document.createElement("button");
-        	upbtn.innerHTML = 'UP';
+            var div = document.createElement("div");
+
+            // 위쪽 버튼
+            var upbtn = document.createElement("button");
+            upbtn.innerHTML = 'UP';
             upbtn.setAttribute('onclick', 'columnUp(this)');
             upbtn.setAttribute('style', 'margin:1%;');
-			
-			// 아래쪽 버튼
-			var downbtn = document.createElement("button");
-			downbtn.innerHTML = 'DOWN';
+
+            // 아래쪽 버튼
+            var downbtn = document.createElement("button");
+            downbtn.innerHTML = 'DOWN';
             downbtn.setAttribute('onclick', 'columnDown(this)');
             downbtn.setAttribute('style', 'margin:1%;');
-        	downbtn.setAttribute('disabled', 'disabled');
-            
-			// input type="text"
+            downbtn.setAttribute('disabled', 'disabled');
+
+            // input type="text"
             var addText = document.createElement("input");
             addText.setAttribute('class', 'edit');
             addText.setAttribute('type', 'text');
             addText.setAttribute('style', 'width : 15%; padding : 5px; text-align: center;');
-            
+
             div.append(upbtn);
             div.append(downbtn);
             div.append(addText);
-            
+
             if (divAll.childElementCount > 1) {
-				// 이미 만들어진 up, down 버튼이 있을 때            	
-	            divAll.children[divAll.childElementCount-2].children[1].removeAttribute('disabled');
+                // 이미 만들어진 up, down 버튼이 있을 때            	
+                divAll.children[divAll.childElementCount - 2].children[1].removeAttribute('disabled');
             } else {
-				// 최초로 up, down 버튼을 만들 때 	
-            	upbtn.setAttribute('disabled', 'disabled');
+                // 최초로 up, down 버튼을 만들 때 	
+                upbtn.setAttribute('disabled', 'disabled');
             }
-            
+
             divAll.lastElementChild.before(div);
-	    }
-	    
-	    // 변경되는 컬럼 위치에 맞춰서 컬럼명 출력 
-	    function editText(){
-        	var modal = document.getElementById('my_modal');
-        	var editText = document.getElementById('editText');
-        	var tempText = '';
-        	var length = modal.firstElementChild.childElementCount - 1;
-            for(var i = 0; i < length; i++) {
-				var now = modal.firstElementChild.childNodes[i];            	
-				if (now.getElementsByTagName('text').length != 0) {
-					tempText += '<span style="color:blue">' + now.getElementsByTagName('text')[0].innerText.split('.')[0] + '.</span>' + now.getElementsByTagName('text')[0].innerText.split('.')[1] + ' | ';
-				} else {
-            		if (now.getElementsByTagName('input')[0].value == '') {
-            			continue;
-            		}
-	            	tempText += '\"' + now.getElementsByTagName('input')[0].value + '\" | ';          	
-				}
+        }
+
+        // 변경되는 컬럼 위치에 맞춰서 컬럼명 출력 
+        function editText() {
+            var modal = document.getElementById('my_modal');
+            var editText = document.getElementById('editText');
+            var tempText = '';
+            var length = modal.firstElementChild.childElementCount - 1;
+            for (var i = 0; i < length; i++) {
+                var now = modal.firstElementChild.childNodes[i];
+                if (now.getElementsByTagName('text').length != 0) {
+                    tempText += '<span style="color:blue">' + now.getElementsByTagName('text')[0].innerText.split('.')[0] + '.</span>' + now.getElementsByTagName('text')[0].innerText.split('.')[1] + ' | ';
+                } else {
+                    if (now.getElementsByTagName('input')[0].value == '') {
+                        continue;
+                    }
+                    tempText += '\"' + now.getElementsByTagName('input')[0].value + '\" | ';
+                }
             }
             tempText = tempText.substring(0, tempText.lastIndexOf('|'));
             editText.innerHTML = tempText;
-	    }
-	    
-	    // 모달창에서 SAVE 버튼 눌렀을 때
-		function columnSave() {
-        	// 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
-        	var modal = document.getElementById('my_modal');
+        }
+
+        // 모달창에서 SAVE 버튼 눌렀을 때
+        function columnSave() {
+            // 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
+            var modal = document.getElementById('my_modal');
             var reduceText = '';
             var colText = '';
             var colCon = '';
-        	var length = modal.firstElementChild.childElementCount - 1;
-            for(var i = 0; i < length; i++) {
-            	if (modal.firstElementChild.childNodes[i].getElementsByTagName('text').length != 0) {
-					colText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '|';
-					colCon += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].getAttribute('connector') + '|';
-            	} else {
-            		if (modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value == '') {
-            			continue;
-            		}
-            		colText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\"|';          	
-				}
+            var length = modal.firstElementChild.childElementCount - 1;
+            for (var i = 0; i < length; i++) {
+                if (modal.firstElementChild.childNodes[i].getElementsByTagName('text').length != 0) {
+                    colText += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].innerText + '|';
+                    colCon += modal.firstElementChild.childNodes[i].getElementsByTagName('text')[0].getAttribute('connector') + '|';
+                } else {
+                    if (modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value == '') {
+                        continue;
+                    }
+                    colText += '\"' + modal.firstElementChild.childNodes[i].getElementsByTagName('input')[0].value + '\"|';
+                }
             }
             colText = colText.substring(0, colText.lastIndexOf('|'));
             colCon = colCon.substring(0, colCon.lastIndexOf('|'));
-            
+
             if (colText != '') {
-	            reduceText = textReduce(colText);
-	            nowClickColumn.innerHTML = reduceText;
-	            nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('columnName', colText);
-	            nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('connectors', colCon);
+                reduceText = textReduce(colText);
+                nowClickColumn.innerHTML = reduceText;
+                nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('columnName', colText);
+                nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('connectors', colCon);
             } else {
-	            // modal창에 입력할 데이터가 없을 때 초기값으로 설정
-				var init = nowClickColumn.parentElement.firstElementChild.children[2].getAttribute('initCol');            	
-            	nowClickColumn.innerHTML = init;
-	            nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('columnName', init);
+                // modal창에 입력할 데이터가 없을 때 초기값으로 설정
+                var init = nowClickColumn.parentElement.firstElementChild.children[2].getAttribute('initCol');
+                nowClickColumn.innerHTML = init;
+                nowClickColumn.parentElement.firstElementChild.children[2].setAttribute('columnName', init);
             }
-            
+
             modal.removeChild(modal.firstElementChild);
             document.body.lastElementChild.remove();
             modal.style.display = 'none';
-	    }
+        }
 
-	    // 모달창에서 CLOSE 버튼 눌렀을 때
-		function columnClose() {
-        	// 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
-        	var modal = document.getElementById('my_modal');
-        	var length = modal.childElementCount - 1;
-            for(var i = 0; i < length; i++) {
+        // 모달창에서 CLOSE 버튼 눌렀을 때
+        function columnClose() {
+            // 모달 div 지우면서 해당 데이터 컬럼명으로 만들기
+            var modal = document.getElementById('my_modal');
+            var length = modal.childElementCount - 1;
+            for (var i = 0; i < length; i++) {
                 modal.removeChild(modal.firstElementChild);
             }
             document.body.lastElementChild.remove();
             modal.style.display = 'none';
-	    }
+        }
     </script>
 </head>
 
 <body>
-	<!-- 컬럼명 클릭했을때 나타나는 모달창 -->
-	<div id="my_modal" style="height: auto; width: 80%; overflow-y: auto; max-height: 80%;">
-		<div style="flex: 1;  display: flex; flex-direction: column;">
-			<text id="editText"></text>
-			<div id="btn_modal" style="margin-left: auto; margin-top : auto;">
-				<button class="modal_save_btn" onclick="columnSave()">SAVE</button>
-				<button class="modal_close_btn" onclick="columnClose()">CLOSE</button>
-			</div>
-		</div>
+    <!-- 컬럼명 클릭했을때 나타나는 모달창 -->
+    <div id="my_modal" style="height: auto; width: 80%; overflow-y: auto; max-height: 80%;">
+        <div style="flex: 1;  display: flex; flex-direction: column;">
+            <text id="editText"></text>
+            <div id="btn_modal" style="margin-left: auto; margin-top : auto;">
+                <button class="modal_save_btn" onclick="columnSave()">SAVE</button>
+                <button class="modal_close_btn" onclick="columnClose()">CLOSE</button>
+            </div>
+        </div>
     </div>
-	
-	<div id="searchInterface" align="center" contenteditable="false">
-        <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList" style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
+
+    <div id="searchInterface" align="center" contenteditable="false">
+        <input class="interfaceListInput" type="text" name="interfaceListInput" list="interfaceList"
+            style="width: 250px; height: 30px; border-radius: 5px; margin-left: 50px;">
         <datalist id="interfaceList"></datalist>
         <button id="saveBtn" style="visibility: hidden;" onclick="saveData()">SAVE</button>
         <button id="clearBtn" style="visibility: hidden;" onclick="clearData()">CLEAR</button>
