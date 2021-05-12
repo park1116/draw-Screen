@@ -83,6 +83,10 @@
             fill: #484848;
         }
 
+        .port-label[x="28"] {
+            cursor: pointer;
+        }
+
         .tableport {
             cursor: pointer;
         }
@@ -173,7 +177,7 @@
 
             // 클릭 이벤트 설정
             clickEvent();
-
+         
             // keydown 이벤트 설정
             keyupEvent();
 
@@ -600,11 +604,10 @@
 
                 checkClickEvent.addEventListener('click', function (event) {
 
-                    // port 클릭시 생성되는 connector(점)을 제거 하기 위함 port에 connector가 존재할 때 port-inner 부분 클릭시
+                	// port 클릭시 생성되는 connector(점)을 제거 하기 위함 port에 connector가 존재할 때 port-inner 부분 클릭시
                     // (event.target : connector-handle) port에 connector가 없을 때 port-inner 부분 클릭시
                     // (event.target : diagram) port의 port-scrim 부분 클릭시 (event.target : port-scrim)
-                    // text 클릭시 (event.target : port-title, port-label) 위 4가지 경우에 생성되는 점 모양의
-                    // connector 제거
+                    // text 클릭시 (event.target : port-title, port-label) 위 4가지 경우에 생성되는 점 모양의 connector 제거
                     if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1) ||
                         (event.target.hasAttribute('id') && event.target.getAttribute('id').indexOf('diagram') > -1) ||
                         ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('port-scrim') > -1) && (event.target.hasAttribute('connectors') == false || event.target.hasAttribute('connectors') && event.target.getAttribute('connectors') == "")) ||
@@ -654,7 +657,6 @@
                         editText();
                     }
                 });
-
             }
 
             function initData() {
@@ -2358,21 +2360,21 @@
             var tmp = '';
             for (var i = 0; i < columns.length; i++) {
                 if (columns[i].indexOf('\"') > -1) {
-                    tmp += columns[i] + '|';
+                    tmp += columns[i] + '<tspan style="fill:red">|</tspan>';
                 } else if (columns[i].indexOf(moreData) > -1) {
                     tmp += moreData;
                 } else {
                     var tableName = columns[i].split('.')[0];
-                    tableName = '<tspan style="fill:blue">' + tableName + '.</tspan>';
                     var columnName = columns[i].split('.')[1];
-                    tmp += tableName + columnName + '|';
+                    columnName = '.<tspan style="fill:blue">' + columnName + '</tspan>';
+                    tmp += tableName + columnName + '<tspan style="fill:red">|</tspan>';
                 }
             }
 
             if (textData.length < 100) {
                 tmp = tmp.substring(0, tmp.lastIndexOf('|'));
             } else {
-                tmp = tmp.substring(0, tmp.lastIndexOf('|')) + ('|' + moreData);
+                tmp = tmp.substring(0, tmp.lastIndexOf('|')) + ('|<tspan style="fill:black">' + moreData + '</tspan>');
             }
 
             return tmp;
@@ -2923,12 +2925,12 @@
             for (var i = 0; i < length; i++) {
                 var now = modal.firstElementChild.childNodes[i];
                 if (now.getElementsByTagName('text').length != 0) {
-                    tempText += '<span style="color:blue">' + now.getElementsByTagName('text')[0].innerText.split('.')[0] + '.</span>' + now.getElementsByTagName('text')[0].innerText.split('.')[1] + ' | ';
+                    tempText += now.getElementsByTagName('text')[0].innerText.split('.')[0] + '.<span style="color:blue">' + now.getElementsByTagName('text')[0].innerText.split('.')[1] + '</span>' + '<span style="color:red"> | </span>';
                 } else {
                     if (now.getElementsByTagName('input')[0].value == '') {
                         continue;
                     }
-                    tempText += '\"' + now.getElementsByTagName('input')[0].value + '\" | ';
+                    tempText += '\"' + now.getElementsByTagName('input')[0].value + '\" <span style="color:red">|</span> ';
                 }
             }
             tempText = tempText.substring(0, tempText.lastIndexOf('|'));
