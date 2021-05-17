@@ -177,6 +177,9 @@
 
             // 클릭 이벤트 설정
             clickEvent();
+
+//          	// 더블클릭 이벤트 설정
+//             dblClickEvent();
          
             // keydown 이벤트 설정
             keyupEvent();
@@ -648,6 +651,42 @@
                     }
                 });
             }
+            
+//             //더블클릭 이벤트
+//             function dblClickEvent() {
+//                 let dblClickEvent = document;
+
+//                 dblClickEvent.addEventListener('dblclick', function (event) {
+// 					alert(event.target);
+//                 	if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1)) {
+//                        	connectorClean();
+//                         tableconnectorClean();
+
+//                         // 현재 사용중인 connector id
+//                         let currentId = $('.connector').last().attr('id');
+
+//                         let idx = saveThisList.findIndex(function (item) {
+//                             return item.id === currentId
+//                         });
+
+//                         if (idx > -1) {
+//                             let data = saveThisList[idx];
+//                             rename(data, "change");
+//                         }
+
+//                         // 현재 사용중인 tableconnector id
+//                         let currentTableId = $('.tableconnector').last().attr('id');
+//                         let tidx = saveTableThisList.findIndex(function (item) {
+//                             return item.id === currentId
+//                         });
+//                         if (tidx > -1) {
+//                             let tdata = saveTableThisList[tidx];
+//                             tablerename(tdata, "change");
+//                         }
+
+//                     }
+//                 });
+//             }
 
             function keyupEvent() {
                 let keyupEvent = document;
