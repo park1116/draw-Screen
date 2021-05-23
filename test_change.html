@@ -178,9 +178,9 @@
             // 클릭 이벤트 설정
             clickEvent();
 
-//          	// 더블클릭 이벤트 설정
-//             dblClickEvent();
-         
+            //          	// 더블클릭 이벤트 설정
+            //             dblClickEvent();
+
             // keydown 이벤트 설정
             keyupEvent();
 
@@ -607,7 +607,7 @@
 
                 checkClickEvent.addEventListener('click', function (event) {
 
-                	// port 클릭시 생성되는 connector(점)을 제거 하기 위함 port에 connector가 존재할 때 port-inner 부분 클릭시
+                    // port 클릭시 생성되는 connector(점)을 제거 하기 위함 port에 connector가 존재할 때 port-inner 부분 클릭시
                     // (event.target : connector-handle) port에 connector가 없을 때 port-inner 부분 클릭시
                     // (event.target : diagram) port의 port-scrim 부분 클릭시 (event.target : port-scrim)
                     // text 클릭시 (event.target : port-title, port-label) 위 4가지 경우에 생성되는 점 모양의 connector 제거
@@ -651,42 +651,42 @@
                     }
                 });
             }
-            
-//             //더블클릭 이벤트
-//             function dblClickEvent() {
-//                 let dblClickEvent = document;
 
-//                 dblClickEvent.addEventListener('dblclick', function (event) {
-// 					alert(event.target);
-//                 	if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1)) {
-//                        	connectorClean();
-//                         tableconnectorClean();
+            //             //더블클릭 이벤트
+            //             function dblClickEvent() {
+            //                 let dblClickEvent = document;
 
-//                         // 현재 사용중인 connector id
-//                         let currentId = $('.connector').last().attr('id');
+            //                 dblClickEvent.addEventListener('dblclick', function (event) {
+            // 					alert(event.target);
+            //                 	if ((event.target.hasAttribute('class') && event.target.getAttribute('class').indexOf('connector-') > -1)) {
+            //                        	connectorClean();
+            //                         tableconnectorClean();
 
-//                         let idx = saveThisList.findIndex(function (item) {
-//                             return item.id === currentId
-//                         });
+            //                         // 현재 사용중인 connector id
+            //                         let currentId = $('.connector').last().attr('id');
 
-//                         if (idx > -1) {
-//                             let data = saveThisList[idx];
-//                             rename(data, "change");
-//                         }
+            //                         let idx = saveThisList.findIndex(function (item) {
+            //                             return item.id === currentId
+            //                         });
 
-//                         // 현재 사용중인 tableconnector id
-//                         let currentTableId = $('.tableconnector').last().attr('id');
-//                         let tidx = saveTableThisList.findIndex(function (item) {
-//                             return item.id === currentId
-//                         });
-//                         if (tidx > -1) {
-//                             let tdata = saveTableThisList[tidx];
-//                             tablerename(tdata, "change");
-//                         }
+            //                         if (idx > -1) {
+            //                             let data = saveThisList[idx];
+            //                             rename(data, "change");
+            //                         }
 
-//                     }
-//                 });
-//             }
+            //                         // 현재 사용중인 tableconnector id
+            //                         let currentTableId = $('.tableconnector').last().attr('id');
+            //                         let tidx = saveTableThisList.findIndex(function (item) {
+            //                             return item.id === currentId
+            //                         });
+            //                         if (tidx > -1) {
+            //                             let tdata = saveTableThisList[tidx];
+            //                             tablerename(tdata, "change");
+            //                         }
+
+            //                     }
+            //                 });
+            //             }
 
             function keyupEvent() {
                 let keyupEvent = document;
@@ -1554,14 +1554,11 @@
             updateHandle(port) {
 
                 if (port === this.inputPort) {
-
                     TweenLite.set(this.inputHandle, {
                         x: port.global.x,
                         y: port.global.y
                     });
-
                 } else if (port === this.outputPort) {
-
                     TweenLite.set(this.outputHandle, {
                         x: port.global.x,
                         y: port.global.y
@@ -1918,14 +1915,11 @@
             updateHandle(port) {
 
                 if (port === this.inputPort) {
-
                     TweenLite.set(this.inputHandle, {
                         x: port.global.x,
                         y: port.global.y
                     });
-
                 } else if (port === this.outputPort) {
-
                     TweenLite.set(this.outputHandle, {
                         x: port.global.x,
                         y: port.global.y
@@ -1991,7 +1985,6 @@
                     //동일한 connector가 존재할 경우 중복되지 않도록 설정
                     if (this.dragElement.getAttribute('class').indexOf("connector-handle input-handle") > -1 && document.getElementsByClassName('connector-path-outline').length > 1) {
                         var allConnector = [].slice.call(document.getElementsByClassName('connector'));
-
                         var currentConnector = allConnector.pop();
 
                         for (var value of allConnector) {
@@ -2128,11 +2121,11 @@
                     let findOutputDataLen = findOutputDataList.split('|').length; //송신데이터 정보 길이
 
                     var commonDataCheck = false;
-                    
+
                     let inData = "";
                     let inTable = "";
                     let inColumn = "";
-                    
+
                     for (let b = 0; b < findOutputDataLen; b++) {
 
                         let findOutputData = "";
@@ -2146,10 +2139,10 @@
                         } else {
                             continue;
                         }
-                        
+
                         // 공통데이터 존재여부 확인
-                        if (findOutputData.indexOf('\"') > -1){
-                        	commonDataCheck = true;
+                        if (findOutputData.indexOf('\"') > -1) {
+                            commonDataCheck = true;
                         }
 
                         let outData = findOutputData.split('.');
@@ -2168,7 +2161,7 @@
                         inData = findInputData.split('.');
                         inTable = inData[0];
                         inColumn = inData[1];
-                        
+
                         // mapping 정보에 해당하는 input을 조회
                         let selectInput = $(".inputs:first .port .port-scrim[table=" + inTable + "][initCol=" + inColumn + "]")[0];
                         if (selectInput !== undefined) {
@@ -2193,9 +2186,9 @@
                             data.stopDragging(data);
                         }
                     }
-                    if (commonDataCheck){
-	                    $(".inputs:first .port .port-scrim[table=" + inTable + "][initCol=" + inColumn + "]")[0].setAttribute('columnName', findOutputDataList);
-	                    $(".inputs:first .port .port-scrim[table=" + inTable + "][initCol=" + inColumn + "]")[0].parentElement.parentElement.lastChild.innerHTML = textReduce(findOutputDataList);
+                    if (commonDataCheck) {
+                        $(".inputs:first .port .port-scrim[table=" + inTable + "][initCol=" + inColumn + "]")[0].setAttribute('columnName', findOutputDataList);
+                        $(".inputs:first .port .port-scrim[table=" + inTable + "][initCol=" + inColumn + "]")[0].parentElement.parentElement.lastChild.innerHTML = textReduce(findOutputDataList);
                     }
                 }
 
@@ -2481,7 +2474,6 @@
                 textData = textData.replace('|' + checkData, "");
                 textData = textData.replace(checkData + '|', "");
 
-
                 if (type == "change") {
                     textData += ('|' + checkData);
                 }
@@ -2497,13 +2489,11 @@
                         }
                     } else {
                         textData = checkData;
-
                     }
                 } else {
                     // connector가 여러개 있을때
                     if (type == "delete" || type == "update") {
                         textData = textData.replace(checkData, "");
-
                     } else {
                         textData += ('|' + checkData);
 
@@ -2657,7 +2647,6 @@
             // var resultData = '{"send":{"sendColumns":[["USER_NO","USER_ID","USER_NAME","USER_POSITION","USER_DEPT","USER_TELEPHONE","USER_MAIL","USER_PHONE","USER_ADDRESS","CHG_DTTM","TRN_ID","MSG_ID","TRN_STATS","TRN_DT","TRN_MSG"]],"sendAdapterServiceId":"DB.IFSender.IF_K4M_KR_D001","tableNames":["IF_TB_USERS"]},"receive":{"sendTableNames":["IF_TB_USERS"],"receiveColumns":[["USER_NO","USER_ID","USER_NAME","USER_POSITION","USER_DEPT","USER_TELEPHONE","USER_MAIL","USER_PHONE","USER_ADDRESS","CHG_DTTM","TRN_ID","MSG_ID","TRN_STATS","TRN_DT","TRN_MSG","SEQ"]],"tableNames":["IF_TB_USERS"],"receiveAdapterServiceId":"DB.IFReceiver.IF_K4M_KR_D001"},"mappingData":["IF_TB_USERS.USER_NO,IF_TB_USERS.USER_NO|IF_TB_USERS.USER_ID|\"123\"|IF_TB_USERS.USER_NAME|IF_TB_USERS.USER_POSITION","IF_TB_USERS.USER_ID,\"test\"","IF_TB_USERS.USER_POSITION,IF_TB_USERS.USER_POSITION","IF_TB_USERS.USER_DEPT,IF_TB_USERS.USER_DEPT","IF_TB_USERS.USER_TELEPHONE,IF_TB_USERS.USER_TELEPHONE","IF_TB_USERS.USER_MAIL,IF_TB_USERS.USER_MAIL","IF_TB_USERS.USER_PHONE,IF_TB_USERS.USER_PHONE","IF_TB_USERS.USER_ADDRESS,IF_TB_USERS.USER_ADDRESS","IF_TB_USERS.CHG_DTTM,IF_TB_USERS.CHG_DTTM","IF_TB_USERS.TRN_ID,IF_TB_USERS.TRN_ID","IF_TB_USERS.MSG_ID,IF_TB_USERS.MSG_ID","IF_TB_USERS.TRN_STATS,IF_TB_USERS.TRN_STATS","IF_TB_USERS.TRN_DT,IF_TB_USERS.TRN_DT","IF_TB_USERS.TRN_MSG,IF_TB_USERS.TRN_MSG"]}'
 
             var resultData = new Object();
-
             let tempColumnList = new Array();
             let tempColumn = "";
             let tempTable = new Array();
@@ -2708,12 +2697,9 @@
             resultData.receiveAdapterServiceId = document.getElementsByClassName('header-title')[1].innerHTML;
 
             for (let i = 0; i < receiveElement.children.length; i++) {
-
                 let className = receiveElement.children[i].getAttribute('class');
                 if (className == 'output-title') {
-
                     tempTable.push(receiveElement.children[i].firstElementChild.innerHTML);
-
                     if (tempColumn !== "") {
                         tempColumnList.push(tempColumn);
                         if (tempColumnList.length > 0) {
@@ -2726,7 +2712,6 @@
                     } else {
                         tempColumn += (',' + receiveElement.children[i].lastElementChild.innerHTML);
                     }
-
                     if (i == (receiveElement.children.length - 1)) {
                         tempColumnList.push(tempColumn);
                     }
@@ -2735,7 +2720,6 @@
 
             resultData.receiveTableNames = tempTable;
             resultData.receiveColumns = tempColumnList;
-
             resultData.receiveSendTableNames = sendTableNames;
 
             tempColumnList = [];
@@ -2746,22 +2730,22 @@
             let tempConnector = new Array();
 
             //connector속성의 값을 가지고 있는 inputPort 추출
-//             let inputPort = $('.input-field .port .port-scrim[connectors^=connector]');
-//             for (let inputPos = 0; inputPos < inputPort.length; inputPos++) {
-//                 let temp = inputPort[inputPos].getAttribute('table') + '.' + inputPort[inputPos].getAttribute('initCol') + ',' + inputPort[inputPos].getAttribute('columnName');
-//                 tempConnector.push(temp);
-//             }
+            //             let inputPort = $('.input-field .port .port-scrim[connectors^=connector]');
+            //             for (let inputPos = 0; inputPos < inputPort.length; inputPos++) {
+            //                 let temp = inputPort[inputPos].getAttribute('table') + '.' + inputPort[inputPos].getAttribute('initCol') + ',' + inputPort[inputPos].getAttribute('columnName');
+            //                 tempConnector.push(temp);
+            //             }
 
-			// 모든 inputPort를 추출해서 연결된 connector가 있거나 공통데이터가 입력되어있다면 MappingConfig.xml에 저장 
+            // 모든 inputPort를 추출해서 연결된 connector가 있거나 공통데이터가 입력되어있다면 MappingConfig.xml에 저장 
             let inputPort = $('.input-field .port .port-scrim');
             for (let inputPos = 0; inputPos < inputPort.length; inputPos++) {
-            	if (inputPort[inputPos].getAttribute('initCol') == inputPort[inputPos].getAttribute('columnName')) {
-            		continue;
-            	}
+                if (inputPort[inputPos].getAttribute('initCol') == inputPort[inputPos].getAttribute('columnName')) {
+                    continue;
+                }
                 let temp = inputPort[inputPos].getAttribute('table') + '.' + inputPort[inputPos].getAttribute('initCol') + ',' + inputPort[inputPos].getAttribute('columnName');
                 tempConnector.push(temp);
             }
-			
+
             resultData.mappingConnection = tempConnector;
 
             resultData.interfaceId = interfaceId;
@@ -2798,7 +2782,6 @@
             divAll.setAttribute('style', 'flex: 1');
             var conCount = 0;
             for (var i = 1; i <= tcolumns.length; i++) {
-
                 if (!(conList == null || conList == '')) {
                     tconnectors = conList.split('|');
                 } else if (column.parentElement.firstElementChild.lastElementChild.getAttribute('initCol') == column.parentElement.firstElementChild.lastElementChild.getAttribute('columnName')) {
@@ -2827,7 +2810,7 @@
                     columnName.setAttribute('class', 'col' + i);
                     columnName.setAttribute('style', 'margin-Top: 1%;');
                     columnName.setAttribute('connector', tconnectors[conCount++]);
-                    tcolumns[i - 1] =  tcolumns[i - 1].split('.')[0] + '.<span style="color:blue">' + tcolumns[i - 1].split('.')[1]+ '</span>';
+                    tcolumns[i - 1] = tcolumns[i - 1].split('.')[0] + '.<span style="color:blue">' + tcolumns[i - 1].split('.')[1] + '</span>';
                     columnName.innerHTML = tcolumns[i - 1];
                 } else {
                     // 공통 데이터
@@ -3068,7 +3051,6 @@
                         </g>
                     </g>
                     <!-- PROCESS 2 -->
-                    <g class="node-container">
                         <rect class="node-background" width="874" height="128" x="0" y="0" rx="6" ry="6"></rect>
                         <g class="node-header">
                             <rect class="header-round-rect" width="870" height="40" x="2" y="2" rx="4" ry="4"></rect>
